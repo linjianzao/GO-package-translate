@@ -1,0 +1,86 @@
+Package bufio implements buffered I/O. It wraps an io.Reader or io.Writer object, creating another object (Reader or Writer) that also implements the interface but provides buffering and some help for textual I/O.
+bufio包实现缓冲I/O。包装io.Reader或io.Writer对象，创建实现其他接口但提供缓冲和文本的IO
+
+func ScanBytes(data []byte, atEOF bool) (advance int, token []byte, err error)
+  ScanBytes is a split function for a Scanner that returns each byte as a token.
+  ScanBytes是一个分割输入函数，通过token参数返回每个字符
+
+func ScanLines(data []byte, atEOF bool) (advance int, token []byte, err error)
+  ScanLines is a split function for a Scanner that returns each line of text, stripped of any trailing end-of-line marker. The returned line may be empty. The end-of-line marker is one optional carriage return followed by one mandatory newline. In regular expression notation, it is `\r?\n`. The last non-empty line of input will be returned even if it has no newline.
+  ScanLines是一个分割函数。返回每一行文本，消除任何结束标记。返回的行有可能是空的，行尾标记是可选项，强制性的接在返回的行尾。在正则表达式里他\r\n，没有换行最后一个非空行输入将被返回
+  
+func ScanRunes(data []byte, atEOF bool) (advance int, token []byte, err error)
+  ScanRunes is a split function for a Scanner that returns each UTF-8-encoded rune as a token. The sequence of runes returned is equivalent to that from a range loop over the input as a string, which means that erroneous UTF-8 encodings translate to U+FFFD = "\xef\xbf\xbd". Because of the Scan interface, this makes it impossible for the client to distinguish correctly encoded replacement runes from encoding errors.
+  ScanRunes返回utf8的整型（token）。返回的顺序是输入字符串的顺序，那就是说错误的utf8编码转译成U+FFFD = "\xef\xbf\xbd". 因为输入接口，可能让正确的编码替换掉错误的
+
+func ScanWords(data []byte, atEOF bool) (advance int, token []byte, err error)
+  ScanWords is a split function for a Scanner that returns each space-separated word of text, with surrounding spaces deleted. It will never return an empty string. The definition of space is set by unicode.IsSpace.
+  根据空白切割单词，会把空白清除掉。不会返回空字符串。由unicode.IsSpace定义空白
+
+
+type ReadWriter
+  type ReadWriter struct {
+        *Reader
+        *Writer
+  }
+  ReadWriter stores pointers to a Reader and a Writer. It implements io.ReadWriter.
+  存储指针是一个读和一个写指针，由io.ReadWriter实现
+  
+func NewReadWriter(r *Reader, w *Writer) *ReadWriter
+  NewReadWriter allocates a new ReadWriter that dispatches to r and w.
+  分配一个新的ReadWriter
+  
+type Reader
+  type Reader struct {
+        // contains filtered or unexported fields
+  }
+    Reader implements buffering for an io.Reader object.
+    使用io.Reader对象实现缓冲
+    
+  func NewReader(rd io.Reader) *Reader
+    NewReader returns a new Reader whose buffer has the default size.
+    返回一个新的Reader指针，有默认缓冲区大小
+    
+  func NewReaderSize(rd io.Reader, size int) *Reader
+    NewReaderSize returns a new Reader whose buffer has at least the specified size. If the argument io.Reader is already a Reader with large enough size, it returns the underlying Reader.
+    返回一个新的有指定大小的Reader指针，如果 io.Reader的缓冲区够大，返回指针
+  
+  func (b *Reader) Buffered() int
+    Buffered returns the number of bytes that can be read from the current buffer.
+    返回当前可读的缓冲区长度
+  
+  func (b *Reader) Peek(n int) ([]byte, error)
+    Peek returns the next n bytes without advancing the reader. The bytes stop being valid at the next read call. If Peek returns fewer than n bytes, it also returns an error explaining why the read is short. The error is ErrBufferFull if n is larger than b's buffer size.
+    没有超过缓冲区的时候，返回n字节长度。字节调用一次后就不可用了。如果返回的长度少于n的长度，
+  
+  func (b *Reader) Read(p []byte) (n int, err error)
+  
+  
+  func (b *Reader) ReadByte() (c byte, err error)
+  func (b *Reader) ReadBytes(delim byte) (line []byte, err error)
+  func (b *Reader) ReadLine() (line []byte, isPrefix bool, err error)
+  func (b *Reader) ReadRune() (r rune, size int, err error)
+  func (b *Reader) ReadSlice(delim byte) (line []byte, err error)
+  func (b *Reader) ReadString(delim byte) (line string, err error)
+  func (b *Reader) UnreadByte() error
+  func (b *Reader) UnreadRune() error
+  func (b *Reader) WriteTo(w io.Writer) (n int64, err error)
+type Scanner
+    func NewScanner(r io.Reader) *Scanner
+    func (s *Scanner) Bytes() []byte
+    func (s *Scanner) Err() error
+    func (s *Scanner) Scan() bool
+    func (s *Scanner) Split(split SplitFunc)
+    func (s *Scanner) Text() string
+type SplitFunc
+type Writer
+    func NewWriter(wr io.Writer) *Writer
+    func NewWriterSize(wr io.Writer, size int) *Writer
+    func (b *Writer) Available() int
+    func (b *Writer) Buffered() int
+    func (b *Writer) Flush() error
+    func (b *Writer) ReadFrom(r io.Reader) (n int64, err error)
+    func (b *Writer) Write(p []byte) (nn int, err error)
+    func (b *Writer) WriteByte(c byte) error
+    func (b *Writer) WriteRune(r rune) (size int, err error)
+    func (b *Writer) WriteString(s string) (int, error)
