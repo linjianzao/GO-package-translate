@@ -1,0 +1,89 @@
+包地址http://golang.org/pkg/archive/zip/
+type File
+  type File struct {
+        FileHeader
+        // contains filtered or unexported fields
+  }
+  func (f *File) Open() (rc io.ReadCloser, err error)
+    Open returns a ReadCloser that provides access to the File's contents. Multiple files may be read concurrently.
+    返回可访问文件目录的对象，多个文件可以同时访问
+    
+  
+type FileHeader
+  type FileHeader struct {
+        // Name is the name of the file. 文件名称
+        // It must be a relative path: it must not start with a drive 必须是一个真实存在的文件，必须处于未打开的状态
+        // letter (e.g. C:) or leading slash, and only forward slashes  （就是相当于linux和windows目录开头）
+        // are allowed.
+        Name string
+
+        CreatorVersion     uint16
+        ReaderVersion      uint16
+        Flags              uint16
+        Method             uint16
+        ModifiedTime       uint16 // MS-DOS time dos的时间
+        ModifiedDate       uint16 // MS-DOS date dos的数据
+        CRC32              uint32
+        CompressedSize     uint32 // deprecated; use CompressedSize64 
+        UncompressedSize   uint32 // deprecated; use UncompressedSize64
+        CompressedSize64   uint64
+        UncompressedSize64 uint64
+        Extra              []byte
+        ExternalAttrs      uint32 // Meaning depends on CreatorVersion
+        Comment            string
+  }
+  FileHeader describes a file within a zip file. See the zip spec for details.
+  头文件描述zip的文件信息，有关详细信息，请参阅zip规范
+  
+    func FileInfoHeader(fi os.FileInfo) (*FileHeader, error)
+      FileInfoHeader creates a partially-populated FileHeader from an os.FileInfo.
+      
+    func (h *FileHeader) FileInfo() os.FileInfo
+      FileInfo returns an os.FileInfo for the FileHeader.
+      
+    func (h *FileHeader) ModTime() time.Time
+      ModTime returns the modification time. The resolution is 2s.
+      返回文件修改时间，间隔2S
+      
+    func (h *FileHeader) Mode() (mode os.FileMode)
+      Mode returns the permission and mode bits for the FileHeader.
+      返回权限和位模式
+      
+    func (h *FileHeader) SetModTime(t time.Time)
+      SetModTime sets the ModifiedTime and ModifiedDate fields to the given time. The resolution is 2s.
+      设置修改时间
+      
+    func (h *FileHeader) SetMode(mode os.FileMode)
+      SetMode changes the permission and mode bits for the FileHeader.
+      设置权限
+    
+    
+type ReadCloser
+  type ReadCloser struct {
+        Reader
+        // contains filtered or unexported fields
+  }
+  
+  func OpenReader(name string) (*ReadCloser, error)
+    OpenReader will open the Zip file specified by name and return a ReadCloser.
+    根据文件名打开zip文件，返回一个类似句柄的东西
+    
+  func (rc *ReadCloser) Close() error
+    Close closes the Zip file, rendering it unusable for I/O.
+    关闭zip文件
+    
+type Reader
+  type Reader struct {
+        File    []*File
+        Comment string
+        // contains filtered or unexported fields
+  }
+  func NewReader(r io.ReaderAt, size int64) (*Reader, error)
+    NewReader returns a new Reader reading from r, which is assumed to have the given size in bytes.
+    假定有给定大小的字符，返回指针r，
+    
+type Writer
+    func NewWriter(w io.Writer) *Writer
+    func (w *Writer) Close() error
+    func (w *Writer) Create(name string) (io.Writer, error)
+    func (w *Writer) CreateHeader(fh *FileHeader) (io.Writer, error)
