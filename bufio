@@ -51,12 +51,15 @@ type Reader
   
   func (b *Reader) Peek(n int) ([]byte, error)
     Peek returns the next n bytes without advancing the reader. The bytes stop being valid at the next read call. If Peek returns fewer than n bytes, it also returns an error explaining why the read is short. The error is ErrBufferFull if n is larger than b's buffer size.
-    没有超过缓冲区的时候，返回n字节长度。字节调用一次后就不可用了。如果返回的长度少于n的长度，
+    没有超过缓冲区的时候，返回n字节长度。字节直到下一次调用才生效。如果返回的长度少于n的长度，
   
   func (b *Reader) Read(p []byte) (n int, err error)
-  
+    Read reads data into p. It returns the number of bytes read into p. It calls Read at most once on the underlying Reader, hence n may be less than len(p). At EOF, the count will be zero and err will be io.EOF.
+    读取数据入P， 返回写入P的字节数。只调用一次Reader，因此n可以是小于P的长度，读取结束前，长度是0,错误是io.EOF
   
   func (b *Reader) ReadByte() (c byte, err error)
+    
+  
   func (b *Reader) ReadBytes(delim byte) (line []byte, err error)
   func (b *Reader) ReadLine() (line []byte, isPrefix bool, err error)
   func (b *Reader) ReadRune() (r rune, size int, err error)
