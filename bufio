@@ -58,10 +58,22 @@ type Reader
     读取数据入P， 返回写入P的字节数。只调用一次Reader，因此n可以是小于P的长度，读取结束前，长度是0,错误是io.EOF
   
   func (b *Reader) ReadByte() (c byte, err error)
-    
+    ReadByte reads and returns a single byte. If no byte is available, returns an error.
+    返回单个字节，如果没有字节符合返回错误
   
   func (b *Reader) ReadBytes(delim byte) (line []byte, err error)
+    ReadBytes reads until the first occurrence of delim in the input, returning a slice containing the data up to and including the delimiter. If ReadBytes encounters an error before finding a delimiter, it returns the data read before the error and the error itself (often io.EOF). ReadBytes returns err != nil if and only if the returned data does not end in delim. For simple uses, a Scanner may be more convenient.
+    读取输入的字节，直到第一次遇到delim，返回包含数据和分隔符的切片。如果函数在遇到分隔符之前出现错误，它返回读取到错误之前的数据和错误（错误经常是io.EOF）。ReadBytes只有在数据没有遇到分隔符但却已经读到结束的时候会返回err!=nil。对于简单的运用，Scanner 可能更适合
+  
   func (b *Reader) ReadLine() (line []byte, isPrefix bool, err error)
+    ReadLine is a low-level line-reading primitive. Most callers should use ReadBytes('\n') or ReadString('\n') instead or use a Scanner.
+    ReadLine是一个低级的行读取方式。更多的会使用ReadBytes('\n')或者 ReadString('\n') 替代 或者用Scanner
+    ReadLine tries to return a single line, not including the end-of-line bytes. If the line was too long for the buffer then isPrefix is set and the beginning of the line is returned. The rest of the line will be returned from future calls. isPrefix will be false when returning the last fragment of the line. The returned buffer is only valid until the next call to ReadLine. ReadLine either returns a non-nil line or it returns an error, never both.
+    ReadLine试图返回单行，不包含结束字节。如果缓冲区的行太长，isPrefix 设置返回行的开始。其余的行将会在调用的时候返回。isPrefix 在返回完所有的行后，会变成false。返回的缓冲区在下次调用ReadLine之前是有效的。ReadLine 要嘛返回非空的行要嘛返回错误，不会两个都同时返回
+    The text returned from ReadLine does not include the line end ("\r\n" or "\n"). No indication or error is given if the input ends without a final line end.
+    ReadLine 返回的文本不包含行结束的 ("\r\n" or "\n")。在最后一行结束之前是不会有任何迹象和错误的
+    
+    
   func (b *Reader) ReadRune() (r rune, size int, err error)
   func (b *Reader) ReadSlice(delim byte) (line []byte, err error)
   func (b *Reader) ReadString(delim byte) (line string, err error)
