@@ -73,8 +73,10 @@ type Reader
     The text returned from ReadLine does not include the line end ("\r\n" or "\n"). No indication or error is given if the input ends without a final line end.
     ReadLine 返回的文本不包含行结束的 ("\r\n" or "\n")。在最后一行结束之前是不会有任何迹象和错误的
     
-    
   func (b *Reader) ReadRune() (r rune, size int, err error)
+    ReadRune reads  single UTF-8 encoded Unicode character and returns the rune and its size in bytes. If the encoded rune is invalid, it consumes one byte and returns unicode.ReplacementChar (U+FFFD) with a size of 1.
+    ReadRune 读取utf8 格式的字符返回rune和rune的size。
+  
   func (b *Reader) ReadSlice(delim byte) (line []byte, err error)
   func (b *Reader) ReadString(delim byte) (line string, err error)
   func (b *Reader) UnreadByte() error
