@@ -1,0 +1,57 @@
+包地址：http://golang.org/pkg/builtin/
+Package builtin provides documentation for Go's predeclared identifiers.The items documented here are not actually in package builtin but their descriptions here allow godoc to present documentation for the language's special identifiers.
+builtin包提供GO的预先声明标识符文档。这里的文档实际上没有都在builtin包里。但是他们描述了 允许在现有的文档里的 特殊语言标识符
+
+Constants 常量
+  const (
+          true  = 0 == 0 // Untyped bool.
+          false = 0 != 0 // Untyped bool.
+  )
+  const iota = 0 // Untyped int.
+    iota is a predeclared identifier representing the untyped integer ordinal number of the current const specification in a (usually parenthesized) const declaration. It is zero-indexed.
+    iota是一个预定义的无符号的int类型，用于常量声明。默认是0。（看下语法书会有说明的）
+    
+func append(slice []Type, elems ...Type) []Type
+  The append built-in function appends elements to the end of a slice. If it has sufficient capacity, the destination is resliced to accommodate the new elements. If it does not, a new underlying array will be allocated. Append returns the updated slice. It is therefore necessary to store the result of append, often in the variable holding the slice itself:
+  从切换末尾加入切片。如果有足够大小，旧切片最终会有一个新的元素。如果没有足够大小。会申请一个新的底层数组。append返回新的切片。因此需要存储append的结果，通常是切片本身是个变量。
+  
+func close(c chan<- Type)
+  The close built-in function closes a channel, which must be either bidirectional or send-only. It should be executed only by the sender, never the receiver, and has the effect of shutting down the channel after the last sent value is received. After the last value has been received from a closed channel c, any receive from c will succeed without blocking, returning the zero value for the channel element. The form
+  内嵌函数close 关闭一个双向的或只发送的channel。它应该是执行过的发送者，在最后发送的值被接收之后再关闭。
+  
+func delete(m map[Type]Type1, key Type)
+func panic(v interface{})
+func recover() interface{}
+type ComplexType
+    func complex(r, i FloatType) ComplexType
+type FloatType
+    func imag(c ComplexType) FloatType
+    func real(c ComplexType) FloatType
+type IntegerType
+type Type
+    func make(Type, size IntegerType) Type
+    func new(Type) *Type
+type Type1
+type bool
+type byte
+type complex128
+type complex64
+type error
+type float32
+type float64
+type int
+    func cap(v Type) int
+    func copy(dst, src []Type) int
+    func len(v Type) int
+type int16
+type int32
+type int64
+type int8
+type rune
+type string
+type uint
+type uint16
+type uint32
+type uint64
+type uint8
+type uintptr
