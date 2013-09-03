@@ -134,17 +134,53 @@ type SplitFunc
     SplitFunc is the signature of the split function used to tokenize the input. The arguments are an initial substring of the remaining unprocessed data and a flag, atEOF, that reports whether the Reader has no more data to give. The return values are the number of bytes to advance the input and the next token to return to the user, plus an error, if any. If the data does not yet hold a complete token, for instance if it has no newline while scanning lines, SplitFunc can return (0, nil) to signal the Scanner to read more data into the slice and try again with a longer slice starting at the same point in the input.
     SplitFunc是分割函数用于标记输入。参数是一个未处理的字串和一个flag、atEOF，记录不管读取者有没有给更多的数据。返回值是输入的字节的数量和下一个要用的token，如果有错误的话加上一个错误。
     If the returned error is non-nil, scanning stops and the error is returned to the client.
-
+    如果返回的错误不是nil，搜索终止，错误返回给客户端。
     The function is never called with an empty data slice unless atEOF is true. If atEOF is true, however, data may be non-empty and, as always, holds unprocessed text.
-
+    除非atEOF 参数的值是true，否则函数不会被一个空的切片调用。如果atEOF 是true，data参数有可能是非空的，通常是未处理的数据
+  
 type Writer
-    func NewWriter(wr io.Writer) *Writer
-    func NewWriterSize(wr io.Writer, size int) *Writer
-    func (b *Writer) Available() int
-    func (b *Writer) Buffered() int
-    func (b *Writer) Flush() error
-    func (b *Writer) ReadFrom(r io.Reader) (n int64, err error)
-    func (b *Writer) Write(p []byte) (nn int, err error)
-    func (b *Writer) WriteByte(c byte) error
-    func (b *Writer) WriteRune(r rune) (size int, err error)
-    func (b *Writer) WriteString(s string) (int, error)
+  Writer implements buffering for an io.Writer object. If an error occurs writing to a Writer, no more data will be accepted and all subsequent writes will return the error.
+  Writer实现 io.Writer 缓冲区对象。如果遇到错误，就不会再写入数据，并且后面的数据都会返回错误。
+  
+  func NewWriter(wr io.Writer) *Writer
+    NewWriter returns a new Writer whose buffer has the default size.
+    NewWriter 返回一个有默认大小的缓冲区新对象
+    
+  func NewWriterSize(wr io.Writer, size int) *Writer
+    NewWriterSize returns a new Writer whose buffer has at least the specified size. If the argument io.Writer is already a Writer with large enough size, it returns the underlying Writer.
+    NewWriterSize 返回一个有指定大小的缓冲区新对象。如果参数io.Writer已经有一个足够大小的对象，会返回底层对象。
+    
+  func (b *Writer) Available() int
+    Available returns how many bytes are unused in the buffer.
+    Available 返回缓冲区还有多少字节没有被使用。
+  
+  func (b *Writer) Buffered() int
+    Buffered returns the number of bytes that have been written into the current buffer.
+    Buffered 返回已经被写入的缓冲区的字节数。
+  
+  func (b *Writer) Flush() error
+    Flush writes any buffered data to the underlying io.Writer.
+    Flush 写入任意缓冲区数据到底层io.Writer
+    
+  func (b *Writer) ReadFrom(r io.Reader) (n int64, err error)
+    ReadFrom implements io.ReaderFrom.
+    ReadFrom实现 io.ReaderFrom.
+  
+  func (b *Writer) Write(p []byte) (nn int, err error)
+    Write writes the contents of p into the buffer. It returns the number of bytes written. If nn < len(p), it also returns an error explaining why the write is short.
+    Write将P的内容写入缓冲区。返回写入字节数。如果返回的字节数nn 小于 p的长度，它也会返回一个错误说明为什么写入短了。
+  
+  func (b *Writer) WriteByte(c byte) error
+    WriteByte writes a single byte.
+    WriteByte写入单字节
+  
+  func (b *Writer) WriteRune(r rune) (size int, err error)
+    WriteRune writes a single Unicode code point, returning the number of bytes written and any error.
+    WriteRune写入单个Unicode编码字符。返回写入的字节数并返回遇到的错误。
+  
+  func (b *Writer) WriteString(s string) (int, error)
+    WriteString writes a string. It returns the number of bytes written. If the count is less than len(s), it also returns an error explaining why the write is short.
+    WriteString 写入一个字符串。返回写入的字节数。如果统计的字节数少于s参数的长度，它也会返回一个错误说明为什么写入短了。
+    
+    
+    
