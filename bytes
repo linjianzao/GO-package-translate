@@ -233,16 +233,39 @@ type Buffer
   
   func (b *Buffer) ReadString(delim byte) (line string, err error)
   ReadString reads until the first occurrence of delim in the input, returning a string containing the data up to and including the delimiter. If ReadString encounters an error before finding a delimiter, it returns the data read before the error and the error itself (often io.EOF). ReadString returns err != nil if and only if the returned data does not end in delim.
-  
+  从输入中读取直接遇到第一个分隔符，返回包含分隔符的字符串。如果在遇到分隔符之前出现错误，返回遇到错误之前读取的数据和错误本身（通常是io.EOF）。只有在结束时也没有遇到分隔符才返回err!=nil
   
   func (b *Buffer) Reset()
+    Reset resets the buffer so it has no content. b.Reset() is the same as b.Truncate(0).
+    重置没有内容的缓冲区。b.Reset()和b.Truncate(0)一样
+  
   func (b *Buffer) String() string
+    String returns the contents of the unread portion of the buffer as a string. If the Buffer is a nil pointer, it returns "<nil>".
+    返回缓冲区中未读取的字符串。如果缓冲区是一个空指针，会返回 "<nil>"。
+  
   func (b *Buffer) Truncate(n int)
+    Truncate discards all but the first n unread bytes from the buffer. It panics if n is negative or greater than the length of the buffer.
+    从缓冲区丢弃所有的第一个未读的n字节。n是负数或者大于缓冲区大小的时候会引发panic
+  
   func (b *Buffer) UnreadByte() error
+    UnreadByte unreads the last byte returned by the most recent read operation. If write has happened since the last read, UnreadByte returns an error.
+    不读取最后一个字节，返回最近的读取操作。如果在上一次读取的时候发生写操作，会返回一个错误。
+    
   func (b *Buffer) UnreadRune() error
+    UnreadRune unreads the last rune returned by ReadRune. If the most recent read or write operation on the buffer was not a ReadRune, UnreadRune returns an error. (In this regard it is stricter than UnreadByte, which will unread the last byte from any read operation.)
+    
   func (b *Buffer) Write(p []byte) (n int, err error)
+    Write appends the contents of p to the buffer, growing the buffer as needed. The return value n is the length of p; err is always nil. If the buffer becomes too large, Write will panic with ErrTooLarge.
+    把p的内容加入到缓冲区里，如果缓冲区需要就自增大小。返回值是n的长度。err 经常是 nil。如果缓冲区太大了，Write 会引发 panic ErrTooLarge
+  
   func (b *Buffer) WriteByte(c byte) error
+    WriteByte appends the byte c to the buffer, growing the buffer as needed. The returned error is always nil, but is included to match bufio.Writer's WriteByte. If the buffer becomes too large, WriteByte will panic with ErrTooLarge.
+    把字节c加入缓冲区，如果缓冲区需要就自增大小。err 经常是 nil,但是包括匹配bufio.Writer's的WriteByte。如果缓冲区太大了，Write 会引发 panic ErrTooLarge。
+  
   func (b *Buffer) WriteRune(r rune) (n int, err error)
+    WriteRune appends the UTF-8 encoding of Unicode code point r to the buffer, returning its length and an error, which is always nil but is included to match bufio.Writer's WriteRune. The buffer is grown as needed; if it becomes too large, WriteRune will panic with ErrTooLarge.
+    把utf8编码的代码点r追加到缓冲区。返回它的长度或者错误，
+  
   func (b *Buffer) WriteString(s string) (n int, err error)
   func (b *Buffer) WriteTo(w io.Writer) (n int64, err error)
 type Reader
