@@ -1,0 +1,2 @@
+Unicode是为整合全世界的所有语言文字而诞生的。任何文字在Unicode中都对应一个值， 这个值称为代码点（code point）
+所有文档里的code point 就是这个意思
