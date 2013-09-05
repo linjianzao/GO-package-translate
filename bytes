@@ -272,15 +272,30 @@ type Buffer
   
   func (b *Buffer) WriteTo(w io.Writer) (n int64, err error)
     WriteTo writes data to w until the buffer is drained or an error occurs. The return value n is the number of bytes written; it always fits into an int, but it is int64 to match the io.WriterTo interface. Any error encountered during the write is also returned.
-  
+    把数据写入w直到缓冲区结束或者遇到错误。返回值n是写入的字节数。通常是int,但是io.WriterTo接口是int64。如果写入的过程遇到错误也会跟着返回
+    
 type Reader
+    A Reader implements the io.Reader, io.ReaderAt, io.WriterTo, io.Seeker, io.ByteScanner, and io.RuneScanner interfaces by reading from a byte slice. Unlike a Buffer, a Reader is read-only and supports seeking.
+    读取字节切片实现io.Reader, io.ReaderAt, io.WriterTo, io.Seeker, io.ByteScanner, 和 io.RuneScanner interfaces，和Buffer不同的是，Reader是只读的并且支持seeking。
+  
     func NewReader(b []byte) *Reader
+      NewReader returns a new Reader reading from b.
+      从b返回一个新的读取对象
+      
     func (r *Reader) Len() int
+      Len returns the number of bytes of the unread portion of the slice.
+      返回未读部分的切片的字节数。
+    
     func (r *Reader) Read(b []byte) (n int, err error)
+    
     func (r *Reader) ReadAt(b []byte, off int64) (n int, err error)
     func (r *Reader) ReadByte() (b byte, err error)
     func (r *Reader) ReadRune() (ch rune, size int, err error)
     func (r *Reader) Seek(offset int64, whence int) (int64, error)
+      Seek implements the io.Seeker interface.
+      实现io.Seeker接口
+    
     func (r *Reader) UnreadByte() error
     func (r *Reader) UnreadRune() error
     func (r *Reader) WriteTo(w io.Writer) (n int64, err error)
+      WriteTo implements the io.WriterTo interface.
