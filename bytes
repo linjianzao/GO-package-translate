@@ -267,7 +267,12 @@ type Buffer
     把utf8编码的代码点r追加到缓冲区。返回它的长度或者错误，
   
   func (b *Buffer) WriteString(s string) (n int, err error)
+    WriteString appends the contents of s to the buffer, growing the buffer as needed. The return value n is the length of s; err is always nil. If the buffer becomes too large, WriteString will panic with ErrTooLarge.
+    把s的内容追加到缓冲区，如果需要增加缓冲区。返回值n是s的长度。
+  
   func (b *Buffer) WriteTo(w io.Writer) (n int64, err error)
+    WriteTo writes data to w until the buffer is drained or an error occurs. The return value n is the number of bytes written; it always fits into an int, but it is int64 to match the io.WriterTo interface. Any error encountered during the write is also returned.
+  
 type Reader
     func NewReader(b []byte) *Reader
     func (r *Reader) Len() int
