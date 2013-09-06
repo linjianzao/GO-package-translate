@@ -1,13 +1,1 @@
-包地址：golang.org/pkg/crypto/aes/
 Package aes implements AES encryption (formerly Rijndael), as defined in U.S. Federal Information Processing Standards Publication 197. 
-
-
-
-    Constants
-    func NewCipher(key []byte) (cipher.Block, error)
-    type KeySizeError
-        func (k KeySizeError) Error() string
-
-Package files
-
-block.go cipher.go cipher_asm.go const.go 
