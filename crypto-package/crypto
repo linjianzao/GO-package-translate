@@ -1,0 +1,60 @@
+包地址：golang.org/pkg/crypto/
+Package crypto collects common cryptographic constants. 
+crypto包 收集常见的常见的密码常量。
+
+func RegisterHash(h Hash, f func() hash.Hash)
+  RegisterHash registers a function that returns a new instance of the given hash function. This is intended to be called from the init function in packages that implement hash functions. 
+  注册一个常见的哈希实例函数。这是为了调用包里实现哈希函数的初始化函数。
+
+type Hash
+  Hash identifies a cryptographic hash function that is implemented in another package. 
+  Hash确定一个加密哈希函数在其他的包里实现。
+  const (
+        MD4       Hash = 1 + iota // import code.google.com/p/go.crypto/md4
+        MD5                       // import crypto/md5
+        SHA1                      // import crypto/sha1
+        SHA224                    // import crypto/sha256
+        SHA256                    // import crypto/sha256
+        SHA384                    // import crypto/sha512
+        SHA512                    // import crypto/sha512
+        MD5SHA1                   // no implementation; MD5+SHA1 used for TLS RSA
+        RIPEMD160                 // import code.google.com/p/go.crypto/ripemd160
+
+  )
+  
+  
+    func (h Hash) Available() bool
+      Available reports whether the given hash function is linked into the binary. 
+      报告给定的哈希函数是否连接到二进制文件
+    
+    func (h Hash) New() hash.Hash
+      New returns a new hash.Hash calculating the given hash function. New panics if the hash function is not linked into the binary. 
+      返回一个新的hash.Hash计算给定的哈希函数，如果哈希函数没有连接到二进制文件会产生新的panics
+    
+    func (h Hash) Size() int
+      Size returns the length, in bytes, of a digest resulting from the given hash function. It doesn't require that the hash function in question be linked into the program. 
+      返回给定的哈希函数产生的以字节为单位的长度。当哈希函数链接到程序出现问题不会必须的。
+      
+type PrivateKey
+  PrivateKey represents a private key using an unspecified algorithm. 
+  代表一个未指定算法的私钥
+  
+  子包：会重新建文件夹
+  aes 	     	Package aes implements AES encryption (formerly Rijndael), as defined in U.S. Federal Information Processing Standards Publication 197.
+  cipher 	     	Package cipher implements standard block cipher modes that can be wrapped around low-level block cipher implementations.
+  des 	     	Package des implements the Data Encryption Standard (DES) and the Triple Data Encryption Algorithm (TDEA) as defined in U.S. Federal Information Processing Standards Publication 46-3.
+  dsa 	     	Package dsa implements the Digital Signature Algorithm, as defined in FIPS 186-3.
+  ecdsa 	     	Package ecdsa implements the Elliptic Curve Digital Signature Algorithm, as defined in FIPS 186-3.
+  elliptic 	     	Package elliptic implements several standard elliptic curves over prime fields.
+  hmac 	     	Package hmac implements the Keyed-Hash Message Authentication Code (HMAC) as defined in U.S. Federal Information Processing Standards Publication 198.
+  md5 	     	Package md5 implements the MD5 hash algorithm as defined in RFC 1321.
+  rand 	     	Package rand implements a cryptographically secure pseudorandom number generator.
+  rc4 	     	Package rc4 implements RC4 encryption, as defined in Bruce Schneier's Applied Cryptography.
+  rsa 	     	Package rsa implements RSA encryption as specified in PKCS#1.
+  sha1 	     	Package sha1 implements the SHA1 hash algorithm as defined in RFC 3174.
+  sha256 	     	Package sha256 implements the SHA224 and SHA256 hash algorithms as defined in FIPS 180-2.
+  sha512 	     	Package sha512 implements the SHA384 and SHA512 hash algorithms as defined in FIPS 180-2.
+  subtle 	     	Package subtle implements functions that are often useful in cryptographic code but require careful thought to use correctly.
+  tls 	     	Package tls partially implements TLS 1.0, as specified in RFC 2246.
+  x509 	     	Package x509 parses X.509-encoded keys and certificates.
+     pkix 	     	Package pkix contains shared, low level structures used for ASN.1 parsing and serialization of X.509 certificates, CRL and OCSP.
