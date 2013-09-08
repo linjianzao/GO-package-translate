@@ -1,0 +1,24 @@
+包地址：http://golang.org/pkg/crypto/aes/
+Package aes implements AES encryption (formerly Rijndael), as defined in U.S. Federal Information Processing Standards Publication 197.
+aes 实现aes实现 美国联邦信息处理标准出版物197中定义的。定义的加密（原Rijndael算法）。
+
+Constants
+  常量
+  const BlockSize = 16
+  The AES block size in bytes.
+  AES块大小（以字节为单位）。
+  
+func NewCipher(key []byte) (cipher.Block, error)
+  NewCipher creates and returns a new cipher.Block. The key argument should be the AES key, either 16, 24, or 32 bytes to select AES-128, AES-192, or AES-256.
+  创建和返回一个新的cipher.Block。参数的key必须是AES的key，16,24，32 对应 AES-128, AES-192,  AES-256
+  
+type KeySizeError
+  type KeySizeError int
+  
+    func (k KeySizeError) Error() string
+    
+    
+Package files
+包文件
+
+block.go cipher.go cipher_asm.go const.go
