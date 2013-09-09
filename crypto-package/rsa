@@ -1,0 +1,46 @@
+包地址：http://golang.org/pkg/crypto/rsa/
+
+Package rsa implements RSA encryption as specified in PKCS#1.
+rsa包实现PKCS#1规定的RSA加密
+
+Variables
+  变量
+  var ErrDecryption = errors.New("crypto/rsa: decryption error")
+    ErrDecryption represents a failure to decrypt a message. It is deliberately vague to avoid adaptive attacks.
+    表示一个失败的解码信息。它是故意模糊的，以避免自适应攻击（就是不让别人能猜出错误，然后不断的提交。）
+  
+  var ErrMessageTooLong = errors.New("crypto/rsa: message too long for RSA public key size")
+    ErrMessageTooLong is returned when attempting to encrypt a message which is too large for the size of the public key.
+    返回 试图 用 公有key加密一个太大的信息。
+
+  var ErrVerification = errors.New("crypto/rsa: verification error")
+    ErrVerification represents a failure to verify a signature. It is deliberately vague to avoid adaptive attacks.  
+    代表一个失败的标示验证。它是故意模糊的，以避免自适应攻击。
+    
+func DecryptOAEP(hash hash.Hash, random io.Reader, priv *PrivateKey, ciphertext []byte, label []byte) (msg []byte, err error)
+  DecryptOAEP decrypts ciphertext using RSA-OAEP. If random != nil, DecryptOAEP uses RSA blinding to avoid timing side-channel attacks.
+  使用RSA-OAEP解密密文。如果random != nil，DecryptOAEP 使用RSA blinding 以避免时间上的侧信道攻击。
+
+func DecryptPKCS1v15(rand io.Reader, priv *PrivateKey, ciphertext []byte) (out []byte, err error)
+  DecryptPKCS1v15 decrypts a plaintext using RSA and the padding scheme from PKCS#1 v1.5. If rand != nil, it uses RSA blinding to avoid timing side-channel attacks.
+  使用PKCS#1 v1.5 填充和解密一个 密文。如果rand != nil,使用RSA blinding 以避免时间上的侧信道攻击。
+
+func DecryptPKCS1v15SessionKey(rand io.Reader, priv *PrivateKey, ciphertext []byte, key []byte) (err error)
+  DecryptPKCS1v15SessionKey decrypts a session key using RSA and the padding scheme from PKCS#1 v1.5. If rand != nil, it uses RSA blinding to avoid timing side-channel attacks. It returns an error if the ciphertext is the wrong length or if the ciphertext is greater than the public modulus. Otherwise, no error is returned. If the padding is valid, the resulting plaintext message is copied into key. Otherwise, key is unchanged. These alternatives occur in constant time. It is intended that the user of this function generate a random session key beforehand and continue the protocol with the resulting value. This will remove any possibility that an attacker can learn any information about the plaintext. See “Chosen Ciphertext Attacks Against Protocols Based on the RSA Encryption Standard PKCS #1”, Daniel Bleichenbacher, Advances in Cryptology (Crypto '98).
+  
+
+func EncryptOAEP(hash hash.Hash, random io.Reader, pub *PublicKey, msg []byte, label []byte) (out []byte, err error)
+func EncryptPKCS1v15(rand io.Reader, pub *PublicKey, msg []byte) (out []byte, err error)
+func SignPKCS1v15(rand io.Reader, priv *PrivateKey, hash crypto.Hash, hashed []byte) (s []byte, err error)
+func VerifyPKCS1v15(pub *PublicKey, hash crypto.Hash, hashed []byte, sig []byte) (err error)
+type CRTValue
+type PrecomputedValues
+type PrivateKey
+    func GenerateKey(random io.Reader, bits int) (priv *PrivateKey, err error)
+    func GenerateMultiPrimeKey(random io.Reader, nprimes int, bits int) (priv *PrivateKey, err error)
+    func (priv *PrivateKey) Precompute()
+    func (priv *PrivateKey) Validate() error
+type PublicKey
+Package files
+
+pkcs1v15.go rsa.go
