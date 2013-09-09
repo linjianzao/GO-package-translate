@@ -1,0 +1,26 @@
+包地址：http://golang.org/pkg/crypto/hmac/
+
+Package hmac implements the Keyed-Hash Message Authentication Code (HMAC) as defined in U.S. Federal Information Processing Standards Publication 198. An HMAC is a cryptographic hash that uses a key to sign a message. The receiver verifies the hash by recomputing it using the same key.
+hmac包实现了美国联邦信息处理标准出版物198中定义的键控哈希消息认证码。HMAC 是一个用key标识的消息哈希。接受者用相同的key 验证哈希。
+Receivers should be careful to use Equal to compare MACs in order to avoid timing side-channels:
+接收器应该谨慎使用等价于比较MACs避免副作用：
+
+// CheckMAC returns true if messageMAC is a valid HMAC tag for message.
+func CheckMAC(message, messageMAC, key []byte) bool {
+	mac := hmac.New(sha256.New, key)
+	mac.Write(message)
+	expectedMAC := mac.Sum(nil)
+	return hmac.Equal(messageMAC, expectedMAC)
+}
+
+func Equal(mac1, mac2 []byte) bool
+  Equal compares two MACs for equality without leaking timing information.
+  比较两个MACs是否有信息泻露
+  
+func New(h func() hash.Hash, key []byte) hash.Hash
+  New returns a new HMAC hash using the given hash.Hash type and key.
+  返回 新的 使用给定的hash.Hash 类型和key的HMAC哈希
+
+Package files
+
+hmac.go
