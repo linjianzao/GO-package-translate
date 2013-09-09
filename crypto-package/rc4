@@ -1,0 +1,33 @@
+包地址：http://golang.org/pkg/crypto/rc4/
+
+Package rc4 implements RC4 encryption, as defined in Bruce Schneier's Applied Cryptography.
+rc4包实现了Bruce Schneier 的应用密码学 的 RC4加密
+
+type Cipher
+  type Cipher struct {
+        // contains filtered or unexported fields
+  }
+  A Cipher is an instance of RC4 using a particular key.
+  是一个使用特定key的RC4实例
+  
+  func NewCipher(key []byte) (*Cipher, error)
+    NewCipher creates and returns a new Cipher. The key argument should be the RC4 key, at least 1 byte and at most 256 bytes.
+    创建和返回一个新的Cipher。参数key必须是RC4 key 而且必须最少一个字节最多256个字节。
+  
+  func (c *Cipher) Reset()
+    Reset zeros the key data so that it will no longer appear in the process's memory.
+    Reset key的值是0 所以不会在进程的内存中出现太长时间。
+  
+  func (c *Cipher) XORKeyStream(dst, src []byte)
+    XORKeyStream sets dst to the result of XORing src with the key stream. Dst and src may be the same slice but otherwise should not overlap.
+    
+  
+type KeySizeError
+  type KeySizeError int
+  
+    func (k KeySizeError) Error() string
+
+
+Package files
+
+rc4.go rc4_asm.go
