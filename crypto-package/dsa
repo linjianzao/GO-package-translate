@@ -19,13 +19,13 @@ func Sign(rand io.Reader, priv *PrivateKey, hash []byte) (r, s *big.Int, err err
   Sign signs an arbitrary length hash (which should be the result of hashing a larger message) using the private key, priv. It returns the signature as a pair of integers. The security of the private key depends on the entropy of rand.
   用私有key标示任意长度的哈希（必须是更大的消息散列）。做为一个整数返回签名。私钥的安全性取决于随机数。
   Note that FIPS 186-3 section 4.6 specifies that the hash should be truncated to the byte-length of the subgroup. This function does not perform that truncation itself.
-  备注：FIPS 186-3 分割4.6 说明 成 缩短的字节长度的子标题。函数不会截断自己。
+  备注：FIPS 186-3 在第 4.6 节规定 哈希 被截断成字节长度分组。函数不会截断自己。
 
 func Verify(pub *PublicKey, hash []byte, r, s *big.Int) bool
   Verify verifies the signature in r, s of hash using the public key, pub. It reports whether the signature is valid.
   使用公有key 验证 r、s 哈希的标识。 返回标识是否有效。
   Note that FIPS 186-3 section 4.6 specifies that the hash should be truncated to the byte-length of the subgroup. This function does not perform that truncation itself.
-  备注：FIPS 186-3 分割4.6 说明 成 缩短的字节长度的子标题。函数不会截断自己。
+  备注：FIPS 186-3 在第 4.6 节规定 哈希 被截断成字节长度分组。函数不会截断自己。
 
 type ParameterSizes
   type ParameterSizes int
