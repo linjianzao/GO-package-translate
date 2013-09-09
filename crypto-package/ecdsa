@@ -1,0 +1,36 @@
+包地址：http://golang.org/pkg/crypto/ecdsa/
+Package ecdsa implements the Elliptic Curve Digital Signature Algorithm, as defined in FIPS 186-3.
+ecdsa包实现FIPS 186-3 定义的椭圆曲线标示算法
+
+func Sign(rand io.Reader, priv *PrivateKey, hash []byte) (r, s *big.Int, err error)
+  Sign signs an arbitrary length hash (which should be the result of hashing a larger message) using the private key, priv. It returns the signature as a pair of integers. The security of the private key depends on the entropy of rand.
+  使用私key标示任意长度的哈希（必须是更大的消息散列）。做为一个整数返回签名。私钥的安全性取决于随机数。
+
+func Verify(pub *PublicKey, hash []byte, r, s *big.Int) bool
+  Verify verifies the signature in r, s of hash using the public key, pub. It returns true iff the signature is valid.
+  使用公有key 验证 r、s 哈希的标识。 返回标识是否有效。
+
+type PrivateKey
+  type PrivateKey struct {
+        PublicKey
+        D *big.Int
+  }
+  PrivateKey represents a ECDSA private key.
+  代表一个ECDSA私key
+  
+  func GenerateKey(c elliptic.Curve, rand io.Reader) (priv *PrivateKey, err error)
+    GenerateKey generates a public and private key pair.
+    生成一个公用的和私用的key 对。
+      
+type PublicKey
+  type PublicKey struct {
+        elliptic.Curve
+        X, Y *big.Int
+  }
+  PublicKey represents an ECDSA public key.
+  代表一个ECDSA的公用key
+
+
+Package files
+
+ecdsa.go
