@@ -1,0 +1,27 @@
+包地址:http://golang.org/pkg/crypto/subtle/
+
+Package subtle implements functions that are often useful in cryptographic code but require careful thought to use correctly.
+实现的往往是有用的加密代码，但是需要慎重地考虑正确使用
+
+func ConstantTimeByteEq(x, y uint8) int
+  ConstantTimeByteEq returns 1 if x == y and 0 otherwise.
+  x==y返回1 其他的 返回0
+
+func ConstantTimeCompare(x, y []byte) int
+  ConstantTimeCompare returns 1 iff the two equal length slices, x and y, have equal contents. The time taken is a function of the length of the slices and is independent of the contents.
+  当且仅当两个slices的长度相等并且内容也相同的时候返回1。花费的时间和slices的长度有关，和函数的内容无关。
+
+func ConstantTimeCopy(v int, x, y []byte)
+  ConstantTimeCopy copies the contents of y into x iff v == 1. If v == 0, x is left unchanged. Its behavior is undefined if v takes any other value.
+  当且仅当 v==1的时候 把y的内容拷贝到x。如果v==0,x保持不变。如果v是其他值，其行为是不确定的。
+
+func ConstantTimeEq(x, y int32) int
+  ConstantTimeEq returns 1 if x == y and 0 otherwise.
+  x==y返回1 其他的返回0
+
+func ConstantTimeSelect(v, x, y int) int
+  ConstantTimeSelect returns x if v is 1 and y if v is 0. Its behavior is undefined if v takes any other value.
+  如果v是1返回x，如果v是0返回y。如果v是其他值，其行为是不确定的。
+
+Package files
+constant_time.go
