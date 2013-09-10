@@ -1,0 +1,242 @@
+包地址：http://golang.org/pkg/crypto/tls/
+
+Package tls partially implements TLS 1.0, as specified in RFC 2246.
+部分实现在 RFC 2246 定义的TLS 1.0。
+
+
+Constants
+  const (
+        TLS_RSA_WITH_RC4_128_SHA            uint16 = 0x0005
+        TLS_RSA_WITH_3DES_EDE_CBC_SHA       uint16 = 0x000a
+        TLS_RSA_WITH_AES_128_CBC_SHA        uint16 = 0x002f
+        TLS_RSA_WITH_AES_256_CBC_SHA        uint16 = 0x0035
+        TLS_ECDHE_RSA_WITH_RC4_128_SHA      uint16 = 0xc011
+        TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA uint16 = 0xc012
+        TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA  uint16 = 0xc013
+        TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA  uint16 = 0xc014
+  )
+  A list of the possible cipher suite ids. Taken from http://www.iana.org/assignments/tls-parameters/tls-parameters.xml
+  可能的密码套件IDS列表
+  
+func Listen(network, laddr string, config *Config) (net.Listener, error)
+  Listen creates a TLS listener accepting connections on the given network address using net.Listen. The configuration config must be non-nil and must have at least one certificate.
+  创建一个TLS 接受使用net.Listen 给定的网络。config 必须非空 必须至少有一个证书
+
+func NewListener(inner net.Listener, config *Config) net.Listener
+  NewListener creates a Listener which accepts connections from an inner Listener and wraps each connection with Server. The configuration config must be non-nil and must have at least one certificate.
+  创建一个 接收内部连接 和包含每个服务连接的 Listener。config 必须非空 必须至少有一个证书
+
+type Certificate
+  type Certificate struct {
+        Certificate [][]byte
+        PrivateKey  crypto.PrivateKey // supported types: *rsa.PrivateKey
+        // OCSPStaple contains an optional OCSP response which will be served
+        // to clients that request it.
+        OCSPStaple []byte
+        // Leaf is the parsed form of the leaf certificate, which may be
+        // initialized using x509.ParseCertificate to reduce per-handshake
+        // processing for TLS clients doing client authentication. If nil, the
+        // leaf certificate will be parsed as needed.
+        Leaf *x509.Certificate
+  }
+  A Certificate is a chain of one or more certificates, leaf first.
+  Certificate是一链 一个或多个的证书，最少一个
+    
+  func LoadX509KeyPair(certFile, keyFile string) (cert Certificate, err error)
+    LoadX509KeyPair reads and parses a public/private key pair from a pair of files. The files must contain PEM encoded data.
+    从一对文件里 读取和解析 一对 公有/私有的 key。文件必须包含PEM编码数据
+  
+  func X509KeyPair(certPEMBlock, keyPEMBlock []byte) (cert Certificate, err error)
+    X509KeyPair parses a public/private key pair from a pair of PEM encoded data.
+    从一对PEM编码数据解析一个 公有/私有的 key。
+  
+type ClientAuthType
+  type ClientAuthType int
+    ClientAuthType declares the policy the server will follow for TLS Client Authentication.
+    从一个TLS客户端认证声明一个服务方案
+    
+  const (
+        NoClientCert ClientAuthType = iota
+        RequestClientCert
+        RequireAnyClientCert
+        VerifyClientCertIfGiven
+        RequireAndVerifyClientCert
+  )
+  
+
+type Config
+  type Config struct {
+        // Rand provides the source of entropy for nonces and RSA blinding.
+        // If Rand is nil, TLS uses the cryptographic random reader in package
+        // crypto/rand.
+        Rand io.Reader
+
+        // Time returns the current time as the number of seconds since the epoch.
+        // If Time is nil, TLS uses time.Now.
+        Time func() time.Time
+
+        // Certificates contains one or more certificate chains
+        // to present to the other side of the connection.
+        // Server configurations must include at least one certificate.
+        Certificates []Certificate
+
+        // NameToCertificate maps from a certificate name to an element of
+        // Certificates. Note that a certificate name can be of the form
+        // '*.example.com' and so doesn't have to be a domain name as such.
+        // See Config.BuildNameToCertificate
+        // The nil value causes the first element of Certificates to be used
+        // for all connections.
+        NameToCertificate map[string]*Certificate
+
+        // RootCAs defines the set of root certificate authorities
+        // that clients use when verifying server certificates.
+        // If RootCAs is nil, TLS uses the host's root CA set.
+        RootCAs *x509.CertPool
+
+        // NextProtos is a list of supported, application level protocols.
+        NextProtos []string
+
+        // ServerName is included in the client's handshake to support virtual
+        // hosting.
+        ServerName string
+
+        // ClientAuth determines the server's policy for
+        // TLS Client Authentication. The default is NoClientCert.
+        ClientAuth ClientAuthType
+
+        // ClientCAs defines the set of root certificate authorities
+        // that servers use if required to verify a client certificate
+        // by the policy in ClientAuth.
+        ClientCAs *x509.CertPool
+
+        // InsecureSkipVerify controls whether a client verifies the
+        // server's certificate chain and host name.
+        // If InsecureSkipVerify is true, TLS accepts any certificate
+        // presented by the server and any host name in that certificate.
+        // In this mode, TLS is susceptible to man-in-the-middle attacks.
+        // This should be used only for testing.
+        InsecureSkipVerify bool
+
+        // CipherSuites is a list of supported cipher suites. If CipherSuites
+        // is nil, TLS uses a list of suites supported by the implementation.
+        CipherSuites []uint16
+
+        // PreferServerCipherSuites controls whether the server selects the
+        // client's most preferred ciphersuite, or the server's most preferred
+        // ciphersuite. If true then the server's preference, as expressed in
+        // the order of elements in CipherSuites, is used.
+        PreferServerCipherSuites bool
+
+        // SessionTicketsDisabled may be set to true to disable session ticket
+        // (resumption) support.
+        SessionTicketsDisabled bool
+
+        // SessionTicketKey is used by TLS servers to provide session
+        // resumption. See RFC 5077. If zero, it will be filled with
+        // random data before the first server handshake.
+        //
+        // If multiple servers are terminating connections for the same host
+        // they should all have the same SessionTicketKey. If the
+        // SessionTicketKey leaks, previously recorded and future TLS
+        // connections using that key are compromised.
+        SessionTicketKey [32]byte
+        // contains filtered or unexported fields
+  }
+  A Config structure is used to configure a TLS client or server. After one has been passed to a TLS function it must not be modified.
+  是用来配置TLS客户端或者服务端。在已通过的TCS功能后，它不能被修改。
+
+  func (c *Config) BuildNameToCertificate()
+    BuildNameToCertificate parses c.Certificates and builds c.NameToCertificate from the CommonName and SubjectAlternateName fields of each of the leaf certificates.
+    
+  
+type Conn
+  type Conn struct {
+        // contains filtered or unexported fields
+  }
+  A Conn represents a secured connection. It implements the net.Conn interface.
+  表示一个安全链接。它实现了 net.Conn接口
+  
+  func Client(conn net.Conn, config *Config) *Conn
+    Client returns a new TLS client side connection using conn as the underlying transport. Client interprets a nil configuration as equivalent to the zero configuration; see the documentation of Config for the defaults.
+    返回一个是用底层传输连接的新的TLS客户端。nil配置相当于0配置。查看文档里的默认配置。
+  
+  func Dial(network, addr string, config *Config) (*Conn, error)
+    Dial connects to the given network address using net.Dial and then initiates a TLS handshake, returning the resulting TLS connection. Dial interprets a nil configuration as equivalent to the zero configuration; see the documentation of Config for the defaults.
+    使用 net.Dial 连接给定的网络地址，然后初始化TLS握手，返回TLS连接。nil配置相当于0配置。查看文档里的默认配置。
+  
+  func Server(conn net.Conn, config *Config) *Conn
+    Server returns a new TLS server side connection using conn as the underlying transport. The configuration config must be non-nil and must have at least one certificate.
+    返回一个是用底层传输连接的新的TLS服务端。config必须非空，并且必须至少有一个证书。
+  
+  func (c *Conn) Close() error
+    Close closes the connection.
+    关闭连接
+    
+  func (c *Conn) ConnectionState() ConnectionState
+    ConnectionState returns basic TLS details about the connection.
+    返回基本的TLS链接详情
+    
+  func (c *Conn) Handshake() error
+    Handshake runs the client or server handshake protocol if it has not yet been run. Most uses of this package need not call Handshake explicitly: the first Read or Write will call it automatically.
+    如果 客户端或者服务端没有运行就运行握手协议。大部分使用这个包不必显示的调用握手,第一次读或者写会自动调用
+  
+  func (c *Conn) LocalAddr() net.Addr
+    LocalAddr returns the local network address.
+    返回本地的网络地址
+  
+  func (c *Conn) OCSPResponse() []byte
+    OCSPResponse returns the stapled OCSP response from the TLS server, if any. (Only valid for client connections.)
+    从TLS服务返回任意的OCSP响应。
+  
+  func (c *Conn) Read(b []byte) (n int, err error)
+    Read can be made to time out and return a net.Error with Timeout() == true after a fixed time limit; see SetDeadline and SetReadDeadline.
+    在一个固定的时间限制到了 可以 超时 和当Timeout() == true 会返回一个  net.Error
+  
+  func (c *Conn) RemoteAddr() net.Addr
+    RemoteAddr returns the remote network address.
+    返回一个远程的网络地址
+  
+  func (c *Conn) SetDeadline(t time.Time) error
+    SetDeadline sets the read and write deadlines associated with the connection. A zero value for t means Read and Write will not time out. After a Write has timed out, the TLS state is corrupt and all future writes will return the same error.
+    设置读和写连接相关的最后期限。当t是0值 意味着 读和写没有超时。在一个写超时之后，TLS 状态是坏的，之后所有的写都会返回相同的错误。
+  
+  func (c *Conn) SetReadDeadline(t time.Time) error
+    SetReadDeadline sets the read deadline on the underlying connection. A zero value for t means Read will not time out.
+    设置读连接的最后期限。当t是0值 意味着 读和写没有超时。
+  
+  func (c *Conn) SetWriteDeadline(t time.Time) error
+    SetWriteDeadline sets the write deadline on the underlying conneciton. A zero value for t means Write will not time out. After a Write has timed out, the TLS state is corrupt and all future writes will return the same error.
+    设置写连接的最后期限。当t是0值 意味着 读和写没有超时。在一个写超时之后，TLS 状态是坏的，之后所有的写都会返回相同的错误。
+  
+  func (c *Conn) VerifyHostname(host string) error
+    VerifyHostname checks that the peer certificate chain is valid for connecting to host. If so, it returns nil; if not, it returns an error describing the problem.
+    检查主机连接的证书是否有效。如果有， 返回nil，如果没有返回错误的信息
+  
+  func (c *Conn) Write(b []byte) (int, error)
+    Write writes data to the connection。
+    写数据进连接。
+  
+  
+type ConnectionState
+  type ConnectionState struct {
+        HandshakeComplete          bool
+        DidResume                  bool
+        CipherSuite                uint16
+        NegotiatedProtocol         string
+        NegotiatedProtocolIsMutual bool
+
+        // ServerName contains the server name indicated by the client, if any.
+        // (Only valid for server connections.)
+        ServerName string
+
+        // the certificate chain that was presented by the other side
+        PeerCertificates []*x509.Certificate
+        // the verified certificate chains built from PeerCertificates.
+        VerifiedChains [][]*x509.Certificate
+  }
+  ConnectionState records basic TLS details about the connection.
+  记录基本的TLS连接详情
+  
+
+Package files
+alert.go cipher_suites.go common.go conn.go handshake_client.go handshake_messages.go handshake_server.go key_agreement.go prf.go ticket.go tls.go
