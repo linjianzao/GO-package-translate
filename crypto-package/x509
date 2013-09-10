@@ -1,0 +1,89 @@
+包地址：http://golang.org/pkg/crypto/x509/
+
+Package x509 parses X.509-encoded keys and certificates.
+解析X.509-编码的 keys 和证书
+
+Constants
+  const (
+        PEMCipherDES
+        PEMCipher3DES
+        PEMCipherAES128
+        PEMCipherAES192
+        PEMCipherAES256
+  )
+  Possible values for the EncryptPEMBlock encryption algorithm.
+  加密算法EncryptPEMBlock可能的值。
+
+Variables
+  var ErrUnsupportedAlgorithm = errors.New("crypto/x509: cannot verify signature: algorithm unimplemented")
+    ErrUnsupportedAlgorithm results from attempting to perform an operation that involves algorithms that are not currently implemented.
+    结果涉及到试图执行目前尚未实现的算法。
+  
+  var IncorrectPasswordError = errors.New("x509: decryption password incorrect")
+    IncorrectPasswordError is returned when an incorrect password is detected.
+    检测到不正确的密码会返回
+
+func CreateCertificate(rand io.Reader, template, parent *Certificate, pub interface{}, priv interface{}) (cert []byte, err error)
+  CreateCertificate creates a new certificate based on a template. The following members of template are used: SerialNumber, Subject, NotBefore, NotAfter, KeyUsage, ExtKeyUsage, UnknownExtKeyUsage, BasicConstraintsValid, IsCA, MaxPathLen, SubjectKeyId, DNSNames, PermittedDNSDomainsCritical, PermittedDNSDomains.
+  创建一个基于模板的证书。模板的成员：序列号、主题
+  The certificate is signed by parent. If parent is equal to template then the certificate is self-signed. The parameter pub is the public key of the signee and priv is the private key of the signer.
+  证书是由parent签署的。如果parent 和template相等证书是自己签署。参数pub是公key 和 priv 是私key 是签署者
+  The returned slice is the certificate in DER encoding.
+  返回的证书切片是DER encoding
+  The only supported key types are RSA and ECDSA (*rsa.PublicKey or *ecdsa.PublicKey for pub, *rsa.PrivateKey or *ecdsa.PublicKey for priv).
+  key类型只支持RSA和ECDSA
+
+func DecryptPEMBlock(b *pem.Block, password []byte) ([]byte, error)
+  DecryptPEMBlock takes a password encrypted PEM block and the password used to encrypt it and returns a slice of decrypted DER encoded bytes. It inspects the DEK-Info header to determine the algorithm used for decryption. If no DEK-Info header is present, an error is returned. If an incorrect password is detected an IncorrectPasswordError is returned.
+  接收加密的PEM块，password 用来加密  然后返回解密后的字节切片。它检查用于解密算法的DEK-Info 头。
+
+func EncryptPEMBlock(rand io.Reader, blockType string, data, password []byte, alg PEMCipher) (*pem.Block, error)
+func IsEncryptedPEMBlock(b *pem.Block) bool
+func MarshalPKCS1PrivateKey(key *rsa.PrivateKey) []byte
+func MarshalPKIXPublicKey(pub interface{}) ([]byte, error)
+func ParseCRL(crlBytes []byte) (certList *pkix.CertificateList, err error)
+func ParseCertificates(asn1Data []byte) ([]*Certificate, error)
+func ParseDERCRL(derBytes []byte) (certList *pkix.CertificateList, err error)
+func ParseECPrivateKey(der []byte) (key *ecdsa.PrivateKey, err error)
+func ParsePKCS1PrivateKey(der []byte) (key *rsa.PrivateKey, err error)
+func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error)
+func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error)
+type CertPool
+    func NewCertPool() *CertPool
+    func (s *CertPool) AddCert(cert *Certificate)
+    func (s *CertPool) AppendCertsFromPEM(pemCerts []byte) (ok bool)
+    func (s *CertPool) Subjects() (res [][]byte)
+type Certificate
+    func ParseCertificate(asn1Data []byte) (*Certificate, error)
+    func (c *Certificate) CheckCRLSignature(crl *pkix.CertificateList) (err error)
+    func (c *Certificate) CheckSignature(algo SignatureAlgorithm, signed, signature []byte) (err error)
+    func (c *Certificate) CheckSignatureFrom(parent *Certificate) (err error)
+    func (c *Certificate) CreateCRL(rand io.Reader, priv interface{}, revokedCerts []pkix.RevokedCertificate, now, expiry time.Time) (crlBytes []byte, err error)
+    func (c *Certificate) Equal(other *Certificate) bool
+    func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err error)
+    func (c *Certificate) VerifyHostname(h string) error
+type CertificateInvalidError
+    func (e CertificateInvalidError) Error() string
+type ConstraintViolationError
+    func (ConstraintViolationError) Error() string
+type ExtKeyUsage
+type HostnameError
+    func (h HostnameError) Error() string
+type InvalidReason
+type KeyUsage
+type PEMCipher
+type PublicKeyAlgorithm
+type SignatureAlgorithm
+type SystemRootsError
+    func (e SystemRootsError) Error() string
+type UnhandledCriticalExtension
+    func (h UnhandledCriticalExtension) Error() string
+type UnknownAuthorityError
+    func (e UnknownAuthorityError) Error() string
+type VerifyOptions
+
+
+
+Package files
+
+cert_pool.go pem_decrypt.go pkcs1.go pkcs8.go root.go root_unix.go sec1.go verify.go x509.go
