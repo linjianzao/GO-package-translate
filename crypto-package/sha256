@@ -1,0 +1,27 @@
+包地址：http://golang.org/pkg/crypto/sha256/
+
+Package sha256 implements the SHA224 and SHA256 hash algorithms as defined in FIPS 180-2.
+
+
+Constants
+  const BlockSize = 64
+    The blocksize of SHA256 and SHA224 in bytes.
+
+  const Size = 32
+    The size of a SHA256 checksum in bytes.
+    
+  const Size224 = 28
+    The size of a SHA224 checksum in bytes.
+    
+    
+func New() hash.Hash
+  New returns a new hash.Hash computing the SHA256 checksum.
+  返回一个新的hash.Hash计算SHA256校验
+  
+func New224() hash.Hash
+  New224 returns a new hash.Hash computing the SHA224 checksum.
+  返回一个新的hash.Hash计算SHA224校验
+
+Package files
+
+sha256.go sha256block.go
