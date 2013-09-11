@@ -1,1 +1,83 @@
-包地址：Package pkix contains shared, low level structures used for ASN.1 parsing and serialization of X.509 certificates, CRL and OCSP.
+包地址：http://golang.org/pkg/crypto/x509/pkix/
+
+Package pkix contains shared, low level structures used for ASN.1 parsing and serialization of X.509 certificates, CRL and OCSP.
+pkix 包含 共享用于ASN.1 解析和序列化X.509证书、CRL和OCSP 的低层次结构
+
+type AlgorithmIdentifier
+  type AlgorithmIdentifier struct {
+        Algorithm  asn1.ObjectIdentifier
+        Parameters asn1.RawValue `asn1:"optional"`
+  }
+    AlgorithmIdentifier represents the ASN.1 structure of the same name. See RFC 5280, section 4.1.1.2.
+    表示 ASN.1  结构 同名。 看 RFC 5280 的第4.1.1.2节
+
+type AttributeTypeAndValue
+  type AttributeTypeAndValue struct {
+        Type  asn1.ObjectIdentifier
+        Value interface{}
+  }
+    AttributeTypeAndValue mirrors the ASN.1 structure of the same name in http://tools.ietf.org/html/rfc5280#section-4.1.2.4
+    反映了ASN.1  结构同名在http://tools.ietf.org/html/rfc5280#section-4.1.2.4
+
+type CertificateList
+  type CertificateList struct {
+        TBSCertList        TBSCertificateList
+        SignatureAlgorithm AlgorithmIdentifier
+        SignatureValue     asn1.BitString
+  }
+    CertificateList represents the ASN.1 structure of the same name. See RFC 5280, section 5.1. Use Certificate.CheckCRLSignature to verify the signature.
+    ASN.1  结构 同名。使用Certificate.CheckCRLSignature 验证签名
+  
+  func (certList *CertificateList) HasExpired(now time.Time) bool
+    HasExpired returns true iff now is past the expiry time of certList.
+    当且仅当certList 超时 返回true
+    
+type Extension
+  type Extension struct {
+        Id       asn1.ObjectIdentifier
+        Critical bool `asn1:"optional"`
+        Value    []byte
+  }
+    Extension represents the ASN.1 structure of the same name. See RFC 5280, section 4.2.
+       ASN.1  结构 同名
+  
+type Name
+  type Name struct {
+        Country, Organization, OrganizationalUnit []string
+        Locality, Province                        []string
+        StreetAddress, PostalCode                 []string
+        SerialNumber, CommonName                  string
+
+        Names []AttributeTypeAndValue
+  }
+    Name represents an X.509 distinguished name. This only includes the common elements of a DN. Additional elements in the name are ignored.
+    X.509 的标识名。这只包含DN的共同要素，额外的元素名称将被忽略。
+    
+    
+  func (n *Name) FillFromRDNSequence(rdns *RDNSequence)
+  func (n Name) ToRDNSequence() (ret RDNSequence)
+type RDNSequence
+type RelativeDistinguishedNameSET
+type RevokedCertificate
+  type RevokedCertificate struct {
+        SerialNumber   *big.Int
+        RevocationTime time.Time
+        Extensions     []Extension `asn1:"optional"`
+  }
+    RevokedCertificate represents the ASN.1 structure of the same name. See RFC 5280, section 5.1.
+
+type TBSCertificateList
+  type TBSCertificateList struct {
+        Raw                 asn1.RawContent
+        Version             int `asn1:"optional,default:2"`
+        Signature           AlgorithmIdentifier
+        Issuer              RDNSequence
+        ThisUpdate          time.Time
+        NextUpdate          time.Time
+        RevokedCertificates []RevokedCertificate `asn1:"optional"`
+        Extensions          []Extension          `asn1:"tag:0,optional,explicit"`
+  }
+    TBSCertificateList represents the ASN.1 structure of the same name. See RFC 5280, section 5.1.
+    
+Package files
+pkix.go
