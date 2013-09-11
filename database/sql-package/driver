@@ -1,0 +1,128 @@
+包地址：http://golang.org/pkg/database/sql/driver/
+
+Package driver defines interfaces to be implemented by database drivers as used by package sql.
+driver包 使用sql包定义实现 数据引擎的接口
+Most code should use package sql.
+大部分的代码都用sql包
+
+
+Variables
+
+  var Bool boolType
+    Bool is a ValueConverter that converts input values to bools.
+    是一个值转换，转换输入的值成bools
+    
+    The conversion rules are:
+    转换规则：
+    - booleans are returned unchanged
+    布尔值返回不变
+    
+    - for integer types, 
+    
+    -整型类型
+    
+         1 is true
+          
+          1是true
+          
+         0 is false,
+          
+          0是false
+         
+         other integers are an error
+          其他整型是错误
+          
+    - for strings and []byte, same rules as strconv.ParseBool
+      string和[]byte 和strconv.ParseBool 的规则一样
+    - all other types are an error
+      其他类型是错误
+    
+  var DefaultParameterConverter defaultConverter
+    DefaultParameterConverter is the default implementation of ValueConverter that's used when a Stmt doesn't implement ColumnConverter.
+    当一个Stmt 没有实现行转换默认实现值转化。
+    DefaultParameterConverter returns the given value directly if IsValue(value). Otherwise integer type are converted to int64, floats to float64, and strings to []byte. Other types are an error.
+    如果IsValue(value) 返回给定的值。其他的整型转换成int64,floats 转换成float64，strings 转换成 []byte。其他类型是错误。
+    
+  var ErrBadConn = errors.New("driver: bad connection")
+    ErrBadConn should be returned by a driver to signal to the sql package that a driver.Conn is in a bad state (such as the server having earlier closed the connection) and the sql package should retry on a new connection.
+    当调用者传递信号到sql包， driver.Conn 是一个错误的状态时 返回该错误，并且sql包应该重试一个新连接。
+    To prevent duplicate operations, ErrBadConn should NOT be returned if there's a possibility that the database server might have performed the operation. Even if the server sends back an error, you shouldn't return ErrBadConn.
+    为了防止重复操作，如果数据库服务器可能执行操作ErrBadConn 不应该返回。甚至如果服务器发送返回一个错误，你不应该返回ErrBadConn
+  
+  var ErrSkip = errors.New("driver: skip fast-path; continue as if unimplemented")
+    ErrSkip may be returned by some optional interfaces' methods to indicate at runtime that the fast path is unavailable and the sql package should continue as if the optional interface was not implemented. ErrSkip is only supported where explicitly documented.
+    ErrSkip 也许会在 一些 接口选项方法表明运行时间的最快路径无法使用的时候返回。如果接收选项没有实现sql包应该继续。ErrSkip只支持明确的记载。 
+    
+  var Int32 int32Type
+    Int32 is a ValueConverter that converts input values to int64, respecting the limits of an int32 value.
+    Int32被转换成int64，关于int32的极值。
+  var ResultNoRows noRows
+    ResultNoRows is a pre-defined Result for drivers to return when a DDL command (such as a CREATE TABLE) succeeds. It returns an error for both LastInsertId and RowsAffected.
+    ResultNoRows  当一个DDL （像创建一个表）命令成功 返回一个预定义的引擎结果。不管是LastInsertId 还是RowsAffected 会返回错误。
+  
+  var String stringType
+    String is a ValueConverter that converts its input to a string. If the value is already a string or []byte, it's unchanged. If the value is of another type, conversion to string is done with fmt.Sprintf("%v", v).
+    值转化成string。如果值已经是string或者[]byte 值是不变的 。如果值是其他类型使用fmt.Sprintf("%v", v) 转换string
+  
+
+func IsScanValue(v interface{}) bool
+  IsScanValue reports whether v is a valid Value scan type. Unlike IsValue, IsScanValue does not permit the string type.
+  报告 v是否一个有效的scan 类型的值。不像IsValue，IsScanValue不允许string类型。
+
+func IsValue(v interface{}) bool
+  IsValue reports whether v is a valid Value parameter type. Unlike IsScanValue, IsValue permits the string type.
+  报告 v是否一个有效的参数 类型的值。不像IsScanValue，IsValue允许string类型
+
+type ColumnConverter
+  type ColumnConverter interface {
+        // ColumnConverter returns a ValueConverter for the provided
+        // column index.  If the type of a specific column isn't known
+        // or shouldn't be handled specially, DefaultValueConverter
+        // can be returned.
+        ColumnConverter(idx int) ValueConverter
+  }
+  ColumnConverter may be optionally implemented by Stmt if the the statement is aware of its own columns' types and can convert from any type to a driver Value.
+  ColumnConverter 可任选Stmt，如果语句意识到自己的列类型和可以从任意类型的 引擎值转化。
+  
+type Conn
+  type Conn interface {
+        // Prepare returns a prepared statement, bound to this connection.
+        Prepare(query string) (Stmt, error)
+
+        // Close invalidates and potentially stops any current
+        // prepared statements and transactions, marking this
+        // connection as no longer in use.
+        //
+        // Because the sql package maintains a free pool of
+        // connections and only calls Close when there's a surplus of
+        // idle connections, it shouldn't be necessary for drivers to
+        // do their own connection caching.
+        Close() error
+
+        // Begin starts and returns a new transaction.
+        Begin() (Tx, error)
+  }
+  Conn is a connection to a database. It is not used concurrently by multiple goroutines.
+
+  Conn is assumed to be stateful.
+
+type Driver
+type Execer
+type NotNull
+    func (n NotNull) ConvertValue(v interface{}) (Value, error)
+type Null
+    func (n Null) ConvertValue(v interface{}) (Value, error)
+type Queryer
+type Result
+type Rows
+type RowsAffected
+    func (RowsAffected) LastInsertId() (int64, error)
+    func (v RowsAffected) RowsAffected() (int64, error)
+type Stmt
+type Tx
+type Value
+type ValueConverter
+type Valuer
+Package files
+
+driver.go types.go
