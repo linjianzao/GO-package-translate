@@ -38,36 +38,153 @@ func DecryptPEMBlock(b *pem.Block, password []byte) ([]byte, error)
   接收加密的PEM块，password 用来加密  然后返回解密后的字节切片。它检查用于解密算法的DEK-Info 头。
 
 func EncryptPEMBlock(rand io.Reader, blockType string, data, password []byte, alg PEMCipher) (*pem.Block, error)
+  EncryptPEMBlock returns a PEM block of the specified type holding the given DER-encoded data encrypted with the specified algorithm and password.
+  返回给定的类型的 DER-encoded 使用指定的算法和密码  加密 数据 的PEM块
+  
 func IsEncryptedPEMBlock(b *pem.Block) bool
+  IsEncryptedPEMBlock returns if the PEM block is password encrypted.
+  返回 PEM块是否是密码加密的。
+
 func MarshalPKCS1PrivateKey(key *rsa.PrivateKey) []byte
+  MarshalPKCS1PrivateKey converts a private key to ASN.1 DER encoded form.
+  转换一个私key 成 ASN.1 DER  编码形式
+
 func MarshalPKIXPublicKey(pub interface{}) ([]byte, error)
+  MarshalPKIXPublicKey serialises a public key to DER-encoded PKIX format.
+  序列化公key 成DER-encoded PKIX 形式
+
 func ParseCRL(crlBytes []byte) (certList *pkix.CertificateList, err error)
+  ParseCRL parses a CRL from the given bytes. It's often the case that PEM encoded CRLs will appear where they should be DER encoded, so this function will transparently handle PEM encoding as long as there isn't any leading garbage.
+  从给定的字节解析 CRL。通常情况下， 当他们必须是DER编码的时候PEM编码的CRLs会出现。所以这个函数将透明的处理PEM编码，只要没有任何做废。
+  
 func ParseCertificates(asn1Data []byte) ([]*Certificate, error)
+  ParseCertificates parses one or more certificates from the given ASN.1 DER data. The certificates must be concatenated with no intermediate padding.
+  从给定的ASN.1 DER数据解析一个或多个证书。证书必须连在一起中没有任何间隔
+
 func ParseDERCRL(derBytes []byte) (certList *pkix.CertificateList, err error)
+  ParseDERCRL parses a DER encoded CRL from the given bytes.
+  从给定的字节解析DER 编码的CRL
+
 func ParseECPrivateKey(der []byte) (key *ecdsa.PrivateKey, err error)
+  ParseECPrivateKey parses an ASN.1 Elliptic Curve Private Key Structure.
+  解析一个ASN.1 的 椭圆曲线 私key 结构
+
 func ParsePKCS1PrivateKey(der []byte) (key *rsa.PrivateKey, err error)
+  ParsePKCS1PrivateKey returns an RSA private key from its ASN.1 PKCS#1 DER encoded form.
+  返回一个 ASN.1 PKCS#1 DER编码形式的私key 
+
 func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error)
+  ParsePKCS8PrivateKey parses an unencrypted, PKCS#8 private key. See http://www.rsa.com/rsalabs/node.asp?id=2130 and RFC5208.
+  解析一个未加密的、PKCS#8 的私key
+
 func ParsePKIXPublicKey(derBytes []byte) (pub interface{}, err error)
+  ParsePKIXPublicKey parses a DER encoded public key. These values are typically found in PEM blocks with "BEGIN PUBLIC KEY".
+  解析一个DER编码的公key。这些值"BEGIN PUBLIC KEY"通常在PEM blocks 块发现。
+
 type CertPool
+  type CertPool struct {
+        // contains filtered or unexported fields
+  }
+  CertPool is a set of certificates.
+  一组凭证
+
     func NewCertPool() *CertPool
+      NewCertPool returns a new, empty CertPool.
+      返回一个新的空的CertPool。
+    
     func (s *CertPool) AddCert(cert *Certificate)
+      AddCert adds a certificate to a pool.
+      添加一个证书到 池
+    
     func (s *CertPool) AppendCertsFromPEM(pemCerts []byte) (ok bool)
+      AppendCertsFromPEM attempts to parse a series of PEM encoded certificates. It appends any certificates found to s and returns true if any certificates were successfully parsed.
+      尝试解析一系列的PEM编码证书。如果任何发现的证书都解析成功 会被加入s 然后返回true
+      On many Linux systems, /etc/ssl/cert.pem will contain the system wide set of root CAs in a format suitable for this function.
+      在许多linux 系统。 /etc/ssl/cert.pem  下会包含一系列适用这个函数格式的CA
+    
     func (s *CertPool) Subjects() (res [][]byte)
+      Subjects returns a list of the DER-encoded subjects of all of the certificates in the pool.
+      返回在 池 里的 所有证书的 DER-encoded 对象的列表。
+    
 type Certificate
+  
+    A Certificate represents an X.509 certificate.
+    代表一个 X.509证书
+
     func ParseCertificate(asn1Data []byte) (*Certificate, error)
+      ParseCertificate parses a single certificate from the given ASN.1 DER data.
+      从给定的ASN.1 DER 数据解析单个证书
+      
     func (c *Certificate) CheckCRLSignature(crl *pkix.CertificateList) (err error)
+      CheckCRLSignature checks that the signature in crl is from c.
+      检查c的签名 是不私在crl
+    
     func (c *Certificate) CheckSignature(algo SignatureAlgorithm, signed, signature []byte) (err error)
+      CheckSignature verifies that signature is a valid signature over signed from c's public key.
+      从c的公key 验证签名是否有效
+    
     func (c *Certificate) CheckSignatureFrom(parent *Certificate) (err error)
+      CheckSignatureFrom verifies that the signature on c is a valid signature from parent.
+      从parent 验证 签名在c里是否有效。
+    
     func (c *Certificate) CreateCRL(rand io.Reader, priv interface{}, revokedCerts []pkix.RevokedCertificate, now, expiry time.Time) (crlBytes []byte, err error)
+      CreateCRL returns a DER encoded CRL, signed by this Certificate, that contains the given list of revoked certificates.
+      返回 用这个证书签名的 DER编码的CRL，包含给定撤销证书的列表
+      The only supported key type is RSA (*rsa.PrivateKey for priv).
+      只支持RSA 类型的key
+    
     func (c *Certificate) Equal(other *Certificate) bool
+    
     func (c *Certificate) Verify(opts VerifyOptions) (chains [][]*Certificate, err error)
+      Verify attempts to verify c by building one or more chains from c to a certificate in opts.Roots, using certificates in opts.Intermediates if needed. If successful, it returns one or more chains where the first element of the chain is c and the last element is from opts.Roots.
+      使用opt中的证书 尝试验证 c 建立 一个或多个opts.Roots 里的证书链。 如果成功，它返回一个或多个 第一个链元素是c 最后 一个链元素是 opts.Roots 的链
+      WARNING: this doesn't do any revocation checking.
+      警告： 这不做任何的撤销检查
+    
     func (c *Certificate) VerifyHostname(h string) error
+      VerifyHostname returns nil if c is a valid certificate for the named host. Otherwise it returns an error describing the mismatch.
+      如果C是主机名的有效证书返回nil。其他的返回错误。
+    
 type CertificateInvalidError
+  type CertificateInvalidError struct {
+        Cert   *Certificate
+        Reason InvalidReason
+  }
+  CertificateInvalidError results when an odd error occurs. Users of this library probably want to handle all these errors uniformly.
+  当遇到奇怪的错误的时候返回。库的用户可能要统一处理所有的错误。
+  
+
     func (e CertificateInvalidError) Error() string
 type ConstraintViolationError
+  ConstraintViolationError results when a requested usage is not permitted by a certificate. For example: checking a signature when the public key isn't a certificate signing key.
+  当请求的证书是不允许的会返回。比如：检查一个公key没有被签名的证书。
+
     func (ConstraintViolationError) Error() string
 type ExtKeyUsage
+  ExtKeyUsage represents an extended set of actions that are valid for a given key. Each of the ExtKeyUsage* constants define a unique action.
+  代表堆一个给定的key  一组扩展 是有效的。每个ExtKeyUsage 包含唯一的action
+  const (
+        ExtKeyUsageAny ExtKeyUsage = iota
+        ExtKeyUsageServerAuth
+        ExtKeyUsageClientAuth
+        ExtKeyUsageCodeSigning
+        ExtKeyUsageEmailProtection
+        ExtKeyUsageIPSECEndSystem
+        ExtKeyUsageIPSECTunnel
+        ExtKeyUsageIPSECUser
+        ExtKeyUsageTimeStamping
+        ExtKeyUsageOCSPSigning
+        ExtKeyUsageMicrosoftServerGatedCrypto
+        ExtKeyUsageNetscapeServerGatedCrypto
+  )
+  
 type HostnameError
+  type HostnameError struct {
+        Certificate *Certificate
+        Host        string
+  }
+  HostnameError results when the set of authorized names doesn't match the requested name.
+  
     func (h HostnameError) Error() string
 type InvalidReason
 type KeyUsage
