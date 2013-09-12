@@ -103,26 +103,193 @@ type Conn
         Begin() (Tx, error)
   }
   Conn is a connection to a database. It is not used concurrently by multiple goroutines.
-
+  连接数据库。它没有使用并发
   Conn is assumed to be stateful.
-
+  Conn是假定有状态的
+  
 type Driver
+  type Driver interface {
+        // Open returns a new connection to the database.
+        // The name is a string in a driver-specific format.
+        //
+        // Open may return a cached connection (one previously
+        // closed), but doing so is unnecessary; the sql package
+        // maintains a pool of idle connections for efficient re-use.
+        //
+        // The returned connection is only used by one goroutine at a
+        // time.
+        Open(name string) (Conn, error)
+  }
+  Driver is the interface that must be implemented by a database driver.
+  Driver 是 必须实现的 数据库引擎接口
+  
 type Execer
+  type Execer interface {
+        Exec(query string, args []Value) (Result, error)
+  }
+  Execer is an optional interface that may be implemented by a Conn.
+  Execer 是一个使用Conn实现的接口选项
+  If a Conn does not implement Execer, the sql package's DB.Exec will first prepare a query, execute the statement, and then close the statement.
+  如果Conn没有实现Execer，sql包DB.Exec 将会首先准备一个查询，执行语句，然后关闭语句。
+  Exec may return ErrSkip.
+  Exec 可能会返回ErrSkip
+  
 type NotNull
-    func (n NotNull) ConvertValue(v interface{}) (Value, error)
+  type NotNull struct {
+        Converter ValueConverter
+  }
+  NotNull is a type that implements ValueConverter by disallowing nil values but otherwise delegating to another ValueConverter.
+  NotNull 是一个不允许为nil 的ValueConverter 实现的类型， 否则会委托到另外的ValueConverter
+
+  func (n NotNull) ConvertValue(v interface{}) (Value, error)
+  
 type Null
-    func (n Null) ConvertValue(v interface{}) (Value, error)
+  type Null struct {
+        Converter ValueConverter
+  }
+  Null is a type that implements ValueConverter by allowing nil values but otherwise delegating to another ValueConverter.
+  Null 是一个允许为nil 的ValueConverter 实现的类型， 否则会委托到另外的ValueConverter
+  
+  func (n Null) ConvertValue(v interface{}) (Value, error)
 type Queryer
+  type Queryer interface {
+        Query(query string, args []Value) (Rows, error)
+  }
+  Queryer is an optional interface that may be implemented by a Conn.
+  Queryer 是一个可能用Conn实现的接口选项
+  If a Conn does not implement Queryer, the sql package's DB.Query will first prepare a query, execute the statement, and then close the statement.
+  如果Conn 没有实现Queryer，sql包DB.Query 将会首先准备一个查询，执行语句，然后关闭语句。
+  Query may return ErrSkip.
+  Query 可能会返回ErrSkip
+  
 type Result
+  type Result interface {
+        // LastInsertId returns the database's auto-generated ID
+        // after, for example, an INSERT into a table with primary
+        // key.
+        LastInsertId() (int64, error)
+
+        // RowsAffected returns the number of rows affected by the
+        // query.
+        RowsAffected() (int64, error)
+  }
+  Result is the result of a query execution.
+  是一个执行查询的结果
+
 type Rows
+  type Rows interface {
+        // Columns returns the names of the columns. The number of
+        // columns of the result is inferred from the length of the
+        // slice.  If a particular column name isn't known, an empty
+        // string should be returned for that entry.
+        Columns() []string
+
+        // Close closes the rows iterator.
+        Close() error
+
+        // Next is called to populate the next row of data into
+        // the provided slice. The provided slice will be the same
+        // size as the Columns() are wide.
+        //
+        // The dest slice may be populated only with
+        // a driver Value type, but excluding string.
+        // All string values must be converted to []byte.
+        //
+        // Next should return io.EOF when there are no more rows.
+        Next(dest []Value) error
+  }
+  Rows is an iterator over an executed query's results.
+  迭代一个查询结果
+
 type RowsAffected
-    func (RowsAffected) LastInsertId() (int64, error)
-    func (v RowsAffected) RowsAffected() (int64, error)
+  RowsAffected implements Result for an INSERT or UPDATE operation which mutates a number of rows.
+  实现INSERT或者UPDATE操作的受影响的行数。
+
+  func (RowsAffected) LastInsertId() (int64, error)
+  func (v RowsAffected) RowsAffected() (int64, error)
 type Stmt
+  type Stmt interface {
+        // Close closes the statement.
+        //
+        // As of Go 1.1, a Stmt will not be closed if it's in use
+        // by any queries.
+        Close() error
+
+        // NumInput returns the number of placeholder parameters.
+        //
+        // If NumInput returns >= 0, the sql package will sanity check
+        // argument counts from callers and return errors to the caller
+        // before the statement's Exec or Query methods are called.
+        //
+        // NumInput may also return -1, if the driver doesn't know
+        // its number of placeholders. In that case, the sql package
+        // will not sanity check Exec or Query argument counts.
+        NumInput() int
+
+        // Exec executes a query that doesn't return rows, such
+        // as an INSERT or UPDATE.
+        Exec(args []Value) (Result, error)
+
+        // Exec executes a query that may return rows, such as a
+        // SELECT.
+        Query(args []Value) (Rows, error)
+  }
+  Stmt is a prepared statement. It is bound to a Conn and not used by multiple goroutines concurrently.
+  Stmt 准备 一个语句。是Conn的界线， 没有同时使用多个goroutines。
+  
 type Tx
+  type Tx interface {
+        Commit() error
+        Rollback() error
+  }
+  Tx is a transaction.
+  Tx是一个事务
+
 type Value
+  type Value interface{}
+    Value is a value that drivers must be able to handle. It is either nil or an instance of one of these types:
+    Value必须是引擎能处理的值。它是nil 或者以下这些类型的实例：
+  int64
+  float64
+  bool
+  []byte
+  string   [*] everywhere except from Rows.Next.
+  time.Time
+
 type ValueConverter
+  type ValueConverter interface {
+        // ConvertValue converts a value to a driver Value.
+        ConvertValue(v interface{}) (Value, error)
+  }
+  ValueConverter is the interface providing the ConvertValue method.
+  ValueConverter 是 提供ConvertValue方法的接口
+  Various implementations of ValueConverter are provided by the driver package to provide consistent implementations of conversions between drivers. The ValueConverters have several uses:
+  Various 实现driver包 在引擎之间转换 实现ValueConverter 。ValueConverters 有这些用法：
+  * converting from the Value types as provided by the sql package
+  into a database table's specific column type and making sure it
+  fits, such as making sure a particular int64 fits in a
+  table's uint16 column.
+  sql包转换值类型成数据表的特定列类型，确保被填充。就如确保特定的int64填充进表的uint16列。
+  
+  * converting a value as given from the database into one of the
+    driver Value types.
+  转换给定的数据库引擎值类型。
+  
+  * by the sql package, for converting from a driver's Value type
+    to a user's type in a scan.
+  使用sql包 给使用者在扫描的类型从 driver's 值类型 转换。
+
 type Valuer
+
+  type Valuer interface {
+        // Value returns a driver Value.
+        Value() (Value, error)
+  }
+  Valuer is the interface providing the Value method.
+  Valuer 提供Value方法的接口
+  Types implementing Valuer interface are able to convert themselves to a driver Value.
+  Types 实现Valuer接口 把它们本身转换成引擎值
+  
 Package files
 
 driver.go types.go
