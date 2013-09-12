@@ -1,0 +1,697 @@
+包地址：http://golang.org/pkg/debug/elf/
+
+Package elf implements access to ELF object files.
+实现ELF目标文件访问
+
+Constants
+  const (
+        EI_CLASS      = 4  /* Class of machine. */
+        EI_DATA       = 5  /* Data format. */
+        EI_VERSION    = 6  /* ELF format version. */
+        EI_OSABI      = 7  /* Operating system / ABI identification */
+        EI_ABIVERSION = 8  /* ABI version */
+        EI_PAD        = 9  /* Start of padding (per SVR4 ABI). */
+        EI_NIDENT     = 16 /* Size of e_ident array. */
+  )
+  Indexes into the Header.Ident array.
+  索引到Header.Ident 的阵列
+  
+  const ARM_MAGIC_TRAMP_NUMBER = 0x5c000003
+    Magic number for the elf trampoline, chosen wisely to be an immediate value.
+    
+  const ELFMAG = "\177ELF"
+    Initial magic number for ELF files.
+    初始化ELF文件magic 数量
+  const Sym32Size = 16
+  const Sym64Size = 24
+
+
+func R_INFO(sym, typ uint32) uint64
+func R_INFO32(sym, typ uint32) uint32
+func R_SYM32(info uint32) uint32
+func R_SYM64(info uint64) uint32
+func R_TYPE32(info uint32) uint32
+func R_TYPE64(info uint64) uint32
+func ST_INFO(bind SymBind, typ SymType) uint8
+type Class
+  type Class byte
+    Class is found in Header.Ident[EI_CLASS] and Header.Class.
+    在Header.Ident[EI_CLASS] 和 Header.Class 发现。
+    
+  const (
+          ELFCLASSNONE Class = 0 /* Unknown class. */
+          ELFCLASS32   Class = 1 /* 32-bit architecture. */
+          ELFCLASS64   Class = 2 /* 64-bit architecture. */
+  )
+  
+    func (i Class) GoString() string
+    func (i Class) String() string
+type Data
+  type Data byte
+  Data is found in Header.Ident[EI_DATA] and Header.Data.
+  在Header.Ident[EI_CLASS] 和 Header.Class 发现。
+  
+  const (
+          ELFDATANONE Data = 0 /* Unknown data format. */
+          ELFDATA2LSB Data = 1 /* 2's complement little-endian. */
+          ELFDATA2MSB Data = 2 /* 2's complement big-endian. */
+  )
+    func (i Data) GoString() string
+    func (i Data) String() string
+type Dyn32
+  type Dyn32 struct {
+        Tag int32  /* Entry type. */
+        Val uint32 /* Integer/Address value. */
+  }
+  ELF32 Dynamic structure. The ".dynamic" section contains an array of them.
+  动态结构。
+  
+type Dyn64
+  type Dyn64 struct {
+        Tag int64  /* Entry type. */
+        Val uint64 /* Integer/address value */
+  }
+  ELF64 Dynamic structure. The ".dynamic" section contains an array of them.
+  动态结构
+  
+type DynFlag
+  type DynFlag int
+    DT_FLAGS values.
+  
+  const (
+          DF_ORIGIN DynFlag = 0x0001 /* Indicates that the object being loaded may
+             make reference to the
+             $ORIGIN substitution string */
+          DF_SYMBOLIC DynFlag = 0x0002 /* Indicates "symbolic" linking. */
+          DF_TEXTREL  DynFlag = 0x0004 /* Indicates there may be relocations in non-writable segments. */
+          DF_BIND_NOW DynFlag = 0x0008 /* Indicates that the dynamic linker should
+             process all relocations for the object
+             containing this entry before transferring
+             control to the program. */
+          DF_STATIC_TLS DynFlag = 0x0010 /* Indicates that the shared object or
+             executable contains code using a static
+             thread-local storage scheme. */
+  )
+
+    func (i DynFlag) GoString() string
+    func (i DynFlag) String() string
+type DynTag
+    func (i DynTag) GoString() string
+    func (i DynTag) String() string
+type File
+  type File struct {
+        FileHeader
+        Sections []*Section
+        Progs    []*Prog
+        // contains filtered or unexported fields
+  }
+  A File represents an open ELF file.
+  代表一个打开的ELF文件
+  
+  func NewFile(r io.ReaderAt) (*File, error)
+    NewFile creates a new File for accessing an ELF binary in an underlying reader. The ELF binary is expected to start at position 0 in the ReaderAt.
+    在底层reader 创建一个新的接口ELF二进制 文件。ELF二进制 在ReaderAt预期以0开始。
+    
+  func Open(name string) (*File, error)
+    Open opens the named file using os.Open and prepares it for use as an ELF binary.
+    使用os.Open 打开 和准备  文件  让 ELF 二进制使用
+  
+  func (f *File) Close() error
+    Close closes the File. If the File was created using NewFile directly instead of Open, Close has no effect.
+    关闭文件。如果文件使用NewFile创建，用Open代替。Close 没有影响。
+  
+  func (f *File) DWARF() (*dwarf.Data, error)
+  func (f *File) DynString(tag DynTag) ([]string, error)
+    DynString returns the strings listed for the given tag in the file's dynamic section.
+    使用给定的标签返回 在文件的动态章节 中的 字符串列表。
+    The tag must be one that takes string values: DT_NEEDED, DT_SONAME, DT_RPATH, or DT_RUNPATH.
+    tag 必须带一个字符串值：DT_NEEDED, DT_SONAME, DT_RPATH, or DT_RUNPATH.
+    
+  func (f *File) ImportedLibraries() ([]string, error)
+    ImportedLibraries returns the names of all libraries referred to by the binary f that are expected to be linked with the binary at dynamic link time.
+    动态链接二进制时 返回f中提到的所有库。
+  
+  func (f *File) ImportedSymbols() ([]ImportedSymbol, error)
+    ImportedSymbols returns the names of all symbols referred to by the binary f that are expected to be satisfied by other libraries at dynamic load time. It does not return weak symbols.
+    载入动态链接二进制时 返回f中提到的所有库。不返回弱符号。
+    
+    
+  func (f *File) Section(name string) *Section
+    Section returns a section with the given name, or nil if no such section exists.
+    返回给定名字的章节，或者如果章节不存在返回nil
+    
+  func (f *File) SectionByType(typ SectionType) *Section
+    SectionByType returns the first section in f with the given type, or nil if there is no such section.
+    返回在f中给定的类型的第一节，或者如果章节不存在返回nil
+  
+  func (f *File) Symbols() ([]Symbol, error)
+    Symbols returns the symbol table for f.
+    返回f中符号列表。
+    For compatibility with Go 1.0, Symbols omits the null symbol at index 0. After retrieving the symbols as symtab, an externally supplied index x corresponds to symtab[x-1], not symtab[x].
+    为了GO 1.0 的兼容，符号省略了空符号索引0；检索符号symtab后，从外部提供的x对应symtab[x-1],不对应not symtab[x]。
+    
+type FileHeader
+  type FileHeader struct {
+        Class      Class
+        Data       Data
+        Version    Version
+        OSABI      OSABI
+        ABIVersion uint8
+        ByteOrder  binary.ByteOrder
+        Type       Type
+        Machine    Machine
+        Entry      uint64
+  }
+  A FileHeader represents an ELF file header.
+  代表一个ELF文件头
+
+type FormatError
+  type FormatError struct {
+        // contains filtered or unexported fields
+  }
+    func (e *FormatError) Error() string
+    
+type Header32
+  type Header32 struct {
+        Ident     [EI_NIDENT]byte /* File identification. */
+        Type      uint16          /* File type. */
+        Machine   uint16          /* Machine architecture. */
+        Version   uint32          /* ELF format version. */
+        Entry     uint32          /* Entry point. */
+        Phoff     uint32          /* Program header file offset. */
+        Shoff     uint32          /* Section header file offset. */
+        Flags     uint32          /* Architecture-specific flags. */
+        Ehsize    uint16          /* Size of ELF header in bytes. */
+        Phentsize uint16          /* Size of program header entry. */
+        Phnum     uint16          /* Number of program header entries. */
+        Shentsize uint16          /* Size of section header entry. */
+        Shnum     uint16          /* Number of section header entries. */
+        Shstrndx  uint16          /* Section name strings section. */
+  }
+  ELF32 File header.
+  
+type Header64
+  type Header64 struct {
+        Ident     [EI_NIDENT]byte /* File identification. */
+        Type      uint16          /* File type. */
+        Machine   uint16          /* Machine architecture. */
+        Version   uint32          /* ELF format version. */
+        Entry     uint64          /* Entry point. */
+        Phoff     uint64          /* Program header file offset. */
+        Shoff     uint64          /* Section header file offset. */
+        Flags     uint32          /* Architecture-specific flags. */
+        Ehsize    uint16          /* Size of ELF header in bytes. */
+        Phentsize uint16          /* Size of program header entry. */
+        Phnum     uint16          /* Number of program header entries. */
+        Shentsize uint16          /* Size of section header entry. */
+        Shnum     uint16          /* Number of section header entries. */
+        Shstrndx  uint16          /* Section name strings section. */
+  }
+  ELF64 file header.
+  
+type ImportedSymbol
+  type ImportedSymbol struct {
+        Name    string
+        Version string
+        Library string
+  }
+  
+  
+type Machine
+  type Machine uint16
+    Machine is found in Header.Machine.
+
+    func (i Machine) GoString() string
+    func (i Machine) String() string
+type NType
+    type NType int
+      NType values; used in core files.
+      
+    const (
+            NT_PRSTATUS NType = 1 /* Process status. */
+            NT_FPREGSET NType = 2 /* Floating point registers. */
+            NT_PRPSINFO NType = 3 /* Process state info. */
+    )
+    
+    func (i NType) GoString() string
+    func (i NType) String() string
+type OSABI
+  type OSABI byte
+    OSABI is found in Header.Ident[EI_OSABI] and Header.OSABI.
+
+  const (
+          ELFOSABI_NONE       OSABI = 0   /* UNIX System V ABI */
+          ELFOSABI_HPUX       OSABI = 1   /* HP-UX operating system */
+          ELFOSABI_NETBSD     OSABI = 2   /* NetBSD */
+          ELFOSABI_LINUX      OSABI = 3   /* GNU/Linux */
+          ELFOSABI_HURD       OSABI = 4   /* GNU/Hurd */
+          ELFOSABI_86OPEN     OSABI = 5   /* 86Open common IA32 ABI */
+          ELFOSABI_SOLARIS    OSABI = 6   /* Solaris */
+          ELFOSABI_AIX        OSABI = 7   /* AIX */
+          ELFOSABI_IRIX       OSABI = 8   /* IRIX */
+          ELFOSABI_FREEBSD    OSABI = 9   /* FreeBSD */
+          ELFOSABI_TRU64      OSABI = 10  /* TRU64 UNIX */
+          ELFOSABI_MODESTO    OSABI = 11  /* Novell Modesto */
+          ELFOSABI_OPENBSD    OSABI = 12  /* OpenBSD */
+          ELFOSABI_OPENVMS    OSABI = 13  /* Open VMS */
+          ELFOSABI_NSK        OSABI = 14  /* HP Non-Stop Kernel */
+          ELFOSABI_ARM        OSABI = 97  /* ARM */
+          ELFOSABI_STANDALONE OSABI = 255 /* Standalone (embedded) application */
+  )
+  
+    func (i OSABI) GoString() string
+    func (i OSABI) String() string
+type Prog
+  type Prog struct {
+        ProgHeader
+
+        // Embed ReaderAt for ReadAt method.
+        // Do not embed SectionReader directly
+        // to avoid having Read and Seek.
+        // If a client wants Read and Seek it must use
+        // Open() to avoid fighting over the seek offset
+        // with other clients.
+        io.ReaderAt
+        // contains filtered or unexported fields
+  }
+  A Prog represents a single ELF program header in an ELF binary.
+  表示 在ELF二进制 单个ELF程序头。
+  
+    func (p *Prog) Open() io.ReadSeeker
+      Open returns a new ReadSeeker reading the ELF program body.
+      返回一个新的ReadSeeker 读取ELF程序体。
+      
+type Prog32
+  type Prog32 struct {
+        Type   uint32 /* Entry type. */
+        Off    uint32 /* File offset of contents. */
+        Vaddr  uint32 /* Virtual address in memory image. */
+        Paddr  uint32 /* Physical address (not used). */
+        Filesz uint32 /* Size of contents in file. */
+        Memsz  uint32 /* Size of contents in memory. */
+        Flags  uint32 /* Access permission flags. */
+        Align  uint32 /* Alignment in memory and file. */
+  }
+  ELF32 Program header.
+  
+type Prog64
+  type Prog64 struct {
+        Type   uint32 /* Entry type. */
+        Flags  uint32 /* Access permission flags. */
+        Off    uint64 /* File offset of contents. */
+        Vaddr  uint64 /* Virtual address in memory image. */
+        Paddr  uint64 /* Physical address (not used). */
+        Filesz uint64 /* Size of contents in file. */
+        Memsz  uint64 /* Size of contents in memory. */
+        Align  uint64 /* Alignment in memory and file. */
+  }
+  ELF64 Program header.
+  
+type ProgFlag
+  type ProgFlag uint32
+  Prog.Flag
+  
+  const (
+          PF_X        ProgFlag = 0x1        /* Executable. */
+          PF_W        ProgFlag = 0x2        /* Writable. */
+          PF_R        ProgFlag = 0x4        /* Readable. */
+          PF_MASKOS   ProgFlag = 0x0ff00000 /* Operating system-specific. */
+          PF_MASKPROC ProgFlag = 0xf0000000 /* Processor-specific. */
+  )
+  
+    func (i ProgFlag) GoString() string
+    func (i ProgFlag) String() string
+
+type ProgHeader
+  type ProgHeader struct {
+        Type   ProgType
+        Flags  ProgFlag
+        Off    uint64
+        Vaddr  uint64
+        Paddr  uint64
+        Filesz uint64
+        Memsz  uint64
+        Align  uint64
+  }
+  A ProgHeader represents a single ELF program header.
+  代表单个ELF程序头
+  
+type ProgType
+  type ProgType int
+  Prog.Type
+  
+  const (
+          PT_NULL    ProgType = 0          /* Unused entry. */
+          PT_LOAD    ProgType = 1          /* Loadable segment. */
+          PT_DYNAMIC ProgType = 2          /* Dynamic linking information segment. */
+          PT_INTERP  ProgType = 3          /* Pathname of interpreter. */
+          PT_NOTE    ProgType = 4          /* Auxiliary information. */
+          PT_SHLIB   ProgType = 5          /* Reserved (not used). */
+          PT_PHDR    ProgType = 6          /* Location of program header itself. */
+          PT_TLS     ProgType = 7          /* Thread local storage segment */
+          PT_LOOS    ProgType = 0x60000000 /* First OS-specific. */
+          PT_HIOS    ProgType = 0x6fffffff /* Last OS-specific. */
+          PT_LOPROC  ProgType = 0x70000000 /* First processor-specific type. */
+          PT_HIPROC  ProgType = 0x7fffffff /* Last processor-specific type. */
+  )
+  
+    func (i ProgType) GoString() string
+    func (i ProgType) String() string
+
+type R_386
+  type R_386 int
+  Relocation types for 386.
+
+  const (
+          R_386_NONE         R_386 = 0  /* No relocation. */
+          R_386_32           R_386 = 1  /* Add symbol value. */
+          R_386_PC32         R_386 = 2  /* Add PC-relative symbol value. */
+          R_386_GOT32        R_386 = 3  /* Add PC-relative GOT offset. */
+          R_386_PLT32        R_386 = 4  /* Add PC-relative PLT offset. */
+          R_386_COPY         R_386 = 5  /* Copy data from shared object. */
+          R_386_GLOB_DAT     R_386 = 6  /* Set GOT entry to data address. */
+          R_386_JMP_SLOT     R_386 = 7  /* Set GOT entry to code address. */
+          R_386_RELATIVE     R_386 = 8  /* Add load address of shared object. */
+          R_386_GOTOFF       R_386 = 9  /* Add GOT-relative symbol address. */
+          R_386_GOTPC        R_386 = 10 /* Add PC-relative GOT table address. */
+          R_386_TLS_TPOFF    R_386 = 14 /* Negative offset in static TLS block */
+          R_386_TLS_IE       R_386 = 15 /* Absolute address of GOT for -ve static TLS */
+          R_386_TLS_GOTIE    R_386 = 16 /* GOT entry for negative static TLS block */
+          R_386_TLS_LE       R_386 = 17 /* Negative offset relative to static TLS */
+          R_386_TLS_GD       R_386 = 18 /* 32 bit offset to GOT (index,off) pair */
+          R_386_TLS_LDM      R_386 = 19 /* 32 bit offset to GOT (index,zero) pair */
+          R_386_TLS_GD_32    R_386 = 24 /* 32 bit offset to GOT (index,off) pair */
+          R_386_TLS_GD_PUSH  R_386 = 25 /* pushl instruction for Sun ABI GD sequence */
+          R_386_TLS_GD_CALL  R_386 = 26 /* call instruction for Sun ABI GD sequence */
+          R_386_TLS_GD_POP   R_386 = 27 /* popl instruction for Sun ABI GD sequence */
+          R_386_TLS_LDM_32   R_386 = 28 /* 32 bit offset to GOT (index,zero) pair */
+          R_386_TLS_LDM_PUSH R_386 = 29 /* pushl instruction for Sun ABI LD sequence */
+          R_386_TLS_LDM_CALL R_386 = 30 /* call instruction for Sun ABI LD sequence */
+          R_386_TLS_LDM_POP  R_386 = 31 /* popl instruction for Sun ABI LD sequence */
+          R_386_TLS_LDO_32   R_386 = 32 /* 32 bit offset from start of TLS block */
+          R_386_TLS_IE_32    R_386 = 33 /* 32 bit offset to GOT static TLS offset entry */
+          R_386_TLS_LE_32    R_386 = 34 /* 32 bit offset within static TLS block */
+          R_386_TLS_DTPMOD32 R_386 = 35 /* GOT entry containing TLS index */
+          R_386_TLS_DTPOFF32 R_386 = 36 /* GOT entry containing TLS offset */
+          R_386_TLS_TPOFF32  R_386 = 37 /* GOT entry of -ve static TLS offset */
+  )
+  
+  
+    func (i R_386) GoString() string
+    func (i R_386) String() string
+
+type R_ALPHA
+  type R_ALPHA int
+  Relocation types for Alpha.
+  
+  const (
+          R_ALPHA_NONE           R_ALPHA = 0  /* No reloc */
+          R_ALPHA_REFLONG        R_ALPHA = 1  /* Direct 32 bit */
+          R_ALPHA_REFQUAD        R_ALPHA = 2  /* Direct 64 bit */
+          R_ALPHA_GPREL32        R_ALPHA = 3  /* GP relative 32 bit */
+          R_ALPHA_LITERAL        R_ALPHA = 4  /* GP relative 16 bit w/optimization */
+          R_ALPHA_LITUSE         R_ALPHA = 5  /* Optimization hint for LITERAL */
+          R_ALPHA_GPDISP         R_ALPHA = 6  /* Add displacement to GP */
+          R_ALPHA_BRADDR         R_ALPHA = 7  /* PC+4 relative 23 bit shifted */
+          R_ALPHA_HINT           R_ALPHA = 8  /* PC+4 relative 16 bit shifted */
+          R_ALPHA_SREL16         R_ALPHA = 9  /* PC relative 16 bit */
+          R_ALPHA_SREL32         R_ALPHA = 10 /* PC relative 32 bit */
+          R_ALPHA_SREL64         R_ALPHA = 11 /* PC relative 64 bit */
+          R_ALPHA_OP_PUSH        R_ALPHA = 12 /* OP stack push */
+          R_ALPHA_OP_STORE       R_ALPHA = 13 /* OP stack pop and store */
+          R_ALPHA_OP_PSUB        R_ALPHA = 14 /* OP stack subtract */
+          R_ALPHA_OP_PRSHIFT     R_ALPHA = 15 /* OP stack right shift */
+          R_ALPHA_GPVALUE        R_ALPHA = 16
+          R_ALPHA_GPRELHIGH      R_ALPHA = 17
+          R_ALPHA_GPRELLOW       R_ALPHA = 18
+          R_ALPHA_IMMED_GP_16    R_ALPHA = 19
+          R_ALPHA_IMMED_GP_HI32  R_ALPHA = 20
+          R_ALPHA_IMMED_SCN_HI32 R_ALPHA = 21
+          R_ALPHA_IMMED_BR_HI32  R_ALPHA = 22
+          R_ALPHA_IMMED_LO32     R_ALPHA = 23
+          R_ALPHA_COPY           R_ALPHA = 24 /* Copy symbol at runtime */
+          R_ALPHA_GLOB_DAT       R_ALPHA = 25 /* Create GOT entry */
+          R_ALPHA_JMP_SLOT       R_ALPHA = 26 /* Create PLT entry */
+          R_ALPHA_RELATIVE       R_ALPHA = 27 /* Adjust by program base */
+  )
+
+  
+    func (i R_ALPHA) GoString() string
+    func (i R_ALPHA) String() string
+type R_ARM
+    func (i R_ARM) GoString() string
+    func (i R_ARM) String() string
+type R_PPC
+    func (i R_PPC) GoString() string
+    func (i R_PPC) String() string
+type R_SPARC
+    func (i R_SPARC) GoString() string
+    func (i R_SPARC) String() string
+type R_X86_64
+    func (i R_X86_64) GoString() string
+    func (i R_X86_64) String() string
+
+type Rel32
+  type Rel32 struct {
+        Off  uint32 /* Location to be relocated. */
+        Info uint32 /* Relocation type and symbol index. */
+  }
+  ELF32 Relocations that don't need an addend field.
+  重定位不需要加载数领域
+  
+type Rel64
+  type Rel64 struct {
+        Off  uint64 /* Location to be relocated. */
+        Info uint64 /* Relocation type and symbol index. */
+  }
+  ELF64 relocations that don't need an addend field.
+   重定位不需要加载数领域
+  
+type Rela32
+  type Rela32 struct {
+        Off    uint32 /* Location to be relocated. */
+        Info   uint32 /* Relocation type and symbol index. */
+        Addend int32  /* Addend. */
+  }
+  ELF32 Relocations that need an addend field.
+  重定位需要加载数领域
+  
+type Rela64
+  type Rela64 struct {
+        Off    uint64 /* Location to be relocated. */
+        Info   uint64 /* Relocation type and symbol index. */
+        Addend int64  /* Addend. */
+  }
+  ELF64 relocations that need an addend field.
+  重定位需要加载数领域
+  
+type Section
+  type Section struct {
+        SectionHeader
+
+        // Embed ReaderAt for ReadAt method.
+        // Do not embed SectionReader directly
+        // to avoid having Read and Seek.
+        // If a client wants Read and Seek it must use
+        // Open() to avoid fighting over the seek offset
+        // with other clients.
+        io.ReaderAt
+        // contains filtered or unexported fields
+  }
+  A Section represents a single section in an ELF file.
+  代表ELF文件的单节。
+  
+    func (s *Section) Data() ([]byte, error)
+      Data reads and returns the contents of the ELF section.
+      读取和返回ELF节 目录
+      
+    func (s *Section) Open() io.ReadSeeker
+      Open returns a new ReadSeeker reading the ELF section.
+      返回一个新的ReadSeeker 读取ELF 节
+      
+type Section32
+  type Section32 struct {
+        Name      uint32 /* Section name (index into the section header string table). */
+        Type      uint32 /* Section type. */
+        Flags     uint32 /* Section flags. */
+        Addr      uint32 /* Address in memory image. */
+        Off       uint32 /* Offset in file. */
+        Size      uint32 /* Size in bytes. */
+        Link      uint32 /* Index of a related section. */
+        Info      uint32 /* Depends on section type. */
+        Addralign uint32 /* Alignment in bytes. */
+        Entsize   uint32 /* Size of each entry in section. */
+  }
+  ELF32 Section header.
+  
+type Section64
+  type Section64 struct {
+        Name      uint32 /* Section name (index into the section header string table). */
+        Type      uint32 /* Section type. */
+        Flags     uint64 /* Section flags. */
+        Addr      uint64 /* Address in memory image. */
+        Off       uint64 /* Offset in file. */
+        Size      uint64 /* Size in bytes. */
+        Link      uint32 /* Index of a related section. */
+        Info      uint32 /* Depends on section type. */
+        Addralign uint64 /* Alignment in bytes. */
+        Entsize   uint64 /* Size of each entry in section. */
+  }
+  ELF64 Section header.
+  
+type SectionFlag
+  type SectionFlag uint32
+  Section flags.
+  
+  const (
+          SHF_WRITE            SectionFlag = 0x1        /* Section contains writable data. */
+          SHF_ALLOC            SectionFlag = 0x2        /* Section occupies memory. */
+          SHF_EXECINSTR        SectionFlag = 0x4        /* Section contains instructions. */
+          SHF_MERGE            SectionFlag = 0x10       /* Section may be merged. */
+          SHF_STRINGS          SectionFlag = 0x20       /* Section contains strings. */
+          SHF_INFO_LINK        SectionFlag = 0x40       /* sh_info holds section index. */
+          SHF_LINK_ORDER       SectionFlag = 0x80       /* Special ordering requirements. */
+          SHF_OS_NONCONFORMING SectionFlag = 0x100      /* OS-specific processing required. */
+          SHF_GROUP            SectionFlag = 0x200      /* Member of section group. */
+          SHF_TLS              SectionFlag = 0x400      /* Section contains TLS data. */
+          SHF_MASKOS           SectionFlag = 0x0ff00000 /* OS-specific semantics. */
+          SHF_MASKPROC         SectionFlag = 0xf0000000 /* Processor-specific semantics. */
+  )
+  
+  
+    func (i SectionFlag) GoString() string
+    func (i SectionFlag) String() string
+type SectionHeader
+  type SectionHeader struct {
+        Name      string
+        Type      SectionType
+        Flags     SectionFlag
+        Addr      uint64
+        Offset    uint64
+        Size      uint64
+        Link      uint32
+        Info      uint32
+        Addralign uint64
+        Entsize   uint64
+  }
+  A SectionHeader represents a single ELF section header.
+  
+type SectionIndex
+  type SectionIndex int
+  Special section indices.
+  
+  const (
+          SHN_UNDEF     SectionIndex = 0      /* Undefined, missing, irrelevant. */
+          SHN_LORESERVE SectionIndex = 0xff00 /* First of reserved range. */
+          SHN_LOPROC    SectionIndex = 0xff00 /* First processor-specific. */
+          SHN_HIPROC    SectionIndex = 0xff1f /* Last processor-specific. */
+          SHN_LOOS      SectionIndex = 0xff20 /* First operating system-specific. */
+          SHN_HIOS      SectionIndex = 0xff3f /* Last operating system-specific. */
+          SHN_ABS       SectionIndex = 0xfff1 /* Absolute values. */
+          SHN_COMMON    SectionIndex = 0xfff2 /* Common data. */
+          SHN_XINDEX    SectionIndex = 0xffff /* Escape -- index stored elsewhere. */
+          SHN_HIRESERVE SectionIndex = 0xffff /* Last of reserved range. */
+  )
+
+    func (i SectionIndex) GoString() string
+    func (i SectionIndex) String() string
+type SectionType
+    func (i SectionType) GoString() string
+    func (i SectionType) String() string
+type Sym32
+  type Sym32 struct {
+        Name  uint32
+        Value uint32
+        Size  uint32
+        Info  uint8
+        Other uint8
+        Shndx uint16
+  }
+  ELF32 Symbol.
+  
+type Sym64
+  type Sym64 struct {
+        Name  uint32 /* String table index of name. */
+        Info  uint8  /* Type and binding information. */
+        Other uint8  /* Reserved (not used). */
+        Shndx uint16 /* Section index of symbol. */
+        Value uint64 /* Symbol value. */
+        Size  uint64 /* Size of associated object. */
+  }
+  ELF64 symbol table entries.
+  符号表项。
+  
+type SymBind
+  type SymBind int
+  Symbol Binding - ELFNN_ST_BIND - st_info
+  
+  const (
+          STB_LOCAL  SymBind = 0  /* Local symbol */
+          STB_GLOBAL SymBind = 1  /* Global symbol */
+          STB_WEAK   SymBind = 2  /* like global - lower precedence */
+          STB_LOOS   SymBind = 10 /* Reserved range for operating system */
+          STB_HIOS   SymBind = 12 /*   specific semantics. */
+          STB_LOPROC SymBind = 13 /* reserved range for processor */
+          STB_HIPROC SymBind = 15 /*   specific semantics. */
+  )
+  
+    func ST_BIND(info uint8) SymBind
+    func (i SymBind) GoString() string
+    func (i SymBind) String() string
+    
+type SymType
+  type SymType int
+  Symbol type - ELFNN_ST_TYPE - st_info
+  
+  const (
+          STT_NOTYPE  SymType = 0  /* Unspecified type. */
+          STT_OBJECT  SymType = 1  /* Data object. */
+          STT_FUNC    SymType = 2  /* Function. */
+          STT_SECTION SymType = 3  /* Section. */
+          STT_FILE    SymType = 4  /* Source file. */
+          STT_COMMON  SymType = 5  /* Uninitialized common block. */
+          STT_TLS     SymType = 6  /* TLS object. */
+          STT_LOOS    SymType = 10 /* Reserved range for operating system */
+          STT_HIOS    SymType = 12 /*   specific semantics. */
+          STT_LOPROC  SymType = 13 /* reserved range for processor */
+          STT_HIPROC  SymType = 15 /*   specific semantics. */
+  )
+  
+    func ST_TYPE(info uint8) SymType
+    func (i SymType) GoString() string
+    func (i SymType) String() string
+    
+type SymVis
+  type SymVis int
+    Symbol visibility - ELFNN_ST_VISIBILITY - st_other
+  
+  const (
+          STV_DEFAULT   SymVis = 0x0 /* Default visibility (see binding). */
+          STV_INTERNAL  SymVis = 0x1 /* Special meaning in relocatable objects. */
+          STV_HIDDEN    SymVis = 0x2 /* Not visible. */
+          STV_PROTECTED SymVis = 0x3 /* Visible but not preemptible. */
+  )
+  
+    func ST_VISIBILITY(other uint8) SymVis
+    func (i SymVis) GoString() string
+    func (i SymVis) String() string
+    
+type Symbol
+  type Symbol struct {
+        Name        string
+        Info, Other byte
+        Section     SectionIndex
+        Value, Size uint64
+  }
+  A Symbol represents an entry in an ELF symbol table section.
+  
+  
+type Type
+    func (i Type) GoString() string
+    func (i Type) String() string
+type Version
+    func (i Version) GoString() string
+    func (i Version) String() string
+Package files
+
+elf.go file.go
