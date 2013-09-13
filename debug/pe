@@ -1,0 +1,71 @@
+包地址：http://golang.org/pkg/debug/pe/
+
+Package pe implements access to PE (Microsoft Windows Portable Executable) files.
+pe包实现访问 PE文件
+
+Constants
+  const (
+        IMAGE_FILE_MACHINE_UNKNOWN   = 0x0
+        IMAGE_FILE_MACHINE_AM33      = 0x1d3
+        IMAGE_FILE_MACHINE_AMD64     = 0x8664
+        IMAGE_FILE_MACHINE_ARM       = 0x1c0
+        IMAGE_FILE_MACHINE_EBC       = 0xebc
+        IMAGE_FILE_MACHINE_I386      = 0x14c
+        IMAGE_FILE_MACHINE_IA64      = 0x200
+        IMAGE_FILE_MACHINE_M32R      = 0x9041
+        IMAGE_FILE_MACHINE_MIPS16    = 0x266
+        IMAGE_FILE_MACHINE_MIPSFPU   = 0x366
+        IMAGE_FILE_MACHINE_MIPSFPU16 = 0x466
+        IMAGE_FILE_MACHINE_POWERPC   = 0x1f0
+        IMAGE_FILE_MACHINE_POWERPCFP = 0x1f1
+        IMAGE_FILE_MACHINE_R4000     = 0x166
+        IMAGE_FILE_MACHINE_SH3       = 0x1a2
+        IMAGE_FILE_MACHINE_SH3DSP    = 0x1a3
+        IMAGE_FILE_MACHINE_SH4       = 0x1a6
+        IMAGE_FILE_MACHINE_SH5       = 0x1a8
+        IMAGE_FILE_MACHINE_THUMB     = 0x1c2
+        IMAGE_FILE_MACHINE_WCEMIPSV2 = 0x169
+  )
+  const COFFSymbolSize = 18
+  
+  
+type COFFSymbol
+  type COFFSymbol struct {
+        Name               [8]uint8
+        Value              uint32
+        SectionNumber      int16
+        Type               uint16
+        StorageClass       uint8
+        NumberOfAuxSymbols uint8
+  }
+  
+type File
+  type File struct {
+        FileHeader
+        Sections []*Section
+        Symbols  []*Symbol
+        // contains filtered or unexported fields
+  }
+  A File represents an open PE file.
+  代表打开一个PE文件
+  
+  func NewFile(r io.ReaderAt) (*File, error)
+    NewFile creates a new File for accessing a PE binary in an underlying reader.
+    在底层的reader创建一个新文件接收PE的二进制文件
+  
+  func Open(name string) (*File, error)
+  func (f *File) Close() error
+  func (f *File) DWARF() (*dwarf.Data, error)
+  func (f *File) ImportedLibraries() ([]string, error)
+  func (f *File) ImportedSymbols() ([]string, error)
+  func (f *File) Section(name string) *Section
+type FileHeader
+type FormatError
+    func (e *FormatError) Error() string
+type ImportDirectory
+type Section
+    func (s *Section) Data() ([]byte, error)
+    func (s *Section) Open() io.ReadSeeker
+type SectionHeader
+type SectionHeader32
+type Symbol
