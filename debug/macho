@@ -266,23 +266,187 @@ type Section
   func (s *Section) Data() ([]byte, error)
     func (s *Section) Data() ([]byte, error)
       Data reads and returns the contents of the Mach-O section.
-  
+      读取和返回Mach-O 章节内容
+      
   func (s *Section) Open() io.ReadSeeker
+    Open returns a new ReadSeeker reading the Mach-O section.
+    返回一个新的ReadSeeker读取Mach-O 章节内容
+    
 type Section32
-type Section64
-type SectionHeader
-type Segment
-    func (s *Segment) Data() ([]byte, error)
-    func (s *Segment) Open() io.ReadSeeker
-type Segment32
-type Segment64
-type SegmentHeader
-type Symbol
-type Symtab
-type SymtabCmd
-type Thread
-type Type
+  type Section32 struct {
+        Name     [16]byte
+        Seg      [16]byte
+        Addr     uint32
+        Size     uint32
+        Offset   uint32
+        Align    uint32
+        Reloff   uint32
+        Nreloc   uint32
+        Flags    uint32
+        Reserve1 uint32
+        Reserve2 uint32
+  }
+  A Section32 is a 32-bit Mach-O section header.
+  32位 Mach-O 章节头
 
+type Section64
+  type Section64 struct {
+        Name     [16]byte
+        Seg      [16]byte
+        Addr     uint64
+        Size     uint64
+        Offset   uint32
+        Align    uint32
+        Reloff   uint32
+        Nreloc   uint32
+        Flags    uint32
+        Reserve1 uint32
+        Reserve2 uint32
+        Reserve3 uint32
+  }
+  A Section32 is a 64-bit Mach-O section header.
+  64位 Mach-O 章节头
+  
+type SectionHeader
+  type SectionHeader struct {
+        Name   string
+        Seg    string
+        Addr   uint64
+        Size   uint64
+        Offset uint32
+        Align  uint32
+        Reloff uint32
+        Nreloc uint32
+        Flags  uint32
+  }
+
+type Segment
+  type Segment struct {
+        LoadBytes
+        SegmentHeader
+
+        // Embed ReaderAt for ReadAt method.
+        // Do not embed SectionReader directly
+        // to avoid having Read and Seek.
+        // If a client wants Read and Seek it must use
+        // Open() to avoid fighting over the seek offset
+        // with other clients.
+        io.ReaderAt
+        // contains filtered or unexported fields
+  }
+  A Segment represents a Mach-O 32-bit or 64-bit load segment command.
+  代表一个Mach-O 32位或64位的加载段命令
+  
+    func (s *Segment) Data() ([]byte, error)
+      Data reads and returns the contents of the segment.
+      读取和返回段内容
+      
+    func (s *Segment) Open() io.ReadSeeker
+      Open returns a new ReadSeeker reading the segment.
+      开个一个新的 ReadSeeker 读取 段。
+    
+type Segment32
+  type Segment32 struct {
+        Cmd     LoadCmd
+        Len     uint32
+        Name    [16]byte
+        Addr    uint32
+        Memsz   uint32
+        Offset  uint32
+        Filesz  uint32
+        Maxprot uint32
+        Prot    uint32
+        Nsect   uint32
+        Flag    uint32
+  }
+  A Segment32 is a 32-bit Mach-O segment load command.
+  一个32位的Mach-O 段加载命令
+  
+type Segment64
+  type Segment64 struct {
+        Cmd     LoadCmd
+        Len     uint32
+        Name    [16]byte
+        Addr    uint64
+        Memsz   uint64
+        Offset  uint64
+        Filesz  uint64
+        Maxprot uint32
+        Prot    uint32
+        Nsect   uint32
+        Flag    uint32
+  }
+  A Segment64 is a 64-bit Mach-O segment load command.
+   一个64位的Mach-O 段加载命令
+  
+type SegmentHeader
+  type SegmentHeader struct {
+        Cmd     LoadCmd
+        Len     uint32
+        Name    string
+        Addr    uint64
+        Memsz   uint64
+        Offset  uint64
+        Filesz  uint64
+        Maxprot uint32
+        Prot    uint32
+        Nsect   uint32
+        Flag    uint32
+  }
+  A SegmentHeader is the header for a Mach-O 32-bit or 64-bit load segment command.
+  Mach-O 32位或64位 加载段命令的头
+  
+type Symbol
+  type Symbol struct {
+        Name  string
+        Type  uint8
+        Sect  uint8
+        Desc  uint16
+        Value uint64
+  }
+  A Symbol is a Mach-O 32-bit or 64-bit symbol table entry.
+  是 一个 Mach-O 32位或64位 符号表项。
+  
+type Symtab
+  type Symtab struct {
+        LoadBytes
+        SymtabCmd
+        Syms []Symbol
+  }
+  A Symtab represents a Mach-O symbol table command.
+  表示一个Mach-O  符号表命令
+
+type SymtabCmd
+  type SymtabCmd struct {
+        Cmd     LoadCmd
+        Len     uint32
+        Symoff  uint32
+        Nsyms   uint32
+        Stroff  uint32
+        Strsize uint32
+  }
+  A SymtabCmd is a Mach-O symbol table command.
+  是一个Mach-O  符号表命令
+  
+type Thread
+  type Thread struct {
+        Cmd  LoadCmd
+        Len  uint32
+        Type uint32
+        Data []uint32
+  }
+  A Thread is a Mach-O thread state command.
+  是一个 Mach-O 线程状态命令
+
+type Type
+  type Type uint32
+    A Type is a Mach-O file type, either an object or an executable.
+    是一个Mach-O 文件 或者 对象或者 可执行文件  类型。
+  
+  const (
+          TypeObj  Type = 1
+          TypeExec Type = 2
+  )
 
 Package files
 
