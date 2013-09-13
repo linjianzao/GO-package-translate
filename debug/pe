@@ -54,18 +54,114 @@ type File
     在底层的reader创建一个新文件接收PE的二进制文件
   
   func Open(name string) (*File, error)
+    Open opens the named file using os.Open and prepares it for use as a PE binary.
+    使用os.Open  打开一个命名文件并用PE binary准备。
+    
   func (f *File) Close() error
+    Close closes the File. If the File was created using NewFile directly instead of Open, Close has no effect.
+    关闭文件。如果文件使用NewFile直接创建用Open代替，Close没有影响
+    
   func (f *File) DWARF() (*dwarf.Data, error)
   func (f *File) ImportedLibraries() ([]string, error)
+    ImportedLibraries returns the names of all libraries referred to by the binary f that are expected to be linked with the binary at dynamic link time.
+    动态链接二进制时返回二进制f 中的所有 类库。
+  
   func (f *File) ImportedSymbols() ([]string, error)
+    ImportedSymbols returns the names of all symbols referred to by the binary f that are expected to be satisfied by other libraries at dynamic load time. It does not return weak symbols.
+    
+    
   func (f *File) Section(name string) *Section
+    Section returns the first section with the given name, or nil if no such section exists.
+    使用给定的名称返回第一节。如果节不存在返回nil
+    
 type FileHeader
+  type FileHeader struct {
+        Machine              uint16
+        NumberOfSections     uint16
+        TimeDateStamp        uint32
+        PointerToSymbolTable uint32
+        NumberOfSymbols      uint32
+        SizeOfOptionalHeader uint16
+        Characteristics      uint16
+  }
+  
 type FormatError
+  type FormatError struct {
+        // contains filtered or unexported fields
+  }
+  
     func (e *FormatError) Error() string
+    
 type ImportDirectory
+  
+  type ImportDirectory struct {
+        OriginalFirstThunk uint32
+        TimeDateStamp      uint32
+        ForwarderChain     uint32
+        Name               uint32
+        FirstThunk         uint32
+        // contains filtered or unexported fields
+  }
+  
 type Section
-    func (s *Section) Data() ([]byte, error)
-    func (s *Section) Open() io.ReadSeeker
+  
+  type Section struct {
+        SectionHeader
+
+        // Embed ReaderAt for ReadAt method.
+        // Do not embed SectionReader directly
+        // to avoid having Read and Seek.
+        // If a client wants Read and Seek it must use
+        // Open() to avoid fighting over the seek offset
+        // with other clients.
+        io.ReaderAt
+        // contains filtered or unexported fields
+  }
+  
+  func (s *Section) Data() ([]byte, error)
+    Data reads and returns the contents of the PE section.
+    读取和返回PE节的内容
+    
+  func (s *Section) Open() io.ReadSeeker
+    Open returns a new ReadSeeker reading the PE section.
+    返回一个新的读取PE节的ReadSeeker
+    
 type SectionHeader
+  type SectionHeader struct {
+        Name                 string
+        VirtualSize          uint32
+        VirtualAddress       uint32
+        Size                 uint32
+        Offset               uint32
+        PointerToRelocations uint32
+        PointerToLineNumbers uint32
+        NumberOfRelocations  uint16
+        NumberOfLineNumbers  uint16
+        Characteristics      uint32
+  }
+
 type SectionHeader32
+
+  type SectionHeader32 struct {
+        Name                 [8]uint8
+        VirtualSize          uint32
+        VirtualAddress       uint32
+        SizeOfRawData        uint32
+        PointerToRawData     uint32
+        PointerToRelocations uint32
+        PointerToLineNumbers uint32
+        NumberOfRelocations  uint16
+        NumberOfLineNumbers  uint16
+        Characteristics      uint32
+  }
+  
 type Symbol
+
+  type Symbol struct {
+        Name          string
+        Value         uint32
+        SectionNumber int16
+        Type          uint16
+        StorageClass  uint8
+}
+
