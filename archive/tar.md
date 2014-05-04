@@ -1,5 +1,3 @@
-~~Mistaken text.~~
-
 引入方式 import "archive/tar"
 Overview
   Package tar implements access to tar archives. It aims to cover most of the variations, including those produced by GNU and BSD tars.
@@ -13,7 +11,6 @@ Overview
   例子:
   
   <pre>
-  <code>
     // Create a buffer to write our archive to.
     buf := new(bytes.Buffer)
 
@@ -65,7 +62,6 @@ Overview
         }
         fmt.Println()
     }
-  </code>
   </pre>
   输出：
   <pre>
