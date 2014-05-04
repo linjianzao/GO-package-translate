@@ -101,18 +101,16 @@ type Header
 
 ```golang
 func FileInfoHeader(fi os.FileInfo, link string) (*Header, error)
-```
     FileInfoHeader creates a partially-populated Header from fi. If fi describes a symlink, FileInfoHeader records link as the link target. If fi describes a directory, a slash is appended to the name.
     FileInfoHeader创建部分填充的头，如果是一个链接，返回链接对象，如果是一个目录，目录名加斜杠
     源码http://golang.org/src/pkg/archive/tar/common.go?s=4981:5046#L170
-    
+```
+
 ```golang
 func (h *Header) FileInfo() os.FileInfo
-```
   FileInfo returns an os.FileInfo for the Header.
   像os.FileInfo返回头信息
-
-
+```
 
 type Reader
   type Reader struct {
