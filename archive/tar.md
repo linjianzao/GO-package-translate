@@ -6,9 +6,9 @@ Package tar implements access to tar archives. It aims to cover most of the vari
   
 详情:
 ```
-<http://www.freebsd.org/cgi/man.cgi?query=tar&sektion=5>
-<http://www.gnu.org/software/tar/manual/html_node/Standard.html>
-<http://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html>
+http://www.freebsd.org/cgi/man.cgi?query=tar&sektion=5
+http://www.gnu.org/software/tar/manual/html_node/Standard.html
+http://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html
 ```
 
   例子:
