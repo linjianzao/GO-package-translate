@@ -79,8 +79,7 @@ http://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html
     Get animal handling licence.
   </pre>
 
-
-
+```golang
 type Header
   type Header struct {
           Name       string    // name of header file entry 头文件名
@@ -98,13 +97,18 @@ type Header
           AccessTime time.Time // access time 访问时间
           ChangeTime time.Time // status change time 状态更改时间
   }
+```
 
+```golang
 func FileInfoHeader(fi os.FileInfo, link string) (*Header, error)
+```
     FileInfoHeader creates a partially-populated Header from fi. If fi describes a symlink, FileInfoHeader records link as the link target. If fi describes a directory, a slash is appended to the name.
     FileInfoHeader创建部分填充的头，如果是一个链接，返回链接对象，如果是一个目录，目录名加斜杠
     源码http://golang.org/src/pkg/archive/tar/common.go?s=4981:5046#L170
     
+```golang
 func (h *Header) FileInfo() os.FileInfo
+```
   FileInfo returns an os.FileInfo for the Header.
   像os.FileInfo返回头信息
 
