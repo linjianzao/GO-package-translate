@@ -1,3 +1,6 @@
+<div class="highlight highlight-1"><pre>Hello, world or 你好，世界 or καλημ ́ρα κóσμ or こんにちはせかい
+</pre></div>
+
 引入方式 import "archive/tar"
 Overview
   Package tar implements access to tar archives. It aims to cover most of the variations, including those produced by GNU and BSD tars.
