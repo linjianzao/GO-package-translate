@@ -1,16 +1,14 @@
-引入方式 import "archive/tar"
+import "archive/tar"
 
-Overview
+Package tar implements access to tar archives. It aims to cover most of the variations, including those produced by GNU and BSD tars.
 
-  Package tar implements access to tar archives. It aims to cover most of the variations, including those produced by GNU and BSD tars.
-
-  实现访问tar归档文件。包含GNU和BSD的归档文件。
+实现访问tar归档文件。包含GNU和BSD的归档文件。
   
 详情:
 <pre>
-http://www.freebsd.org/cgi/man.cgi?query=tar&sektion=5
-http://www.gnu.org/software/tar/manual/html_node/Standard.html
-http://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html
+<http://www.freebsd.org/cgi/man.cgi?query=tar&sektion=5>
+<http://www.gnu.org/software/tar/manual/html_node/Standard.html>
+<http://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html>
 </pre>
 
   例子:
