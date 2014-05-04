@@ -9,8 +9,8 @@ Overview
   http://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html
 
   例子:
-  <code>
   <pre>
+  <code>
     // Create a buffer to write our archive to.
     buf := new(bytes.Buffer)
 
@@ -62,9 +62,8 @@ Overview
         }
         fmt.Println()
     }
-
-  </pre>
   </code>
+  </pre>
   输出：
   <pre>
     Contents of readme.txt:
