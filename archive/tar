@@ -1,5 +1,6 @@
 ```js
-    这是一个代码区块。
+    function test(){
+    }
 ```
 
 引入方式 import "archive/tar"
