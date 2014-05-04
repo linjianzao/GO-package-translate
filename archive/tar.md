@@ -15,7 +15,7 @@ http://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html
 
   例子:
   
-````golang
+```golang
   // Create a buffer to write our archive to.
   buf := new(bytes.Buffer)
 
@@ -67,7 +67,7 @@ http://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html
       }
       fmt.Println()
   }
-</pre>
+```
   输出：
   <pre>
     Contents of readme.txt:
