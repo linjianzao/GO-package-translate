@@ -1,4 +1,6 @@
-    这是一个代码区块。
+```golang
+这是一个代码区块。
+```
 
 引入方式 import "archive/tar"
 Overview
