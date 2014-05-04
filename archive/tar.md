@@ -112,48 +112,68 @@ func (h *Header) FileInfo() os.FileInfo
   像os.FileInfo返回头信息
 ```
 
+```golang
 type Reader
   type Reader struct {
           // contains filtered or unexported fields 包涵过滤或取消导出字段
   }
   A Reader provides sequential access to the contents of a tar archive. A tar archive consists of a sequence of files. The Next method advances to the next file in the archive (including the first), and then it can be treated as an io.Reader to access the file's data.
   顺序访问tar归档包的目录。一个归档包由一系列文件组成。使用io.Reader的next方法访问下一个文件
-  
+ ```
+
+```golang
 func NewReader(r io.Reader) *Reader
   NewReader creates a new Reader reading from r.
   创建新的读取对象r
+```
 
+```golang
 func (tr *Reader) Next() (*Header, error)
   Next advances to the next entry in the tar archive
   归档文件中读取下一个
-  
+```
+
+```golang
 func (tr *Reader) Read(b []byte) (n int, err error)
   Read reads from the current entry in the tar archive. It returns 0, io.EOF when it reaches the end of that entry, until Next is called to advance to the next entry.
   在包里读取一个确定的实体，当读取到文件末尾的时候返回0.
-    
+ ```
+
+```golang   
 type Writer
   type Writer struct {
         // contains filtered or unexported fields 包涵过滤或取消导出字段
   }
   A Writer provides sequential writing of a tar archive in POSIX.1 format. A tar archive consists of a sequence of files. Call WriteHeader to begin a new file, and then call Write to supply that file's data, writing at most hdr.Size bytes in total.
   使用POSIX.1格式写入归档。一个归档文件，由一系列文件组成。调用WriteHeader开始写入文件，然后调用write写入数据，
-  
+```
+
+```golang 
 func NewWriter(w io.Writer) *Writer
   NewWriter creates a new Writer writing to w.
   创建一个写入文件w
-  
+```
+
+```golang
 func (tw *Writer) Close() error
   Close closes the tar archive, flushing any unwritten data to the underlying writer.
   关闭归档，刷新任何写入的数据
+```
 
+```golang
 func (tw *Writer) Flush() error
   Flush finishes writing the current file (optional).
   刷新文件
-  
+```
+
+```golang
 func (tw *Writer) Write(b []byte) (n int, err error)
   Write writes to the current entry in the tar archive. Write returns the error ErrWriteTooLong if more than hdr.Size bytes are written after WriteHeader.
   写入归档文件，当文件头大于hdr.Size，返回错误“写入文件太长”
+```
 
+```golang
 func (tw *Writer) WriteHeader(hdr *Header) error
   WriteHeader writes hdr and prepares to accept the file's contents. WriteHeader calls Flush if it is not the first header. Calling after a Close will return ErrWriteAfterClose.
   编写访问目录，如果不是第一个标头调用刷新，在归档文件关闭的时候会返回错误“在关闭后写入”
+```
