@@ -76,15 +76,49 @@ http://pubs.opengroup.org/onlinepubs/9699919799/utilities/pax.html
     Geoffrey
     Gonzo
     Contents of todo.txt:
-    Get animal handling licence.
+    Get animal handling licence.  
   </pre>
+
+
+Constants
+```golang
+const (
+
+    // Types
+    TypeReg           = '0'    // regular file
+    TypeRegA          = '\x00' // regular file
+    TypeLink          = '1'    // hard link
+    TypeSymlink       = '2'    // symbolic link
+    TypeChar          = '3'    // character device node
+    TypeBlock         = '4'    // block device node
+    TypeDir           = '5'    // directory
+    TypeFifo          = '6'    // fifo node
+    TypeCont          = '7'    // reserved
+    TypeXHeader       = 'x'    // extended header
+    TypeXGlobalHeader = 'g'    // global extended header
+    TypeGNULongName   = 'L'    // Next file has a long name
+    TypeGNULongLink   = 'K'    // Next file symlinks to a file w/ a long name
+)  
+```
+
+Variables
+```golang
+var (
+    ErrWriteTooLong    = errors.New("archive/tar: write too long")
+    ErrFieldTooLong    = errors.New("archive/tar: header field too long")
+    ErrWriteAfterClose = errors.New("archive/tar: write after close")
+)
+var (
+    ErrHeader = errors.New("archive/tar: invalid tar header")
+)
+```
 
 ```golang
 type Header
   type Header struct {
           Name       string    // name of header file entry 头文件名
           Mode       int64     // permission and mode bits 权限和模式位
-          Uid        int       // user id of owner 用户id
+          Uid        int       // user id of owner linux下的Uid
           Gid        int       // group id of owner 用户组
           Size       int64     // length in bytes 字节长度
           ModTime    time.Time // modified time 修改时间
@@ -97,19 +131,21 @@ type Header
           AccessTime time.Time // access time 访问时间
           ChangeTime time.Time // status change time 状态更改时间
   }
+  A Header represents a single header in a tar archive. Some fields may not be populated.
+  Header表示一个tar文档的头信息。 字段不用都填
 ```
+
 
 ```golang
 func FileInfoHeader(fi os.FileInfo, link string) (*Header, error)
-    FileInfoHeader creates a partially-populated Header from fi. If fi describes a symlink, FileInfoHeader records link as the link target. If fi describes a directory, a slash is appended to the name.
-    FileInfoHeader创建部分填充的头，如果是一个链接，返回链接对象，如果是一个目录，目录名加斜杠
-    源码http://golang.org/src/pkg/archive/tar/common.go?s=4981:5046#L170
+    FileInfoHeader creates a partially-populated Header from fi. If fi describes a symlink, FileInfoHeader records link as the link target. If fi describes a directory, a slash is appended to the name. Because os.FileInfo's Name method returns only the base name of the file it describes, it may be necessary to modify the Name field of the returned header to provide the full path name of the file.
+    FileInfoHeader创建部分填充的头，如果是一个链接，返回链接对象，如果是一个目录，目录名加斜杠。因为os.FileInfo的 Name方法 返回最基本的文件名，要修改头的Name字段必须使用完整的路径名称
 ```
 
 ```golang
 func (h *Header) FileInfo() os.FileInfo
   FileInfo returns an os.FileInfo for the Header.
-  像os.FileInfo返回头信息
+  返回一个os.FileInfo
 ```
 
 ```golang
@@ -118,25 +154,25 @@ type Reader
           // contains filtered or unexported fields 包涵过滤或取消导出字段
   }
   A Reader provides sequential access to the contents of a tar archive. A tar archive consists of a sequence of files. The Next method advances to the next file in the archive (including the first), and then it can be treated as an io.Reader to access the file's data.
-  顺序访问tar归档包的目录。一个归档包由一系列文件组成。使用io.Reader的next方法访问下一个文件
- ```
+  顺序访问tar归档包的目录。一个归档包由一系列文件组成。Next方法访问归档文件中的下一个文件（包含第一个文件）然后它可以像io.Reader一样访问文件的数据
+```
 
 ```golang
 func NewReader(r io.Reader) *Reader
   NewReader creates a new Reader reading from r.
-  创建新的读取对象r
+  从r中创建新的Reader 对象
 ```
 
 ```golang
 func (tr *Reader) Next() (*Header, error)
   Next advances to the next entry in the tar archive
-  归档文件中读取下一个
+  归档文件中下一个条目。注：跳到tar文件的下一个条目
 ```
 
 ```golang
 func (tr *Reader) Read(b []byte) (n int, err error)
   Read reads from the current entry in the tar archive. It returns 0, io.EOF when it reaches the end of that entry, until Next is called to advance to the next entry.
-  在包里读取一个确定的实体，当读取到文件末尾的时候返回0.
+  从tar归档中读取确定的条目。直到调用Next读取到文档末尾的时候返回0.
  ```
 
 ```golang   
@@ -145,25 +181,25 @@ type Writer
         // contains filtered or unexported fields 包涵过滤或取消导出字段
   }
   A Writer provides sequential writing of a tar archive in POSIX.1 format. A tar archive consists of a sequence of files. Call WriteHeader to begin a new file, and then call Write to supply that file's data, writing at most hdr.Size bytes in total.
-  使用POSIX.1格式写入归档。一个归档文件，由一系列文件组成。调用WriteHeader开始写入文件，然后调用write写入数据，
+  使用POSIX1格式顺序写入归档。一个归档文件，由一系列文件组成。调用WriteHeader开始一个新文件，然后调用write写入数据，总共写入hdr.Size长度。
 ```
 
 ```golang 
 func NewWriter(w io.Writer) *Writer
   NewWriter creates a new Writer writing to w.
-  创建一个写入文件w
+  创建一个新的Writer对象w。
 ```
 
 ```golang
 func (tw *Writer) Close() error
   Close closes the tar archive, flushing any unwritten data to the underlying writer.
-  关闭归档，刷新任何写入的数据
+  关闭归档，刷新任何未写入的数据到底层writer
 ```
 
 ```golang
 func (tw *Writer) Flush() error
   Flush finishes writing the current file (optional).
-  刷新文件
+  刷新写入的文件
 ```
 
 ```golang
@@ -175,5 +211,5 @@ func (tw *Writer) Write(b []byte) (n int, err error)
 ```golang
 func (tw *Writer) WriteHeader(hdr *Header) error
   WriteHeader writes hdr and prepares to accept the file's contents. WriteHeader calls Flush if it is not the first header. Calling after a Close will return ErrWriteAfterClose.
-  编写访问目录，如果不是第一个标头调用刷新，在归档文件关闭的时候会返回错误“在关闭后写入”
+  写入hdr 准备访问文件的内容，如果不是第一个头就调用Flush，在归档文件返回 ErrWriteAfterClose之后调用Close方法
 ```
