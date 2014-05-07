@@ -156,27 +156,124 @@ type ReadCloser
   }
 ```
 
-  
+```golang
   func OpenReader(name string) (*ReadCloser, error)
     OpenReader will open the Zip file specified by name and return a ReadCloser.
-    根据文件名打开zip文件，返回一个类似句柄的东西
-    
+    打开指定名称的zip文件，返回ReadCloser
+```
+
+```golang
   func (rc *ReadCloser) Close() error
     Close closes the Zip file, rendering it unusable for I/O.
     关闭zip文件
-    
+```
+
+```golang
 type Reader
   type Reader struct {
         File    []*File
         Comment string
         // contains filtered or unexported fields
   }
+```
+```golang
+//例子
+// Open a zip archive for reading.
+r, err := zip.OpenReader("testdata/readme.zip")
+if err != nil {
+    log.Fatal(err)
+}
+defer r.Close()
+
+// Iterate through the files in the archive,
+// printing some of their contents.
+for _, f := range r.File {
+    fmt.Printf("Contents of %s:\n", f.Name)
+    rc, err := f.Open()
+    if err != nil {
+        log.Fatal(err)
+    }
+    _, err = io.CopyN(os.Stdout, rc, 68)
+    if err != nil {
+        log.Fatal(err)
+    }
+    rc.Close()
+    fmt.Println()
+}
+```
+Output:
+```golang
+Contents of README:
+This is the source code repository for the Go programming language.
+```
+
+```golang
   func NewReader(r io.ReaderAt, size int64) (*Reader, error)
     NewReader returns a new Reader reading from r, which is assumed to have the given size in bytes.
-    假定有给定大小的字符，返回指针r，
-    
+    返回给定size的新Reader
+```
+
+```golang    
 type Writer
-    func NewWriter(w io.Writer) *Writer
-    func (w *Writer) Close() error
-    func (w *Writer) Create(name string) (io.Writer, error)
-    func (w *Writer) CreateHeader(fh *FileHeader) (io.Writer, error)
+  type Writer struct {
+    // contains filtered or unexported fields
+  }
+  Writer implements a zip file writer.
+```
+
+```golang
+// Create a buffer to write our archive to.
+buf := new(bytes.Buffer)
+
+// Create a new zip archive.
+w := zip.NewWriter(buf)
+
+// Add some files to the archive.
+var files = []struct {
+    Name, Body string
+}{
+    {"readme.txt", "This archive contains some text files."},
+    {"gopher.txt", "Gopher names:\nGeorge\nGeoffrey\nGonzo"},
+    {"todo.txt", "Get animal handling licence.\nWrite more examples."},
+}
+for _, file := range files {
+    f, err := w.Create(file.Name)
+    if err != nil {
+        log.Fatal(err)
+    }
+    _, err = f.Write([]byte(file.Body))
+    if err != nil {
+        log.Fatal(err)
+    }
+}
+
+// Make sure to check the error on Close.
+err := w.Close()
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+```golang
+func NewWriter(w io.Writer) *Writer
+NewWriter returns a new Writer writing a zip file to w.
+返回一个新的Writer
+```
+
+```golang
+func (w *Writer) Close() error
+Close finishes writing the zip file by writing the central directory. It does not (and can not) close the underlying writer.
+结束写入ZIP文件。它不会（也不能）关闭相关的writer
+```
+
+```golang
+func (w *Writer) Create(name string) (io.Writer, error)
+Create adds a file to the zip file using the provided name. It returns a Writer to which the file contents should be written. The name must be a relative path: it must not start with a drive letter (e.g. C:) or leading slash, and only forward slashes are allowed. The file's contents must be written to the io.Writer before the next call to Create, CreateHeader, or Close.
+使用给定的name添加一个ZIP文件。文件可写入的情况下返回Writer。name必须是相对路径：不能以字母(e.g. C:) 或者前斜杠开头，只能用正斜杠。文件内容必须在 Create、CreateHeader 或 Close 前写入io.Writer
+```
+
+```golang
+func (w *Writer) CreateHeader(fh *FileHeader) (io.Writer, error)
+CreateHeader adds a file to the zip file using the provided FileHeader for the file metadata. It returns a Writer to which the file contents should be written. The file's contents must be written to the io.Writer before the next call to Create, CreateHeader, or Close.
+使用FileHeader的文件元数据 添加一个ZIP文件。文件可写入的情况下返回Writer.文件内容必须在 Create、CreateHeader 或 Close 前写入io.Writer
+```
