@@ -1,70 +1,164 @@
 包地址：http://golang.org/pkg/bytes/
+
+```golang
 Package bytes implements functions for the manipulation of byte slices. It is analogous to the facilities of the strings package.
 bytes 包实现了操作byte slices的方法。和它类似的是strings包
-
+```
+```golang
 func Compare(a, b []byte) int
-  Compare returns an integer comparing two byte slices lexicographically. The result will be 0 if a==b, -1 if a < b, and +1 if a > b. A nil argument is equivalent to an empty slice.
-  对比两个byte slices 返回整型对比结果。如果a==b返回0,如果a<b返回-1,如果a>b返回+1。nil参数等价于空的slice
+  Compare returns an integer comparing two byte slices lexicographically. 
+  The result will be 0 if a==b, -1 if a < b, and +1 if a > b. 
+  A nil argument is equivalent to an empty slice.
+  
+  对比两个byte slices 返回整型对比结果。
+  如果a==b返回0,如果a<b返回-1,如果a>b返回+1。
+  nil参数等价于空的slice
+```
 
+```golang
+	例子：
+	// Interpret Compare's result by comparing it to zero.
+	var a, b []byte
+	if bytes.Compare(a, b) < 0 {
+	    // a less b
+	}
+	if bytes.Compare(a, b) <= 0 {
+	    // a less or equal b
+	}
+	if bytes.Compare(a, b) > 0 {
+	    // a greater b
+	}
+	if bytes.Compare(a, b) >= 0 {
+	    // a greater or equal b
+	}
+	
+	// Prefer Equal to Compare for equality comparisons.
+	if bytes.Equal(a, b) {
+	    // a equal b
+	}
+	if !bytes.Equal(a, b) {
+	    // a not equal b
+	}
+```
+
+```golang
+	搜索例子：
+	// Binary search to find a matching byte slice. 搜索匹配的byte slice
+	var needle []byte
+	var haystack [][]byte // Assume sorted
+	i := sort.Search(len(haystack), func(i int) bool {
+	    // Return haystack[i] >= needle.
+	    return bytes.Compare(haystack[i], needle) >= 0
+	})
+	if i < len(haystack) && bytes.Equal(haystack[i], needle) {
+	    // Found it!
+	}
+```
+
+```golang
 func Contains(b, subslice []byte) bool
   Contains returns whether subslice is within b.
   Contains 返回subslice（切片）是否存在b
-  
+```
+
+```golang  
 func Count(s, sep []byte) int
   Count counts the number of non-overlapping instances of sep in s.
-  Count 统计s里不重复的sep的数量
-  
-func Equal(a, b []byte) bool
-  Equal returns a boolean reporting whether a == b. A nil argument is equivalent to an empty slice.
-  Equal返回a是否等b的布尔类型。nil参数相当于空slice
+  Count 统计s里出现的sep的次数，如果sep是空的 返回len(s)+1
+```
 
+```golang
+func Equal(a, b []byte) bool
+  Equal returns a boolean reporting whether a and b are the same length and contain the same bytes. A nil argument is equivalent to an empty slice.
+  Equal返回a和b是否长度和bytes都相等。nil和空slice相等
+```
+
+```golang
 func EqualFold(s, t []byte) bool
   EqualFold reports whether s and t, interpreted as UTF-8 strings, are equal under Unicode case-folding.
-  EqualFold t 从 s 截断看是不是对等的
+  EqualFold 判断s和t是否相等，忽略大小写，并对特殊字符进行转换
+```
 
+```golang
 func Fields(s []byte) [][]byte
-  Fields splits the slice s around each instance of one or more consecutive white space characters, returning a slice of subslices of s or an empty list if s contains only white space.
-  Fields 通过一个或多个连续的空格符 分割slice s，返回s的子切片，如果s只有空格符那返回空列
-  
-func FieldsFunc(s []byte, f func(rune) bool) [][]byte
-  FieldsFunc interprets s as a sequence of UTF-8-encoded Unicode code points. It splits the slice s at each run of code points c satisfying f(c) and returns a slice of subslices of s. If no code points in s satisfy f(c), an empty slice is returned.
-  FieldsFunc 根据utf编码的代码点排序s。它根据函数f 分割s，返回多个s的子切片。如果f里没有s的代码点，返回一个空slice
+  Fields splits the slice s around each instance of one or more consecutive white space characters, 
+  	returning a slice of subslices of s or an empty list if s contains only white space.
+  Fields 以空白符做分隔符 将s 切分为多个子串，返回s的子切片，如果s只有空格符那返回空列
+```
 
+```golang
+func FieldsFunc(s []byte, f func(rune) bool) [][]byte
+  FieldsFunc interprets s as a sequence of UTF-8-encoded Unicode code points. 
+  It splits the slice s at each run of code points c satisfying f(c) and returns a slice of subslices of s. 
+  If no code points in s satisfy f(c), an empty slice is returned.
+  
+  以一个或多个满足f(rune)的字符为分隔符。
+  将s切分为多个子串，结果中不包含分隔符本身
+  如果s中没有满足f(rune)的字符，返回空列表
+```
+
+```golang
 func HasPrefix(s, prefix []byte) bool
   HasPrefix tests whether the byte slice s begins with prefix。.
-  HasPrefix 检查s的开头是不是prefix
+  HasPrefix 判断s是不是以prefix开头
+```
 
+```golang
 func HasSuffix(s, suffix []byte) bool
   HasSuffix tests whether the byte slice s ends with suffix.
-  HasSuffix 检查s是不是以suffix结束的
+  HasSuffix 判断s是不是以suffix结束的
+```
 
+```golang
 func Index(s, sep []byte) int
   Index returns the index of the first instance of sep in s, or -1 if sep is not present in s.
-  Index返回sep在s里的索引，如果sep没有在s里返回-1
+  Index返回sep在s里第一次出现的索引，如果sep没有在s里返回-1
+```
 
+```golang
 func IndexAny(s []byte, chars string) int
-  IndexAny interprets s as a sequence of UTF-8-encoded Unicode code points. It returns the byte index of the first occurrence in s of any of the Unicode code points in chars. It returns -1 if chars is empty or if there is no code point in common.
-  IndexAny S是一个utf8 序列的代码点。返回在s里第一个遇到的chars的代码点的索引。如果chars是空的或者没有代码点返回-1
+  IndexAny interprets s as a sequence of UTF-8-encoded Unicode code points. 
+  It returns the byte index of the first occurrence in s of any of the Unicode code points in chars. 
+  It returns -1 if chars is empty or if there is no code point in common.
+  IndexAny 返回 chars 中的任何一个字符在 s 中第一次出现的位置。如果chars是空的或者找不到返回-1
+```
 
+```golang
 func IndexByte(s []byte, c byte) int
   IndexByte returns the index of the first instance of c in s, or -1 if c is not present in s.
-  返回s里遇到的第一个c的索引，如果c没有在s里，返回-1
+  返回 c在s中第一次出现的位置。如果c没有在s里，返回-1
+```
 
+```golang
 func IndexFunc(s []byte, f func(r rune) bool) int
-  IndexFunc interprets s as a sequence of UTF-8-encoded Unicode code points. It returns the byte index in s of the first Unicode code point satisfying f(c), or -1 if none do.
-  IndexFunc s一个UTF8序列的代码点。返回f中第一个遇到的Unicode 代码点的字节的索引。如果没有做返回-1
+  IndexFunc interprets s as a sequence of UTF-8-encoded Unicode code points. 
+  It returns the byte index in s of the first Unicode code point satisfying f(c), or -1 if none do.
+ 	返回s中第一个满足f(r rune)的字符的字节位置
+ 	如果没有返回-1
+```
 
+```golang
 func IndexRune(s []byte, r rune) int
-  IndexRune interprets s as a sequence of UTF-8-encoded Unicode code points. It returns the byte index of the first occurrence in s of the given rune. It returns -1 if rune is not present in s.
-  IndexRune s一个UTF8序列的代码点。返回s中第一个在rune里遇到字节的索引。如果rune没有出现在s里 返回-1
+  IndexRune interprets s as a sequence of UTF-8-encoded Unicode code points. 
+  It returns the byte index of the first occurrence in s of the given rune. 
+  It returns -1 if rune is not present in s.
+  返回r在s中第一次出现的位置。如果找不到返回-1
+```
 
+```golang
 func Join(s [][]byte, sep []byte) []byte
-  Join concatenates the elements of s to create a new byte slice. The separator sep is placed between elements in the resulting slice.
-  Join 连接s里的元素形成一个新的byte slice。在结果的slice中分隔符sep在两个元素之间。
+  Join concatenates the elements of s to create a new byte slice. 
+  The separator sep is placed between elements in the resulting slice.
+  
+  Join 连接s里的元素形成一个新的byte slice。sep是两个元素之间的分隔符。
+```
 
+```golang
 func LastIndex(s, sep []byte) int
   LastIndex returns the index of the last instance of sep in s, or -1 if sep is not present in s.
   LastIndex 返回在s中出现sep的最后的索引，如果sep没有在s里返回-1
+```
+
 
 func LastIndexAny(s []byte, chars string) int
   LastIndexAny interprets s as a sequence of UTF-8-encoded Unicode code points. It returns the byte index of the last occurrence in s of any of the Unicode code points in chars. It returns -1 if chars is empty or if there is no code point in common.
