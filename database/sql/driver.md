@@ -1,52 +1,56 @@
 包地址：http://golang.org/pkg/database/sql/driver/
 
+```golang
 Package driver defines interfaces to be implemented by database drivers as used by package sql.
-driver包 使用sql包定义实现 数据引擎的接口
 Most code should use package sql.
+driver包 使用sql包定义实现 数据引擎的接口
 大部分的代码都用sql包
 
+```
 
 Variables
-
+```golang
   var Bool boolType
     Bool is a ValueConverter that converts input values to bools.
     是一个值转换，转换输入的值成bools
     
+```golang
     The conversion rules are:
-    转换规则：
     - booleans are returned unchanged
-    布尔值返回不变
-    
     - for integer types, 
-    
-    -整型类型
-    
-         1 is true
-          
-          1是true
-          
-         0 is false,
-          
-          0是false
-         
-         other integers are an error
-          其他整型是错误
-          
+	     1 is true
+	     0 is false,
+      other integers are an error
     - for strings and []byte, same rules as strconv.ParseBool
-      string和[]byte 和strconv.ParseBool 的规则一样
     - all other types are an error
-      其他类型是错误
-    
+		转换规则：
+		布尔值返回不变
+		-整型类型
+		1是true
+		0是false
+		其他整型是错误
+		string和[]byte 和strconv.ParseBool 的规则一样
+		其他类型是错误
+```
+
+```golang
   var DefaultParameterConverter defaultConverter
-    DefaultParameterConverter is the default implementation of ValueConverter that's used when a Stmt doesn't implement ColumnConverter.
-    当一个Stmt 没有实现行转换默认实现值转化。
-    DefaultParameterConverter returns the given value directly if IsValue(value). Otherwise integer type are converted to int64, floats to float64, and strings to []byte. Other types are an error.
-    如果IsValue(value) 返回给定的值。其他的整型转换成int64,floats 转换成float64，strings 转换成 []byte。其他类型是错误。
-    
+```
+   DefaultParameterConverter is the default implementation of ValueConverter that's used when a Stmt doesn't implement ColumnConverter.
+   DefaultParameterConverter returns the given value directly if IsValue(value). 
+   Otherwise integer type are converted to int64, floats to float64, and strings to []byte. Other types are an error.
+    当一个Stmt 没有实现ColumnConverter 默认实现ValueConverter。
+    如果IsValue(value) 返回给定的值。
+    其他的整型转换成int64,floats 转换成float64，strings 转换成 []byte。其他类型是错误。
+
+```golang    
   var ErrBadConn = errors.New("driver: bad connection")
-    ErrBadConn should be returned by a driver to signal to the sql package that a driver.Conn is in a bad state (such as the server having earlier closed the connection) and the sql package should retry on a new connection.
-    当调用者传递信号到sql包， driver.Conn 是一个错误的状态时 返回该错误，并且sql包应该重试一个新连接。
-    To prevent duplicate operations, ErrBadConn should NOT be returned if there's a possibility that the database server might have performed the operation. Even if the server sends back an error, you shouldn't return ErrBadConn.
+```
+    ErrBadConn should be returned by a driver to signal to the sql package that a driver.
+    	Conn is in a bad state (such as the server having earlier closed the connection) and the sql package should retry on a new connection.
+    To prevent duplicate operations, ErrBadConn should NOT be returned if there's a possibility that the database server might have performed the operation. 
+    	Even if the server sends back an error, you shouldn't return ErrBadConn.
+    当driver传递信号到sql包 会返回driver， driver.Conn 是一个错误的状态时 （例如太早关闭连接），sql包应该重试一个新连接。
     为了防止重复操作，如果数据库服务器可能执行操作ErrBadConn 不应该返回。甚至如果服务器发送返回一个错误，你不应该返回ErrBadConn
   
   var ErrSkip = errors.New("driver: skip fast-path; continue as if unimplemented")
@@ -64,7 +68,7 @@ Variables
     String is a ValueConverter that converts its input to a string. If the value is already a string or []byte, it's unchanged. If the value is of another type, conversion to string is done with fmt.Sprintf("%v", v).
     值转化成string。如果值已经是string或者[]byte 值是不变的 。如果值是其他类型使用fmt.Sprintf("%v", v) 转换string
   
-
+```
 func IsScanValue(v interface{}) bool
   IsScanValue reports whether v is a valid Value scan type. Unlike IsValue, IsScanValue does not permit the string type.
   报告 v是否一个有效的scan 类型的值。不像IsValue，IsScanValue不允许string类型。
