@@ -219,11 +219,13 @@ type LoadBytes
     载入未解释字节的Mach-O .
 ```  
 
+func (LoadBytes) Raw
 ```golang
     func (b LoadBytes) Raw() []byte
 ```  
     
 type LoadCmd
+```golang
   type LoadCmd uint32
     A LoadCmd is a Mach-O load command.
     载入Mach-O命令
@@ -238,11 +240,20 @@ type LoadCmd
           LoadCmdDylinker   LoadCmd = 15
           LoadCmdSegment64  LoadCmd = 25
   )
-  
+```
 
+func (LoadCmd) GoString
+```golang
     func (i LoadCmd) GoString() string
+```
+
+func (LoadCmd) String
+```golang    
     func (i LoadCmd) String() string
+```
+    
 type Nlist32
+```golang
   type Nlist32 struct {
         Name  uint32
         Type  uint8
@@ -252,8 +263,10 @@ type Nlist32
   }
   An Nlist32 is a Mach-O 32-bit symbol table entry.
   是一个32位的输入符号表。
-  
+```
+
 type Nlist64
+```golang
   type Nlist64 struct {
         Name  uint32
         Type  uint8
@@ -263,8 +276,10 @@ type Nlist64
   }
   An Nlist64 is a Mach-O 64-bit symbol table entry.
   是一个64位的输入符号表。
-  
+```
+
 type Regs386
+```golang
   type Regs386 struct {
         AX    uint32
         BX    uint32
@@ -285,8 +300,10 @@ type Regs386
   }
   Regs386 is the Mach-O 386 register structure.
   386注册结构Mach-O
+```
   
 type RegsAMD64
+```golang
   type RegsAMD64 struct {
         AX    uint64
         BX    uint64
@@ -312,8 +329,10 @@ type RegsAMD64
   }
   RegsAMD64 is the Mach-O AMD64 register structure.
   AMD64注册结构Mach-O
-  
+```
+
 type Section
+```golang
   type Section struct {
         SectionHeader
 
@@ -326,17 +345,24 @@ type Section
         io.ReaderAt
         // contains filtered or unexported fields
   }
+```
 
-  func (s *Section) Data() ([]byte, error)
+func (s *Section) Data() ([]byte, error)
+```golang  
     func (s *Section) Data() ([]byte, error)
       Data reads and returns the contents of the Mach-O section.
       读取和返回Mach-O 章节内容
-      
+```
+
+func (*Section) Open
+```golang      
   func (s *Section) Open() io.ReadSeeker
     Open returns a new ReadSeeker reading the Mach-O section.
     返回一个新的ReadSeeker读取Mach-O 章节内容
+```
     
 type Section32
+```golang
   type Section32 struct {
         Name     [16]byte
         Seg      [16]byte
@@ -352,8 +378,10 @@ type Section32
   }
   A Section32 is a 32-bit Mach-O section header.
   32位 Mach-O 章节头
+```
 
 type Section64
+```golang
   type Section64 struct {
         Name     [16]byte
         Seg      [16]byte
@@ -370,8 +398,10 @@ type Section64
   }
   A Section32 is a 64-bit Mach-O section header.
   64位 Mach-O 章节头
+```
   
 type SectionHeader
+```golang
   type SectionHeader struct {
         Name   string
         Seg    string
@@ -383,8 +413,10 @@ type SectionHeader
         Nreloc uint32
         Flags  uint32
   }
+```
 
 type Segment
+```golang
   type Segment struct {
         LoadBytes
         SegmentHeader
@@ -400,16 +432,24 @@ type Segment
   }
   A Segment represents a Mach-O 32-bit or 64-bit load segment command.
   代表一个Mach-O 32位或64位的加载段命令
-  
+```
+
+func (*Segment) Data
+```golang  
     func (s *Segment) Data() ([]byte, error)
       Data reads and returns the contents of the segment.
       读取和返回段内容
-      
+```
+
+func (*Segment) Open
+```golang      
     func (s *Segment) Open() io.ReadSeeker
       Open returns a new ReadSeeker reading the segment.
-      开个一个新的 ReadSeeker 读取 段。
-    
+        开个一个新的 ReadSeeker 读取 段。
+```
+
 type Segment32
+```golang
   type Segment32 struct {
         Cmd     LoadCmd
         Len     uint32
@@ -425,8 +465,10 @@ type Segment32
   }
   A Segment32 is a 32-bit Mach-O segment load command.
   一个32位的Mach-O 段加载命令
+```
   
 type Segment64
+```golang
   type Segment64 struct {
         Cmd     LoadCmd
         Len     uint32
@@ -442,8 +484,10 @@ type Segment64
   }
   A Segment64 is a 64-bit Mach-O segment load command.
    一个64位的Mach-O 段加载命令
+```
   
 type SegmentHeader
+```golang
   type SegmentHeader struct {
         Cmd     LoadCmd
         Len     uint32
@@ -459,8 +503,10 @@ type SegmentHeader
   }
   A SegmentHeader is the header for a Mach-O 32-bit or 64-bit load segment command.
   Mach-O 32位或64位 加载段命令的头
+```
   
 type Symbol
+```golang
   type Symbol struct {
         Name  string
         Type  uint8
@@ -470,8 +516,10 @@ type Symbol
   }
   A Symbol is a Mach-O 32-bit or 64-bit symbol table entry.
   是 一个 Mach-O 32位或64位 符号表项。
+```
   
 type Symtab
+```golang
   type Symtab struct {
         LoadBytes
         SymtabCmd
@@ -479,8 +527,10 @@ type Symtab
   }
   A Symtab represents a Mach-O symbol table command.
   表示一个Mach-O  符号表命令
+```
 
 type SymtabCmd
+```golang
   type SymtabCmd struct {
         Cmd     LoadCmd
         Len     uint32
@@ -491,8 +541,10 @@ type SymtabCmd
   }
   A SymtabCmd is a Mach-O symbol table command.
   是一个Mach-O  符号表命令
+```
   
 type Thread
+```golang
   type Thread struct {
         Cmd  LoadCmd
         Len  uint32
@@ -501,8 +553,10 @@ type Thread
   }
   A Thread is a Mach-O thread state command.
   是一个 Mach-O 线程状态命令
+```
 
 type Type
+```golang
   type Type uint32
     A Type is a Mach-O file type, either an object or an executable.
     是一个Mach-O 文件 或者 对象或者 可执行文件  类型。
@@ -511,7 +565,4 @@ type Type
           TypeObj  Type = 1
           TypeExec Type = 2
   )
-
-Package files
-
-file.go macho.go
+```
