@@ -461,132 +461,119 @@ It returns the number of bytes written and any write error encountered.
 返回写入的字节数 和任何写入遇到的错误        
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-func Scan
+func Scan     
 ```golang
 func Scan(a ...interface{}) (n int, err error)
 ```
-Scan scans text read from standard input, storing successive space-separated values into successive arguments. 
-Newlines count as space. It returns the number of items successfully scanned. 
-If that is less than the number of arguments, err will report why.
-从标准输入读取扫描文本.存储连续的空格值到连续的参数
-换行符算做间隔.返回扫墓成功项的数量 
-如果少于参数的数量 ,报告为什么会错误
+Scan scans text read from standard input, storing successive space-separated values into successive arguments.      
+Newlines count as space. It returns the number of items successfully scanned.      
+If that is less than the number of arguments, err will report why.     
+从标准输入读取扫描文本.存储连续的空格值到连续的参数     
+换行符算做间隔.返回扫墓成功项的数量      
+如果少于参数的数量 ,报告为什么会错误     
 
 
-func Scanf
+func Scanf     
 ```golang
 func Scanf(format string, a ...interface{}) (n int, err error)
 ```
-Scanf scans text read from standard input, storing successive space-separated values into successive arguments as determined by the format. 
-It returns the number of items successfully scanned.
-Fscanf从r中读取扫描文本,存储连续的空格到 连续的参数 
-返回扫描成功项的数量
+Scanf scans text read from standard input, storing successive space-separated values into successive arguments as determined by the format.      
+It returns the number of items successfully scanned.     
+Fscanf从r中读取扫描文本,存储连续的空格到 连续的参数           
+返回扫描成功项的数量     
 
 
-func Scanln
+func Scanln     
 ```golang
 func Scanln(a ...interface{}) (n int, err error)
 ```
-Scanln is similar to Scan, but stops scanning at a newline and after the final item there must be a newline or EOF.
-类似Scan 但停止扫描换行和最后一个项目之后，必须有一个换行符或EOF。   
+Scanln is similar to Scan, but stops scanning at a newline and after the final item there must be a newline or EOF.     
+类似Scan 但停止扫描换行和最后一个项目之后，必须有一个换行符或EOF。        
 
 
-func Sprint
+func Sprint     
 ```golang
 func Sprint(a ...interface{}) string
 ```
-Sprint formats using the default formats for its operands and returns the resulting string. 
-Spaces are added between operands when neither is a string.
-使用默认的格式 格式化运算对象 返回结果字符串
-运算对象之间加入间隔	
+Sprint formats using the default formats for its operands and returns the resulting string.      
+Spaces are added between operands when neither is a string.     
+使用默认的格式 格式化运算对象 返回结果字符串     
+运算对象之间加入间隔	     
 
 
-func Sprintf
+func Sprintf     
 ```golang
 func Sprintf(format string, a ...interface{}) string
 ```
-Sprintf formats according to a format specifier and returns the resulting string.
-根据指定的格式 格式化 并返回结果字符串
+Sprintf formats according to a format specifier and returns the resulting string.     
+根据指定的格式 格式化 并返回结果字符串     
 
 
-func Sprintln
+func Sprintln     
 ```golang
 func Sprintln(a ...interface{}) string
 ```
-Sprintln formats using the default formats for its operands and returns the resulting string. 
-Spaces are always added between operands and a newline is appended.
-使用默认的格式 格式化运算对象 返回结果字符串
-运算对象之间加入间隔并追加换行符
+Sprintln formats using the default formats for its operands and returns the resulting string.      
+Spaces are always added between operands and a newline is appended.     
+使用默认的格式 格式化运算对象 返回结果字符串     
+运算对象之间加入间隔并追加换行符     
 
 
-func Sscan
+func Sscan     
 ```golang
 func Sscan(str string, a ...interface{}) (n int, err error)
 ```
-Sscan scans the argument string, storing successive space-separated values into successive arguments.
-Newlines count as space. It returns the number of items successfully scanned. 
-If that is less than the number of arguments, err will report why.
-从扫描参数字符串.存储连续的空格值到连续的参数
-换行符算做间隔.返回扫墓成功项的数量 
-如果少于参数的数量 ,报告为什么会错误
+Sscan scans the argument string, storing successive space-separated values into successive arguments.     
+Newlines count as space. It returns the number of items successfully scanned.      
+If that is less than the number of arguments, err will report why.     
+从扫描参数字符串.存储连续的空格值到连续的参数     
+换行符算做间隔.返回扫墓成功项的数量      
+如果少于参数的数量 ,报告为什么会错误     
 
 
-func Sscanf
+func Sscanf     
 ```golang
 func Sscanf(str string, format string, a ...interface{}) (n int, err error)
 ```
-Sscanf scans the argument string, storing successive space-separated values into successive arguments as determined by the format.
-It returns the number of items successfully parsed.
-从扫描参数字符串.存储连续的空格值到连续的参数
-返回解析成功项的数量
+Sscanf scans the argument string, storing successive space-separated values into successive arguments as determined by the format.     
+It returns the number of items successfully parsed.     
+从扫描参数字符串.存储连续的空格值到连续的参数     
+返回解析成功项的数量     
 
 
-func Sscanln
+func Sscanln     
 ```golang
 func Sscanln(str string, a ...interface{}) (n int, err error)
 ```
-Sscanln is similar to Sscan, but stops scanning at a newline and after the final item there must be a newline or EOF.
-类似Sscan  但停止扫描换行和最后一个项目之后，必须有一个换行符或EOF。
+Sscanln is similar to Sscan, but stops scanning at a newline and after the final item there must be a newline or EOF.     
+类似Sscan  但停止扫描换行和最后一个项目之后，必须有一个换行符或EOF。     
 
 
 
-type Formatter
+type Formatter     
 ```golang
 type Formatter interface {
     Format(f State, c rune)
 }
 ```
-Formatter is the interface implemented by values with a custom formatter. 
-The implementation of Format may call Sprint(f) or Fprint(f) etc. to generate its output.
-通过使用自定义值 实现接口
-实施Format 可以调用 Sprint(f) 或 Fprint(f)等. 以产生其输出
+Formatter is the interface implemented by values with a custom formatter.      
+The implementation of Format may call Sprint(f) or Fprint(f) etc. to generate its output.     
+通过使用自定义值 实现接口     
+实施Format 可以调用 Sprint(f) 或 Fprint(f)等. 以产生其输出     
 
-type GoStringer
+type GoStringer     
 ```golang
 type GoStringer interface {
     GoString() string
 }
 ```
-GoStringer is implemented by any value that has a GoString method, which defines the Go syntax for that value.
-The GoString method is used to print values passed as an operand to a %#v format.
-是任何有GoString方法 的值 ,为那个值定义GO语法
-打印 %#v 格式的运算对象值
+GoStringer is implemented by any value that has a GoString method, which defines the Go syntax for that value.     
+The GoString method is used to print values passed as an operand to a %#v format.     
+是任何有GoString方法 的值 ,为那个值定义GO语法     
+打印 %#v 格式的运算对象值     
 
 
-##type ScanState
+##type ScanState     
 ```golang
 type ScanState interface {
     // ReadRune reads the next rune (Unicode code point) from the input.
@@ -639,25 +626,25 @@ type ScanState interface {
     Read(buf []byte) (n int, err error)
 }
 ```
-ScanState represents the scanner state passed to custom scanners. 
-Scanners may do rune-at-a-time scanning or ask the ScanState to discover the next space-delimited token.
-表示自定义的scanners
-Scanners  可以rune 一次扫描 或者访问ScanState 寻找下一个分隔 token
+ScanState represents the scanner state passed to custom scanners.      
+Scanners may do rune-at-a-time scanning or ask the ScanState to discover the next space-delimited token.     
+表示自定义的scanners     
+Scanners  可以rune 一次扫描 或者访问ScanState 寻找下一个分隔 token     
 
 
-##type Scanner
+##type Scanner     
 ```golang
 type Scanner interface {
     Scan(state ScanState, verb rune) error
 }
 ```
-Scanner is implemented by any value that has a Scan method, 
-	which scans the input for the representation of a value and stores the result in the receiver, which must be a pointer to be useful. 
-The Scan method is called for any argument to Scan, Scanf, or Scanln that implements it.
-实现任何有Scan方法的值, 扫描输入的值 并且 在接收方存储结构,  必须是有效的指针
-Scan 方法 能被任何实现 Scan, Scanf, or Scanln 的参数调用
+Scanner is implemented by any value that has a Scan method,      
+	which scans the input for the representation of a value and stores the result in the receiver, which must be a pointer to be useful.      
+The Scan method is called for any argument to Scan, Scanf, or Scanln that implements it.     
+实现任何有Scan方法的值, 扫描输入的值 并且 在接收方存储结构,  必须是有效的指针     
+Scan 方法 能被任何实现 Scan, Scanf, or Scanln 的参数调用     
 
-##type State
+##type State     
 ```golang
 type State interface {
     // Write is the function to call to emit formatted output to be printed.
@@ -679,32 +666,22 @@ type State interface {
     Flag(c int) bool
 }
 ```
-State represents the printer state passed to custom formatters. 
-It provides access to the io.Writer interface plus information about the flags and options for the operand's format specifier.
-表示printer到自定义格式的状态
-提供访问io.Writer的接口 对运算对象以指定的格式 添加有关flag 的信息和选项
+State represents the printer state passed to custom formatters.      
+It provides access to the io.Writer interface plus information about the flags and options for the operand's format specifier.     
+表示printer到自定义格式的状态     
+提供访问io.Writer的接口 对运算对象以指定的格式 添加有关flag 的信息和选项     
 
 
-##type Stringer
+##type Stringer     
 ```golang
 type Stringer interface {
     String() string
 }
 ```
-Stringer is implemented by any value that has a String method, which defines the “native” format for that value. 
-The String method is used to print values passed as an operand to any format that accepts a string or to an unformatted printer such as Print.
-是任何有String方法 的值 ,为那个值定义了“native”格式
-String方法用来通过任何格式访问 字符串 或 未格式化 的 运算对象, 类似Print
-
-
-
-
-
-
-
-
-
-
+Stringer is implemented by any value that has a String method, which defines the “native” format for that value.      
+The String method is used to print values passed as an operand to any format that accepts a string or to an unformatted printer such as Print.     
+是任何有String方法 的值 ,为那个值定义了“native”格式     
+String方法用来通过任何格式访问 字符串 或 未格式化 的 运算对象, 类似Print     
 
 
 
