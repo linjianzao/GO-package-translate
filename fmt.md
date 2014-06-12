@@ -158,11 +158,121 @@ Another variant Println inserts blanks between operands and appends a newline.
 
 Regardless of the verb, if an operand is an interface value, the internal concrete value is used, not the interface itself. Thus:     
 
-Flags除了他们都被忽略
-比如 没有替代10进制格式, 所有 so %#d 和 %d 是相同的
-对于每个Printf之类的函数,也有不带任何格式的Print函数, 等价于对每个操作数使用%v
-其他的Println变种 在空白的操作数之间追加一个换行符
-无论是verb,
+Flags除了他们都被忽略      
+比如 没有替代10进制格式, 所有 so %#d 和 %d 是相同的      
+对于每个Printf之类的函数,也有不带任何格式的Print函数, 等价于对每个操作数使用%v      
+其他的Println变种 在空白的操作数之间追加一个换行符      
+不管verb,如果操作数是个接口值,使用内部具体的值,而不是接口本身,因此:      
+``golang
+	var i interface{} = 23
+	fmt.Printf("%v\n", i)
+```
+will print 23.      
+If an operand implements interface Formatter, that interface can be used for fine control of formatting.      
+If the format (which is implicitly %v for Println etc.) is valid for a string (%s %q %v %x %X), the following two rules also apply:      
+1. If an operand implements the error interface, the Error method will be used to convert the object to a string,       
+	which will then be formatted as required by the verb (if any).      
+2. If an operand implements method String() string, that method will be used to convert the object to a string,       
+	which will then be formatted as required by the verb (if any).      
+
+将会打印23      
+如果操作数实现Formatter接口,那个接口可以被精确的控制格式    
+如果格式(Println隐式地使用%v)是有效的字符串(%s %q %v %x %X),那会有下面的两个规则:    
+1.如果操作数实现了错误接口,Error方法转换对象成字符串,然后被格式化成所需的verb(若有的话)    
+2.如果操作数实现了字符串 的String()方法,那个方法转换对象成字符串,然后被格式化成所需的verb(若有的话)    
+
+To avoid recursion in cases such as      
+为了避免递归等情况    
+```golang
+	type X string
+	func (x X) String() string { return Sprintf("<%s>", x) }
+```
+
+convert the value before recurring:    
+在递归之前转换值    
+```golang
+	func (x X) String() string { return Sprintf("<%s>", string(x)) }
+```
+
+Explicit argument indexes:    
+
+In Printf, Sprintf, and Fprintf, the default behavior is for each formatting verb to format successive arguments passed in the call.     
+However, the notation [n] immediately before the verb indicates that the nth one-indexed argument is to be formatted instead.     
+The same notation before a '*' for a width or precision selects the argument index holding the value.     
+After processing a bracketed expression [n], arguments n+1, n+2, etc. will be processed unless otherwise directed.    
+
+显式参数索引:    
+在 Printf, Sprintf, 和 Fprintf,默认对调用时的每个verb 连续传递的参数 格式化        
+然而,符号 [n] 表示 第几个参数被格式化      
+同样的符合 在'*'之前 宽度或精度选择参数索引值。     
+括号后的表达示 [n], 参数 n+1, n+2, 等 除非有其他的说明 不然会被处理    
+
+For example,    
+比如:
+```golang
+	fmt.Sprintf("%[2]d %[1]d\n", 11, 22)
+```
+
+will yield "22, 11", while        
+将产生 "22, 11",而    
+```golang
+	fmt.Sprintf("%[3]*.[2]*[1]f", 12.0, 2, 6),
+```
+
+equivalent to
+等价于
+```golang
+	fmt.Sprintf("%6.2f", 12.0),
+```
+
+will yield " 12.00". Because an explicit index affects subsequent verbs,      
+	this notation can be used to print the same values multiple times by resetting the index for the first argument to be repeated:        
+结果是" 12.00".因为一个显示的值数影响后面的verbs,这个符号可以 根据第一个参数 重置索引 打印多次同一个值    
+```golang
+	fmt.Sprintf("%d %d %#[1]x %#x", 16, 17)
+```
+will yield "16 17 0x10 0x11".    
+结果是"16 17 0x10 0x11".    
+
+Format errors:     
+If an invalid argument is given for a verb, such as providing a string to %d,      
+	the generated string will contain a description of the problem, as in these examples:       
+格式化错误:     
+如果verb的参数是一个无效值,比如字符串 对应到 %d, 生成的字符串将会包含错误描述, 像下面这些例子    
+```golang
+	Wrong type or unknown verb: %!verb(type=value)  错误的类型或未知的verb
+		Printf("%d", hi):          %!d(string=hi)
+		
+	Too many arguments: %!(EXTRA type=value)  参数太多
+		Printf("hi", "guys"):      hi%!(EXTRA string=guys)
+		
+	Too few arguments: %!verb(MISSING)  参数太少
+		Printf("hi%d"):            hi %!d(MISSING)
+		
+		
+	Non-int for width or precision: %!(BADWIDTH) or %!(BADPREC)  非int的宽度或精度
+		Printf("%*s", 4.5, "hi"):  %!(BADWIDTH)hi
+		Printf("%.*s", 4.5, "hi"): %!(BADPREC)hi
+		
+	Invalid or invalid use of argument index: %!(BADINDEX)  无效 或者 无效使用 参数索引
+		Printf("%*[2]d", 7):       %!d(BADINDEX)
+		Printf("%.[2]d", 7):       %!d(BADINDEX)
+```
+
+All errors begin with the string "%!" followed sometimes by a single character (the verb) and end with a parenthesized description.    
+If an Error or String method triggers a panic when called by a print routine, the fmt package reformats the error message from the panic,     
+	decorating it with an indication that it came through the fmt package.	
+For example, if a String method calls panic("bad"), the resulting formatted message will look like  
+所有的错误都以字符串 "%!" 开始 ,有时候跟着单个字符 然后结束 加上括弧    
+如果Error或String方法在调用 打印 程序 触发 panic , fmt包重新定义 panic的错误信息格式,美化 然后抛出 fmt包    
+例如 如果  String方法调用 panic("bad"), 结果的信息将会是下面这个样子    
+```golang
+	%!s(PANIC=bad)
+```
+The %!s just shows the print verb in use when the failure occurred.       
+ %!s 只是显示打印verb 在失败的时候有调用    
+ 
+
 
 
 
