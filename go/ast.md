@@ -436,7 +436,7 @@ type BranchStmt struct {
 }
 ```
 A BranchStmt node represents a break, continue, goto, or fallthrough statement.     
-
+BranchStmt节点表示一个  break, continue, goto, 或 fallthrough语句     
 
 ##func (*BranchStmt) End     
 ```golang
@@ -449,46 +449,726 @@ func (s *BranchStmt) Pos() token.Pos
 ```
 
 
+##type CallExpr     
+```golang
+type CallExpr struct {
+        Fun      Expr      // function expression
+        Lparen   token.Pos // position of "("
+        Args     []Expr    // function arguments; or nil
+        Ellipsis token.Pos // position of "...", if any
+        Rparen   token.Pos // position of ")"
+}
+```
+A CallExpr node represents an expression followed by an argument list.     
+表示一个表达式的参数列表        
+
+##func (*CallExpr) End        
+```golang
+func (x *CallExpr) End() token.Pos
+```
+
+##func (*CallExpr) Pos        
+```golang
+func (x *CallExpr) Pos() token.Pos
+```
 
 
+##type CaseClause
+```golang
+type CaseClause struct {
+        Case  token.Pos // position of "case" or "default" keyword
+        List  []Expr    // list of expressions or types; nil means default case
+        Colon token.Pos // position of ":"
+        Body  []Stmt    // statement list; or nil
+}
+```
+A CaseClause represents a case of an expression or type switch statement.        
+一个表达式或类型switch语句的情况。        
+
+##func (*CaseClause) End        
+```golang
+func (s *CaseClause) End() token.Pos
+```
+
+##func (*CaseClause) Pos        
+```golang
+func (s *CaseClause) Pos() token.Pos
+```
 
 
+##type ChanDir        
+```golang
+type ChanDir int
+```
+The direction of a channel type is indicated by one of the following constants.        
+channel类型的方向是 下列常数操作之一。        
+
+```golang
+const (
+        SEND ChanDir = 1 << iota
+        RECV
+)
+```
+
+##type ChanType        
+```golang
+type ChanType struct {
+        Begin token.Pos // position of "chan" keyword or "<-" (whichever comes first)
+        						//chan关键字 或 "<-" 的位置(哪个是前面就哪个)
+        						
+        Arrow token.Pos // position of "<-" (token.NoPos if there is no "<-")
+        Dir   ChanDir   // channel direction
+        Value Expr      // value type
+}
+```
+A ChanType node represents a channel type.        
+表示一个channel类型        
+
+##func (*ChanType) End        
+```golang
+func (x *ChanType) End() token.Pos
+```
+
+##func (*ChanType) Pos        
+```golang
+func (x *ChanType) Pos() token.Pos
+```
 
 
+##type CommClause        
+```golang
+type CommClause struct {
+        Case  token.Pos // position of "case" or "default" keyword
+        Comm  Stmt      // send or receive statement; nil means default case
+        Colon token.Pos // position of ":"
+        Body  []Stmt    // statement list; or nil
+}
+```
+A CommClause node represents a case of a select statement.        
+表示一个select语句的情况。        
+
+##func (*CommClause) End        
+```golang
+func (s *CommClause) End() token.Pos
+```
+
+##func (*CommClause) Pos        
+```golang
+func (s *CommClause) Pos() token.Pos
+```
+
+##type Comment        
+```golang
+type Comment struct {
+        Slash token.Pos // position of "/" starting the comment
+        Text  string    // comment text (excluding '\n' for //-style comments)
+}
+A Comment node represents a single //-style or /*-style comment.        
+表示单个//-style 或 /*-style 注释
+
+##func (*Comment) End        
+```golang
+func (c *Comment) End() token.Pos
+```
+
+##func (*Comment) Pos        
+```golang
+func (c *Comment) Pos() token.Pos
+```
+
+##type CommentGroup        
+```golang
+type CommentGroup struct {
+        List []*Comment // len(List) > 0
+}
+```
+A CommentGroup represents a sequence of comments with no other tokens and no empty lines between.        
+表示 不空的行和没有其他tokens之间的 一序列的注释        
+
+##func (*CommentGroup) End        
+```golang
+func (g *CommentGroup) End() token.Pos
+```
+
+##func (*CommentGroup) Pos        
+```golang
+##func (g *CommentGroup) Pos() token.Pos
+```
+
+##func (*CommentGroup) Text        
+```golang
+func (g *CommentGroup) Text() string
+```
+Text returns the text of the comment.         
+Comment markers (//, /*, and */), the first space of a line comment, and leading and trailing empty lines are removed.         
+Multiple empty lines are reduced to one, and trailing space on lines is trimmed.         
+Unless the result is empty, it is newline-terminated.        
+返回注释文本,注释标记(//, /*, 和 */),第一种是行注释,并且开头和结尾的空行都删除        
+多个空行合并成一行,结果的空白会去掉.除非结果是空的,它是换行结束符        
 
 
+##type CommentMap        
+```golang
+type CommntMap map[Node][]*CommentGroup
+```
+A CommentMap maps an AST node to a list of comment groups associated with it.         
+See NewCommentMap for a description of the association.        
+CommentMap 映射 AST节点 到对应的 注释组的列表        
 
 
+##func NewCommentMap        
+```golang
+func NewCommentMap(fset *token.FileSet, node Node, comments []*CommentGroup) CommentMap
+```
+NewCommentMap creates a new comment map by associating comment groups of the comments list with the nodes of the AST specified by node.        
+NewCommentMap 用指定的节点创建 一个新的注释 映射到对应的注释组 的 AST节点注释列表        
+
+A comment group g is associated with a node n if:        
+注释组g 对应节点n 如果:        
+```golang
+- g starts on the same line as n ends
+     g 以同一行开始, n 结束
+
+- g starts on the line immediately following n, and there is
+    at least one empty line after g and before the next node
+     开始的行紧接者n, 并且 在g 之后和下一个节点之前 至少有一个空行
+    
+- g starts before n and is not associated to the node before n
+    via the previous rules
+   g 在n之间开始 并且 没有相关的节点在n之间通过前面的规则
+```
+NewCommentMap tries to associate a comment group to the "largest" node possible:         
+For instance, if the comment is a line comment trailing an assignment,         
+the comment is associated with the entire assignment rather than just the last operand in the assignment.        
+NewCommentMap尝试关联一个注释组 到 "最大的"节点:        
+例如:如果注释是 行注释 结尾的赋值, 注释和整个过程有关联而不是最后一个操作数赋值 .        
+
+##func (CommentMap) Comments        
+```golang
+func (cmap CommentMap) Comments() []*CommentGroup
+```
+Comments returns the list of comment groups in the comment map. The result is sorted is source order.        
+返回在注释映射里的 注释组列表. 结果的顺序是源顺序        
+
+##func (CommentMap) Filter        
+```golang
+func (cmap CommentMap) Filter(node Node) CommentMap
+```
+Filter returns a new comment map consisting of only those entries of cmap for which a corresponding node exists in the AST specified by node.        
+		返回 一个新的  注释 映射 由 只有这些   指定的node  在AST里相应存在的node的      cmap条目             
+
+##func (CommentMap) String             
+```golang
+func (cmap CommentMap) String() string
+```
+
+##func (CommentMap) Update             
+```golang
+func (cmap CommentMap) Update(old, new Node) Node
+```
+Update replaces an old node in the comment map with the new node and returns the new node.              
+Comments that were associated with the old node are associated with the new node.             
+使用新的节点 替换一个注释里的旧节点 并返回新的节点           
+注释关联 旧节点和新节点的关联            
+ 
+
+##type CompositeLit            
+```golang
+type CompositeLit struct {
+        Type   Expr      // literal type; or nil
+        Lbrace token.Pos // position of "{"
+        Elts   []Expr    // list of composite elements; or nil
+        Rbrace token.Pos // position of "}"
+}
+```
+A CompositeLit node represents a composite literal.            
+表示一个复合文字            
+
+##func (*CompositeLit) End            
+```golang
+func (x *CompositeLit) End() token.Pos
+```
 
 
+##func (*CompositeLit) Pos            
+```golang
+func (x *CompositeLit) Pos() token.Pos
+```
 
 
+##type Decl            
+```golang
+type Decl interface {
+        Node
+        // contains filtered or unexported methods
+}
+```
+All declaration nodes implement the Decl interface.            
+所有声明实现Decl接口的 节点            
 
 
+##type DeclStmt            
+type DeclStmt struct {
+        Decl Decl // *GenDecl with CONST, TYPE, or VAR token
+}
+A DeclStmt node represents a declaration in a statement list.            
+表示一个在声明列表里的声明            
+
+##func (*DeclStmt) End            
+```golang
+func (s *DeclStmt) End() token.Pos
+```
+
+##func (*DeclStmt) Pos            
+```golang
+func (s *DeclStmt) Pos() token.Pos
+```
 
 
+##type DeferStmt            
+```golang
+type DeferStmt struct {
+        Defer token.Pos // position of "defer" keyword
+        Call  *CallExpr
+}
+```
+A DeferStmt node represents a defer statement.            
+表示一个 延迟声明            
+
+##func (*DeferStmt) End            
+```golang
+func (s *DeferStmt) End() token.Pos
+```
+
+##func (*DeferStmt) Pos            
+```golang
+func (s *DeferStmt) Pos() token.Pos
+```
 
 
+##type Ellipsis            
+```golang
+type Ellipsis struct {
+        Ellipsis token.Pos // position of "..."
+        Elt      Expr      // ellipsis element type (parameter lists only); or nil
+}
+```
+An Ellipsis node stands for the "..." type in a parameter list or the "..." length in an array type.            
+代表参数列表里的 "..." 类型 或  数组类型里 "..." 代表长度            
+
+##func (*Ellipsis) End            
+```golang
+func (x *Ellipsis) End() token.Pos
+```
+
+##func (*Ellipsis) Pos            
+```golang
+func (x *Ellipsis) Pos() token.Pos
+```
 
 
+##type EmptyStmt            
+```golang
+type EmptyStmt struct {
+        Semicolon token.Pos // position of preceding ";"
+}
+```
+An EmptyStmt node represents an empty statement.             
+The "position" of the empty statement is the position of the immediately preceding semicolon.            
+表示一个空的声明. 空声明里的"position" 是紧接在前分号的位置。           
+
+##func (*EmptyStmt) End            
+```golang
+func (s *EmptyStmt) End() token.Pos
+```
+
+##func (*EmptyStmt) Pos            
+```golang
+func (s *EmptyStmt) Pos() token.Pos
+```
+
+##type Expr            
+```golang
+type Expr interface {
+        Node
+        // contains filtered or unexported methods
+}
+```
+All expression nodes implement the Expr interface.            
+所有实现Expr 接口的 表达式节点            
 
 
+##type ExprStmt            
+```golang
+type ExprStmt struct {
+        X Expr // expression
+}
+```
+An ExprStmt node represents a (stand-alone) expression in a statement list.                        
+表示 声明列表里的 一个表达式            
+
+##func (*ExprStmt) End            
+```golang
+func (s *ExprStmt) End() token.Pos
+```
+
+##func (*ExprStmt) Pos            
+```golang
+func (s *ExprStmt) Pos() token.Pos
+```
 
 
+##type Field            
+```golang
+type Field struct {
+        Doc     *CommentGroup // associated documentation; or nil
+        Names   []*Ident      // field/method/parameter names; or nil if anonymous field
+        Type    Expr          // field/method/parameter type
+        Tag     *BasicLit     // field tag; or nil
+        Comment *CommentGroup // line comments; or nil
+}
+```
+A Field represents a Field declaration list in a struct type, a method list in an interface type, or a parameter/result declaration in a signature.
+表示 结构体类型的 声明的字段列表, 接口类型的方法列表,或者在一个签名里的  参数/结果  声明
+
+##func (*Field) End            
+```golang
+func (f *Field) End() token.Pos
+```
+
+##func (*Field) Pos            
+```golang
+func (f *Field) Pos() token.Pos
+```
 
 
+##type FieldFilter            
+```golang
+type FieldFilter func(name string, value reflect.Value) bool           
+```
+A FieldFilter may be provided to Fprint to control the output.           
+可以让Fprint 控制 输出          
 
 
+##type FieldList            
+```golang
+type FieldList struct {
+        Opening token.Pos // position of opening parenthesis/brace, if any
+        List    []*Field  // field list; or nil
+        Closing token.Pos // position of closing parenthesis/brace, if any
+}
+```
+A FieldList represents a list of Fields, enclosed by parentheses or braces.            
+表示一个 字段 列表,用括号或大括号括起来。            
+
+##func (*FieldList) End            
+```golang
+func (f *FieldList) End() token.Pos
+```
+
+##func (*FieldList) NumFields            
+```golang
+func (f *FieldList) NumFields() int
+```
+NumFields returns the number of (named and anonymous fields) in a FieldList.            
+返回FieldList里的数量(命名和匿名字段)            
+
+##func (*FieldList) Pos            
+```golang
+func (f *FieldList) Pos() token.Pos
+```
+
+##type File            
+```golang
+type File struct {
+        Doc        *CommentGroup   // associated documentation; or nil
+        Package    token.Pos       // position of "package" keyword
+        Name       *Ident          // package name
+        Decls      []Decl          // top-level declarations; or nil
+        Scope      *Scope          // package scope (this file only)
+        Imports    []*ImportSpec   // imports in this file
+        Unresolved []*Ident        // unresolved identifiers in this file
+        Comments   []*CommentGroup // list of all comments in the source file
+}
+```
+A File node represents a Go source file.                       
+The Comments list contains all comments in the source file in order of appearance,                       
+	including the comments that are pointed to from other nodes via Doc and Comment fields.                      
+表示一个GO源文件           
+注释列表包含 在源文件里的所有注释的出现顺序,           
+包含从其他节点通过Doc和Comment字段指向的注释           
 
 
+##func MergePackageFiles           
+```golang
+func MergePackageFiles(pkg *Package, mode MergeMode) *File
+```
+MergePackageFiles creates a file AST by merging the ASTs of the files belonging to a package.            
+The mode flags control merging behavior.           
+创建一个文件 AST 通过合并一个包里的文件的AST          
+
+##func (*File) End           
+```golang
+func (f *File) End() token.Pos
+```
+
+##func (*File) Pos           
+```golang
+func (f *File) Pos() token.Pos
+```
 
 
+##type Filter          
+```golang
+type Filter func(string) bool
+```
 
 
+##type ForStmt          
+```golang
+type ForStmt struct {
+        For  token.Pos // position of "for" keyword
+        Init Stmt      // initialization statement; or nil
+        Cond Expr      // condition; or nil
+        Post Stmt      // post iteration statement; or nil
+        Body *BlockStmt
+}
+```
+A ForStmt represents a for statement.          
+表示一个 for声明          
+
+##func (*ForStmt) End          
+```golang
+func (s *ForStmt) End() token.Pos
+```
+
+##func (*ForStmt) Pos          
+```golang
+func (s *ForStmt) Pos() token.Pos
+```
+
+##type FuncDecl          
+```golang
+type FuncDecl struct {
+        Doc  *CommentGroup // associated documentation; or nil
+        Recv *FieldList    // receiver (methods); or nil (functions)
+        Name *Ident        // function/method name
+        Type *FuncType     // function signature: parameters, results, and position of "func" keyword
+        Body *BlockStmt    // function body; or nil (forward declaration)
+}
+```
+A FuncDecl node represents a function declaration.
+表示一个函数声明
+
+##func (*FuncDecl) End          
+```golang
+func (d *FuncDecl) End() token.Pos
+```
+
+##func (*FuncDecl) Pos          
+```golang
+func (d *FuncDecl) Pos() token.Pos
+```
 
 
+##type FuncLit          
+```golang
+type FuncLit struct {
+        Type *FuncType  // function type
+        Body *BlockStmt // function body
+}
+```
+A FuncLit node represents a function literal.          
+表示一个字面函数          
+
+##func (*FuncLit) End          
+```golang
+func (x *FuncLit) End() token.Pos
+```
+
+##func (*FuncLit) Pos          
+```golang
+func (x *FuncLit) Pos() token.Pos
+```
 
 
+##type FuncType          
+```golang
+type FuncType struct {
+        Func    token.Pos  // position of "func" keyword (token.NoPos if there is no "func")
+        Params  *FieldList // (incoming) parameters; non-nil
+        Results *FieldList // (outgoing) results; or nil
+}
+```
+A FuncType node represents a function type.          
+表示一个函数类型          
+
+##func (*FuncType) End         
+```golang
+func (x *FuncType) End() token.Pos
+```
+
+##func (*FuncType) Pos         
+```golang
+func (x *FuncType) Pos() token.Pos
+```
+
+
+##type GenDecl         
+```golang
+type GenDecl struct {
+        Doc    *CommentGroup // associated documentation; or nil
+        TokPos token.Pos     // position of Tok
+        Tok    token.Token   // IMPORT, CONST, TYPE, VAR
+        Lparen token.Pos     // position of '(', if any
+        Specs  []Spec
+        Rparen token.Pos // position of ')', if any
+}
+```
+A GenDecl node (generic declaration node) represents an import, constant, type or variable declaration.          
+A valid Lparen position (Lparen.Line > 0) indicates a parenthesized declaration.         
+表示一个引入,常数,类型,或变量 声明.         
+一个有效的Lparen位置(Lparen.Line > 0) 一个括号的声明。         
+
+Relationship between Tok value and Specs element type:                  
+Tok 值和Specs元素 之间的关系:         
+```golang
+token.IMPORT  *ImportSpec
+token.CONST   *ValueSpec
+token.TYPE    *TypeSpec
+token.VAR     *ValueSpec
+```
+
+##func (*GenDecl) End         
+```golang
+func (d *GenDecl) End() token.Pos
+```
+
+##func (*GenDecl) Pos         
+```golang
+func (d *GenDecl) Pos() token.Pos
+```
+
+
+##type GoStmt         
+```golang
+type GoStmt struct {
+        Go   token.Pos // position of "go" keyword
+        Call *CallExpr
+}
+```
+A GoStmt node represents a go statement.         
+表示一个go声明         
+
+##func (*GoStmt) End         
+```golang
+func (s *GoStmt) End() token.Pos
+```
+
+##func (*GoStmt) Pos         
+```golang
+func (s *GoStmt) Pos() token.Pos
+```
+
+
+##type Ident         
+```golang
+type Ident struct {
+        NamePos token.Pos // identifier position
+        Name    string    // identifier name
+        Obj     *Object   // denoted object; or nil
+}
+```
+An Ident node represents an identifier.         
+表示一个标识符         
+
+##func NewIdent                  
+```golang
+func NewIdent(name string) *Ident
+```
+NewIdent creates a new Ident without position. Useful for ASTs generated by code other than the Go parser.                  
+创建一个没有位置(position)的新Ident, 通过代码 比其他GO解析器 生成AST更有用         
+
+##func (*Ident) End         
+```glolang
+func (x *Ident) End() token.Pos
+```
+
+##func (*Ident) IsExported         
+```golang
+func (id *Ident) IsExported() bool
+```
+IsExported reports whether id is an exported Go symbol (that is, whether it begins with an uppercase letter).                           
+报告id 是否是一个可导出的GO符号(也就是说,它是否是以大写字母开头的)                  
+
+
+##func (*Ident) Pos         
+```golang
+func (x *Ident) Pos() token.Pos
+```
+
+##func (*Ident) String         
+```golang
+func (id *Ident) String() string
+```
+
+
+##type IfStmt         
+```golang
+type IfStmt struct {
+        If   token.Pos // position of "if" keyword
+        Init Stmt      // initialization statement; or nil
+        Cond Expr      // condition
+        Body *BlockStmt
+        Else Stmt // else branch; or nil
+}
+```
+An IfStmt node represents an if statement.         
+表示一个if语句         
+
+##func (*IfStmt) End         
+```golang
+func (s *IfStmt) End() token.Pos
+```
+
+##func (*IfStmt) Pos         
+```golang
+func (s *IfStmt) Pos() token.Pos
+```
+
+type ImportSpec
+
+type ImportSpec struct {
+        Doc     *CommentGroup // associated documentation; or nil
+        Name    *Ident        // local package name (including "."); or nil
+        Path    *BasicLit     // import path
+        Comment *CommentGroup // line comments; or nil
+        EndPos  token.Pos     // end of spec (overrides Path.Pos if nonzero)
+}
+An ImportSpec node represents a single package import.
+表示一个  单个的引入包
+
+func (*ImportSpec) End
+
+func (s *ImportSpec) End() token.Pos
+
+
+func (*ImportSpec) Pos
+
+func (s *ImportSpec) Pos() token.Pos
+Pos and End implementations for spec nodes.
+实现spec节点
+
+type Importer
+
+type Importer func(imports map[string]*Object, path string) (pkg *Object, err error)
+
+An Importer resolves import paths to package Objects. 
+The imports map records the packages already imported, indexed by package id (canonical import path). 
+An Importer must determine the canonical import path and check the map to see if it is already present in the imports map.
+If so, the Importer can return the map entry. 
+Otherwise, the Importer should load the package data for the given path into a new *Object (pkg), 
+ 	record pkg in the imports map, and then return pkg.
 
 
 
