@@ -3,7 +3,7 @@
 
 ##Overview    
 Package ast declares the types used to represent syntax trees for Go packages.    
-ast包声明了用于表示语法树的GO包的类型     
+ast包声明了用于表示GO包的语法树的类型     
 
 
 ##func FileExports     
@@ -704,7 +704,7 @@ type Decl interface {
 }
 ```
 All declaration nodes implement the Decl interface.            
-所有声明实现Decl接口的 节点            
+所有声明节点都实现了Decl接口           
 
 
 ##type DeclStmt            
@@ -795,7 +795,7 @@ type Expr interface {
 }
 ```
 All expression nodes implement the Expr interface.            
-所有实现Expr 接口的 表达式节点            
+所有表达式节点都实现了Expr接口            
 
 
 ##type ExprStmt            
@@ -1136,8 +1136,8 @@ func (s *IfStmt) End() token.Pos
 func (s *IfStmt) Pos() token.Pos
 ```
 
-type ImportSpec
-
+##type ImportSpec         
+```golang
 type ImportSpec struct {
         Doc     *CommentGroup // associated documentation; or nil
         Name    *Ident        // local package name (including "."); or nil
@@ -1145,34 +1145,707 @@ type ImportSpec struct {
         Comment *CommentGroup // line comments; or nil
         EndPos  token.Pos     // end of spec (overrides Path.Pos if nonzero)
 }
-An ImportSpec node represents a single package import.
-表示一个  单个的引入包
+```
+An ImportSpec node represents a single package import.         
+表示一个  单个的引入包         
 
-func (*ImportSpec) End
-
+##func (*ImportSpec) End         
+```golang
 func (s *ImportSpec) End() token.Pos
+```
 
-
-func (*ImportSpec) Pos
-
+##func (*ImportSpec) Pos         
+```golang
 func (s *ImportSpec) Pos() token.Pos
-Pos and End implementations for spec nodes.
-实现spec节点
+```
+Pos and End implementations for spec nodes.         
+实现规范节点         
 
-type Importer
-
+##type Importer         
+```golang
 type Importer func(imports map[string]*Object, path string) (pkg *Object, err error)
+```
+An Importer resolves import paths to package Objects.          
+The imports map records the packages already imported, indexed by package id (canonical import path).          
+An Importer must determine the canonical import path and check the map to see if it is already present in the imports map.         
+If so, the Importer can return the map entry.          
+Otherwise, the Importer should load the package data for the given path into a new *Object (pkg),          
+ 	record pkg in the imports map, and then return pkg.         
+解决了 解析导入包路径的Objects         
+imports记录了已导入的包,由包id索引(规范的导入路径)         
+Importer必须确定正确的导入路径并检查map 看 它是否已经存在在 imports里.如果存在,Importer返回 map条目.         
+否则Importer 应该用给定的路径 载入包数据 到一个新的 *Object (pkg), 在imports 里记录pkg 并返回pkg         
 
-An Importer resolves import paths to package Objects. 
-The imports map records the packages already imported, indexed by package id (canonical import path). 
-An Importer must determine the canonical import path and check the map to see if it is already present in the imports map.
-If so, the Importer can return the map entry. 
-Otherwise, the Importer should load the package data for the given path into a new *Object (pkg), 
- 	record pkg in the imports map, and then return pkg.
+
+##type IncDecStmt         
+```golang
+type IncDecStmt struct {
+        X      Expr
+        TokPos token.Pos   // position of Tok
+        Tok    token.Token // INC or DEC
+}
+```
+An IncDecStmt node represents an increment or decrement statement.         
+表示一个递增和递减的声明         
+
+##func (*IncDecStmt) End         
+```golang
+func (s *IncDecStmt) End() token.Pos
+```
+
+##func (*IncDecStmt) Pos         
+```golang
+func (s *IncDecStmt) Pos() token.Pos
+```
+
+##type IndexExpr         
+```golang
+type IndexExpr struct {
+        X      Expr      // expression
+        Lbrack token.Pos // position of "["
+        Index  Expr      // index expression
+        Rbrack token.Pos // position of "]"
+}
+```
+An IndexExpr node represents an expression followed by an index.         
+表示一个表达式加一个索引         
+
+##func (*IndexExpr) End         
+```golang
+func (x *IndexExpr) End() token.Pos
+```
+
+##func (*IndexExpr) Pos         
+```golang
+func (x *IndexExpr) Pos() token.Pos
+```
+
+##type InterfaceType         
+```golang
+type InterfaceType struct {
+        Interface  token.Pos  // position of "interface" keyword
+        Methods    *FieldList // list of methods
+        Incomplete bool       // true if (source) methods are missing in the Methods list
+}
+```
+An InterfaceType node represents an interface type.         
+表示一个接口类型         
+
+##func (*InterfaceType) End         
+```golang
+func (x *InterfaceType) End() token.Pos
+```
+
+##func (*InterfaceType) Pos         
+```golang
+func (x *InterfaceType) Pos() token.Pos
+```
+
+##type KeyValueExpr         
+```golang
+type KeyValueExpr struct {
+        Key   Expr
+        Colon token.Pos // position of ":"
+        Value Expr
+}
+```
+A KeyValueExpr node represents (key : value) pairs in composite literals.         
+表示(键:值)对的复合文字         
+
+##func (*KeyValueExpr) End         
+```golang
+func (x *KeyValueExpr) End() token.Pos
+```
+
+##func (*KeyValueExpr) Pos         
+```golang
+func (x *KeyValueExpr) Pos() token.Pos
+```
+
+##type LabeledStmt         
+```golang
+type LabeledStmt struct {
+        Label *Ident
+        Colon token.Pos // position of ":"
+        Stmt  Stmt
+}
+```
+A LabeledStmt node represents a labeled statement.         
+表示一个标记语句         
+
+##func (*LabeledStmt) End         
+```golang
+func (s *LabeledStmt) End() token.Pos
+```
+
+##func (*LabeledStmt) Pos         
+```golang
+func (s *LabeledStmt) Pos() token.Pos
+```
+
+##type MapType         
+```golang
+type MapType struct {
+        Map   token.Pos // position of "map" keyword
+        Key   Expr
+        Value Expr
+}
+```
+A MapType node represents a map type.         
+表示一个map类型         
+
+##func (*MapType) End         
+```golang
+func (x *MapType) End() token.Pos
+```
+
+##func (*MapType) Pos         
+```golang
+func (x *MapType) Pos() token.Pos
+```
+
+##type MergeMode         
+```golang
+type MergeMode uint
+```
+The MergeMode flags control the behavior of MergePackageFiles.         
+控制MergePackageFiles的行为         
+```golang
+const (
+        // If set, duplicate function declarations are excluded.
+          //如果设置,排除重复的函数声明
+        FilterFuncDuplicates MergeMode = 1 << iota
+        
+        // If set, comments that are not associated with a specific
+        // AST node (as Doc or Comment) are excluded.
+          //如果设置,排除 和指定AST节点无关的注释
+        FilterUnassociatedComments
+        
+        // If set, duplicate import declarations are excluded.
+          //如果设置,排除重复的导入声明
+        FilterImportDuplicates
+)
+```
 
 
+##type Node         
+```golang
+type Node interface {
+        Pos() token.Pos // position of first character belonging to the node
+        End() token.Pos // position of first character immediately after the node
+}
+```
+All node types implement the Node interface.         
+所有节点都实现了Node接口         
 
 
+##type ObjKind         
+```golang
+type ObjKind int
+```
+ObjKind describes what an object represents.         
+描述对象表示什么         
+```golang
+const (
+        Bad ObjKind = iota // for error handling
+        Pkg                // package
+        Con                // constant
+        Typ                // type
+        Var                // variable
+        Fun                // function or method
+        Lbl                // label
+)
+```
+The list of possible Object kinds.         
+可能的Object种类 列表         
+
+
+##type Object         
+```golang
+type Object struct {
+        Kind ObjKind
+        Name string      // declared name
+        Decl interface{} // corresponding Field, XxxSpec, FuncDecl, LabeledStmt, AssignStmt, Scope; or nil
+        Data interface{} // object-specific data; or nil
+        Type interface{} // place holder for type information; may be nil
+}
+```
+An Object describes a named language entity such as a package, constant, type, variable, function (incl. methods), or label.         
+描述了一个语言条目的实体 例如一个包,常量,类型,变量,函数或文本         
+
+The Data fields contains object-specific data:         
+Data字段包含对象特定数据：         
+```golang
+Kind    Data type         Data value
+Pkg	*types.Package    package scope
+Con     int               iota for the respective declaration
+Con     != nil            constant value
+Typ     *Scope            (used as method scope during type checking - transient)
+```
+
+##func NewObj         
+```golang
+func NewObj(kind ObjKind, name string) *Object
+```
+NewObj creates a new object of a given kind and name.         
+用给定的kind和name创建一个新的对象         
+
+##func (*Object) Pos         
+```golang
+func (obj *Object) Pos() token.Pos
+```
+Pos computes the source position of the declaration of an object name.          
+The result may be an invalid position if it cannot be computed (obj.Decl may be nil or not correct).         
+Pos 计算一个对象名称的声明的源位置         
+如果它不能被计算 结果可能是一个无效的位置(obj.Decl 可能是 nil 或不正确的).         
+
+
+##type Package         
+```golang
+type Package struct {
+        Name    string             // package name
+        Scope   *Scope             // package scope across all files
+        Imports map[string]*Object // map of package id -> package object
+        Files   map[string]*File   // Go source files by filename
+}
+```
+A Package node represents a set of source files collectively building a Go package.         
+表示 一组源文件共同构建的一个包         
+
+
+##func NewPackage         
+```golang
+func NewPackage(fset *token.FileSet, files map[string]*File, importer Importer, universe *Scope) (*Package, error)
+```
+NewPackage creates a new Package node from a set of File nodes.          
+It resolves unresolved identifiers across files and updates each file's Unresolved list accordingly.          
+If a non-nil importer and universe scope are provided, they are used to resolve identifiers not declared in any of the package files.          
+Any remaining unresolved identifiers are reported as undeclared.          
+If the files belong to different packages, one package name is selected and files with different package names are reported and then ignored.          
+The result is a package node and a scanner.ErrorList if there were errors.         
+从一组File节点中创建一个新的Package节点         
+它解决了跨files尚未解决的标识符并且更新了 每个文件对应的的Unresolved列表         
+如果importer是非nil并且提供universe范围,他们用来解析任何包files未定义的标识符         
+任何剩余未解析的标识符 报告成 未声明         
+如果files属于不同的包,选择一个包并  files 用不同的包名报告 然后忽略.         
+
+##func (*Package) End         
+```golang
+func (p *Package) End() token.Pos
+```
+
+##func (*Package) Pos         
+```golang
+func (p *Package) Pos() token.Pos         
+```
+
+##type ParenExpr         
+```golang
+type ParenExpr struct {
+        Lparen token.Pos // position of "("
+        X      Expr      // parenthesized expression
+        Rparen token.Pos // position of ")"
+}
+```
+A ParenExpr node represents a parenthesized expression.         
+表示一个括号内的表达式         
+
+##func (*ParenExpr) End         
+```golang
+func (x *ParenExpr) End() token.Pos
+```
+
+##func (*ParenExpr) Pos         
+```golang
+func (x *ParenExpr) Pos() token.Pos
+```
+
+##type RangeStmt         
+```golang
+type RangeStmt struct {
+        For        token.Pos   // position of "for" keyword
+        Key, Value Expr        // Value may be nil
+        TokPos     token.Pos   // position of Tok
+        Tok        token.Token // ASSIGN, DEFINE
+        X          Expr        // value to range over
+        Body       *BlockStmt
+}         
+```
+A RangeStmt represents a for statement with a range clause.         
+表示一个带 range的 for语句         
+
+##func (*RangeStmt) End         
+```golang
+func (s *RangeStmt) End() token.Pos
+```
+
+##func (*RangeStmt) Pos         
+```golang
+func (s *RangeStmt) Pos() token.Pos
+```
+
+##type ReturnStmt         
+```golang
+type ReturnStmt struct {
+        Return  token.Pos // position of "return" keyword
+        Results []Expr    // result expressions; or nil
+}
+```
+A ReturnStmt node represents a return statement.         
+表示一个返回语句         
+
+##func (*ReturnStmt) End         
+```golang
+func (s *ReturnStmt) End() token.Pos
+```
+
+##func (*ReturnStmt) Pos         
+```golang
+func (s *ReturnStmt) Pos() token.Pos
+```
+
+##type Scope         
+```golang
+type Scope struct {
+        Outer   *Scope
+        Objects map[string]*Object
+}
+```
+A Scope maintains the set of named language entities declared in the scope and a link to the immediately surrounding (outer) scope.         
+保持在组范围,并链接到周边（外）范围中声明的命名语言实体         
+
+
+##func NewScope         
+```golang
+func NewScope(outer *Scope) *Scope
+```
+NewScope creates a new scope nested in the outer scope.         
+创建一个在外部范围 的新嵌套scope         
+
+##func (*Scope) Insert         
+```golang
+func (s *Scope) Insert(obj *Object) (alt *Object)
+```
+Insert attempts to insert a named object obj into the scope s.          
+If the scope already contains an object alt with the same name, Insert leaves the scope unchanged and returns alt.          
+Otherwise it inserts obj and returns nil."         
+尝试 插入一个命名对象obj到s中         
+如果 scope已经包含一个同名的对象alt ,插入的scope不会改变  返回alt         
+
+
+##func (*Scope) Lookup         
+```golang
+func (s *Scope) Lookup(name string) *Object
+```
+Lookup returns the object with the given name if it is found in scope s, otherwise it returns nil. Outer scopes are ignored.         
+Lookup 使用给定的 name 在s查找,如果发现返回对象,否则返回nil.外部范围被忽略         
+
+##func (*Scope) String         
+```golang
+func (s *Scope) String() string
+```
+Debugging support         
+调试支持         
+
+
+##type SelectStmt         
+```golang
+type SelectStmt struct {
+        Select token.Pos  // position of "select" keyword
+        Body   *BlockStmt // CommClauses only
+}
+```
+An SelectStmt node represents a select statement.         
+表示一个select语句         
+
+##func (*SelectStmt) End         
+```golang
+func (s *SelectStmt) End() token.Pos
+```
+
+##func (*SelectStmt) Pos         
+```golang
+func (s *SelectStmt) Pos() token.Pos
+```
+
+##type SelectorExpr         
+```golang
+type SelectorExpr struct {
+        X   Expr   // expression
+        Sel *Ident // field selector
+}
+```
+A SelectorExpr node represents an expression followed by a selector.         
+表示一个表达式加一个选择         
+
+##func (*SelectorExpr) End         
+```golang
+func (x *SelectorExpr) End() token.Pos
+```
+
+##func (*SelectorExpr) Pos         
+```golang
+func (x *SelectorExpr) Pos() token.Pos
+```
+
+##type SendStmt         
+```golang
+type SendStmt struct {
+        Chan  Expr
+        Arrow token.Pos // position of "<-"
+        Value Expr
+}
+```
+A SendStmt node represents a send statement.         
+表示一个send语句         
+
+##func (*SendStmt) End         
+```golang
+func (s *SendStmt) End() token.Pos
+```
+
+
+##func (*SendStmt) Pos         
+```golang
+func (s *SendStmt) Pos() token.Pos
+```
+
+##type SliceExpr         
+```golang
+type SliceExpr struct {
+        X      Expr      // expression
+        Lbrack token.Pos // position of "["
+        Low    Expr      // begin of slice range; or nil
+        High   Expr      // end of slice range; or nil
+        Max    Expr      // maximum capacity of slice; or nil
+        Slice3 bool      // true if 3-index slice (2 colons present)
+        Rbrack token.Pos // position of "]"
+}
+```
+An SliceExpr node represents an expression followed by slice indices.         
+表示一个表达式slice索引         
+
+##func (*SliceExpr) End         
+```golang
+func (x *SliceExpr) End() token.Pos
+```
+
+##func (*SliceExpr) Pos         
+```golang
+func (x *SliceExpr) Pos() token.Pos
+```
+
+##type Spec         
+```golang
+type Spec interface {
+        Node
+        // contains filtered or unexported methods
+}
+```
+The Spec type stands for any of *ImportSpec, *ValueSpec, and *TypeSpec.         
+Spec类型表示任何 *ImportSpec, *ValueSpec, 和 *TypeSpec.         
+
+
+##type StarExpr         
+```golang
+type StarExpr struct {
+        Star token.Pos // position of "*"
+        X    Expr      // operand
+}
+```
+A StarExpr node represents an expression of the form "*" Expression.          
+Semantically it could be a unary "*" expression, or a pointer type.         
+StarExpr表示一个"*"形式的表达式         
+它的语义可以是 一元表达式"*" 或一个指针类型         
+
+##func (*StarExpr) End         
+```golang
+func (x *StarExpr) End() token.Pos
+```
+
+##func (*StarExpr) Pos         
+```golang
+func (x *StarExpr) Pos() token.Pos
+```
+
+##type Stmt
+```golang
+type Stmt interface {
+        Node
+        // contains filtered or unexported methods
+}
+```
+All statement nodes implement the Stmt interface.         
+所有声明节点都实现了Stmt接口         
+
+
+##type StructType         
+```golang
+type StructType struct {
+        Struct     token.Pos  // position of "struct" keyword
+        Fields     *FieldList // list of field declarations
+        Incomplete bool       // true if (source) fields are missing in the Fields list
+}
+```
+A StructType node represents a struct type.         
+表示一个struct类型         
+
+##func (*StructType) End         
+```golang
+func (x *StructType) End() token.Pos
+```
+
+##func (*StructType) Pos         
+```golang
+func (x *StructType) Pos() token.Pos
+```
+
+##type SwitchStmt         
+```golang
+type SwitchStmt struct {
+        Switch token.Pos  // position of "switch" keyword
+        Init   Stmt       // initialization statement; or nil
+        Tag    Expr       // tag expression; or nil
+        Body   *BlockStmt // CaseClauses only
+}
+```
+A SwitchStmt node represents an expression switch statement.         
+表示一个switch语句         
+
+##func (*SwitchStmt) End         
+```golang
+func (s *SwitchStmt) End() token.Pos
+```
+
+##func (*SwitchStmt) Pos         
+```golang
+func (s *SwitchStmt) Pos() token.Pos
+```
+
+##type TypeAssertExpr         
+```golang
+type TypeAssertExpr struct {
+        X      Expr      // expression
+        Lparen token.Pos // position of "("
+        Type   Expr      // asserted type; nil means type switch X.(type)
+        Rparen token.Pos // position of ")"
+}
+```
+A TypeAssertExpr node represents an expression followed by a type assertion.         
+表示一个表达式后跟一个类型的断言。         
+
+##func (*TypeAssertExpr) End         
+```golang
+func (x *TypeAssertExpr) End() token.Pos
+```
+
+##func (*TypeAssertExpr) Pos         
+```golang
+func (x *TypeAssertExpr) Pos() token.Pos
+         
+
+##type TypeSpec         
+```golang
+type TypeSpec struct {
+        Doc     *CommentGroup // associated documentation; or nil
+        Name    *Ident        // type name
+        Type    Expr          // *Ident, *ParenExpr, *SelectorExpr, *StarExpr, or any of the *XxxTypes
+        Comment *CommentGroup // line comments; or nil
+}
+```
+A TypeSpec node represents a type declaration (TypeSpec production).         
+表示一个类型声明         
+
+##func (*TypeSpec) End         
+```golang
+func (s *TypeSpec) End() token.Pos
+```
+
+##func (*TypeSpec) Pos         
+```golang
+func (s *TypeSpec) Pos() token.Pos
+```
+
+##type TypeSwitchStmt         
+```golang
+type TypeSwitchStmt struct {
+        Switch token.Pos  // position of "switch" keyword
+        Init   Stmt       // initialization statement; or nil
+        Assign Stmt       // x := y.(type) or y.(type)
+        Body   *BlockStmt // CaseClauses only
+}
+```
+An TypeSwitchStmt node represents a type switch statement.         
+表示一个switch语句类型         
+
+##func (*TypeSwitchStmt) End                  
+```golang
+func (s *TypeSwitchStmt) End() token.Pos
+```
+
+##func (*TypeSwitchStmt) Pos         
+```golang
+func (s *TypeSwitchStmt) Pos() token.Pos
+```
+
+
+##type UnaryExpr         
+```golang
+type UnaryExpr struct {
+        OpPos token.Pos   // position of Op
+        Op    token.Token // operator
+        X     Expr        // operand
+}
+```
+A UnaryExpr node represents a unary expression.          
+Unary "*" expressions are represented via StarExpr nodes.         
+表示一个 一元表达式.一元"*" 表达式 表示通过StarExpr节点         
+
+##func (*UnaryExpr) End         
+```golang
+func (x *UnaryExpr) End() token.Pos
+```
+
+##func (*UnaryExpr) Pos         
+```golang
+func (x *UnaryExpr) Pos() token.Pos
+```
+
+
+##type ValueSpec         
+```golang
+type ValueSpec struct {
+        Doc     *CommentGroup // associated documentation; or nil
+        Names   []*Ident      // value names (len(Names) > 0)
+        Type    Expr          // value type; or nil
+        Values  []Expr        // initial values; or nil
+        Comment *CommentGroup // line comments; or nil
+}
+```
+A ValueSpec node represents a constant or variable declaration (ConstSpec or VarSpec production).         
+表示一个常量或变量声明(ConstSpec 或 VarSpec产生)         
+
+##func (*ValueSpec) End         
+```golang
+func (s *ValueSpec) End() token.Pos
+```
+
+##func (*ValueSpec) Pos         
+```golang
+func (s *ValueSpec) Pos() token.Pos
+```
+
+
+##type Visitor         
+```golang
+type Visitor interface {
+        Visit(node Node) (w Visitor)
+}
+```
+A Visitor's Visit method is invoked for each node encountered by Walk.          
+If the result visitor w is not nil, Walk visits each of the children of node with the visitor w, followed by a call of w.Visit(nil).         
+Visit方法 为每个遇到的节点调用 Walk         
+如果结果w 不是nil,Walk 用w 访问每个子节点,跟着调用 w.Visit(nil).         
 
 
 
