@@ -2,10 +2,10 @@
 #Package doc         
 
 ##Overview 
-Package doc extracts source code documentation from a Go AST.
-doc包从 GO AST中提取 源代码文件
+Package doc extracts source code documentation from a Go AST.         
+doc包从 GO AST中提取 源代码文件         
 
-##Variables
+##Variables         
 ```golang
 var IllegalPrefixes = []string{
         "copyright",
