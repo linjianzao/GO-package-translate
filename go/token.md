@@ -16,7 +16,8 @@ A set of constants for precedence-based expression parsing.
 Non-operators have lowest precedence, followed by operators starting with precedence 1 up to unary operators. 
 The highest precedence serves as "catch-all" precedence for selector, indexing, and other operator and delimiter tokens.
 一组用于基于优先级的表达式解析常量。
-非操作是最低优先级,
+非操作是最低优先级, 随后开始与优先级为1的一元运算符 运算.
+最高优先级作为“包罗万象”的优先级selector, indexing, and other operator and delimiter tokens 
 
 
 type File
@@ -24,19 +25,38 @@ type File
 type File struct {
         // contains filtered or unexported fields
 }
-A File is a handle for a file belonging to a FileSet. A File has a name, size, and line offset table.
+A File is a handle for a file belonging to a FileSet. 
+A File has a name, size, and line offset table.
+File 处理 属于一个文件的FileSet
+File 有一个 名字.大小和行偏移表
+
 
 func (*File) AddLine
 
 func (f *File) AddLine(offset int)
-AddLine adds the line offset for a new line. The line offset must be larger than the offset for the previous line and smaller than the file size; otherwise the line offset is ignored.
+AddLine adds the line offset for a new line. 
+The line offset must be larger than the offset for the previous line and smaller than the file size; 
+otherwise the line offset is ignored.
+给一个新行添加 行偏移
+行偏移量必须 大于 前行的偏移 并且小于文件的大小
+否则行偏移被忽略
+
 
 func (*File) AddLineInfo
 
 func (f *File) AddLineInfo(offset int, filename string, line int)
-AddLineInfo adds alternative file and line number information for a given file offset. The offset must be larger than the offset for the previously added alternative line info and smaller than the file size; otherwise the information is ignored.
+AddLineInfo adds alternative file and line number information for a given file offset.
+The offset must be larger than the offset for the previously added alternative line info and smaller than the file size; 
+otherwise the information is ignored.
 
 AddLineInfo is typically used to register alternative position information for //line filename:line comments in source files.
+
+AddLineInfo添加可选文件和一个给定的文件偏移行号信息
+行偏移量必须 大于  以前添加的替代路线信息  并且小于文件的大小
+否则行偏移被忽略
+
+
+
 
 func (*File) Base
 
