@@ -870,85 +870,253 @@ type Rectangle struct {
 A Rectangle contains the points with Min.X <= X < Max.X, Min.Y <= Y < Max.Y. 
 It is well-formed if Min.X <= Max.X and likewise for Y. 
 Points are always well-formed. A rectangle's methods always return well-formed outputs for well-formed inputs.
-
+Rectangle 包含 Min.X <= X < Max.X, Min.Y <= Y < Max.Y. 
+这是良好的 如果Min.X <= Max.X  并且 Y也是一样的
+点始终是良好的,rectangle 方法 对 良好的输入 总会返回 良好的输出
 
 var ZR Rectangle
+
 ZR is the zero Rectangle.
 
 func Rect
 
 func Rect(x0, y0, x1, y1 int) Rectangle
 Rect is shorthand for Rectangle{Pt(x0, y0), Pt(x1, y1)}.
+Rectangle{Pt(x0, y0), Pt(x1, y1)}的简写
+
 
 func (Rectangle) Add
 
 func (r Rectangle) Add(p Point) Rectangle
 Add returns the rectangle r translated by p.
+返回矩形r转换为p。
+
 
 func (Rectangle) Canon
 
 func (r Rectangle) Canon() Rectangle
-Canon returns the canonical version of r. The returned rectangle has minimum and maximum coordinates swapped if necessary so that it is well-formed.
+Canon returns the canonical version of r. 
+The returned rectangle has minimum and maximum coordinates swapped if necessary so that it is well-formed.
+返回r的规范版本。
+返回值如果 需要的话 矩形有交换的最小和最大坐标 那样 它是好的
+
 
 func (Rectangle) Dx
 
 func (r Rectangle) Dx() int
 Dx returns r's width.
+返回r的宽度
 
 func (Rectangle) Dy
 
 func (r Rectangle) Dy() int
 Dy returns r's height.
+返回r的高
 
 func (Rectangle) Empty
 
 func (r Rectangle) Empty() bool
 Empty reports whether the rectangle contains no points.
+报告矩形是否包含任何点。
 
 func (Rectangle) Eq
 
 func (r Rectangle) Eq(s Rectangle) bool
 Eq reports whether r and s are equal.
+报告r和s是否相等
 
 func (Rectangle) In
 
 func (r Rectangle) In(s Rectangle) bool
 In reports whether every point in r is in s.
+报告r是否有任何点在s
 
 func (Rectangle) Inset
 
 func (r Rectangle) Inset(n int) Rectangle
-Inset returns the rectangle r inset by n, which may be negative. If either of r's dimensions is less than 2*n then an empty rectangle near the center of r will be returned.
+Inset returns the rectangle r inset by n, which may be negative. 
+If either of r's dimensions is less than 2*n then an empty rectangle near the center of r will be returned.
+返回n个分段的r,可能是负值.
+如果r尺寸小于2*n其后在接近R的中心一个空矩形将被退回。
 
 func (Rectangle) Intersect
 
 func (r Rectangle) Intersect(s Rectangle) Rectangle
-Intersect returns the largest rectangle contained by both r and s. If the two rectangles do not overlap then the zero rectangle will be returned.
+Intersect returns the largest rectangle contained by both r and s. 
+If the two rectangles do not overlap then the zero rectangle will be returned.
+返回包含由两个r和s的最大矩形。
+如果两个矩形没有重叠 将会返回零 矩形
 
 func (Rectangle) Overlaps
 
 func (r Rectangle) Overlaps(s Rectangle) bool
 Overlaps reports whether r and s have a non-empty intersection.
+报告r和s是否具有非空交集。
 
 func (Rectangle) Size
 
 func (r Rectangle) Size() Point
 Size returns r's width and height.
+返回r的宽和高
 
 func (Rectangle) String
 
 func (r Rectangle) String() string
 String returns a string representation of r like "(3,4)-(6,5)".
+返回 字符串表示的 r 如  "(3,4)-(6,5)"
 
 func (Rectangle) Sub
 
 func (r Rectangle) Sub(p Point) Rectangle
 Sub returns the rectangle r translated by -p.
+返回矩形r翻译-P。
 
 func (Rectangle) Union
 
 func (r Rectangle) Union(s Rectangle) Rectangle
 Union returns the smallest rectangle that contains both r and s.
+返回包含两个r和s的最小矩形。
+
+
+
+type Uniform
+
+type Uniform struct {
+        C color.Color
+}
+Uniform is an infinite-sized Image of uniform color. 
+It implements the color.Color, color.Model, and Image interfaces.
+为色泽均匀的无限大小的图片。
+它实现了 color.Color, color.Model, 和 Image 接口
+
+func NewUniform
+
+func NewUniform(c color.Color) *Uniform
+
+
+func (*Uniform) At
+
+func (c *Uniform) At(x, y int) color.Color
+
+
+func (*Uniform) Bounds
+
+func (c *Uniform) Bounds() Rectangle
+
+
+func (*Uniform) ColorModel
+
+func (c *Uniform) ColorModel() color.Model
+
+
+func (*Uniform) Convert
+
+func (c *Uniform) Convert(color.Color) color.Color
+
+
+func (*Uniform) Opaque
+
+func (c *Uniform) Opaque() bool
+Opaque scans the entire image and reports whether it is fully opaque.
+扫描整个图像和报告是否是完全不透明的。
+
+func (*Uniform) RGBA
+
+func (c *Uniform) RGBA() (r, g, b, a uint32)
+
+
+
+type YCbCr
+
+type YCbCr struct {
+        Y, Cb, Cr      []uint8
+        YStride        int
+        CStride        int
+        SubsampleRatio YCbCrSubsampleRatio
+        Rect           Rectangle
+}
+YCbCr is an in-memory image of Y'CbCr colors. 
+There is one Y sample per pixel, but each Cb and Cr sample can span one or more pixels. 
+YStride is the Y slice index delta between vertically adjacent pixels. 
+CStride is the Cb and Cr slice index delta between vertically adjacent pixels that map to separate chroma samples. 
+It is not an absolute requirement, but YStride and len(Y) are typically multiples of 8, and:
+是在内存中图像的Y'CbCr的颜色。
+有每像素一个Y样本,但每个Cb和Cr采样可以跨越一个或多个像素。
+YStride是垂直相邻的像素之间在Y分片索引。
+CStride是映射到单独的色度样本垂直相邻的像素之间的Cb和Cr片折射率增量。
+这不是一个绝对的要求，但YStride和len（Y）通常是8的倍数，并且：
+
+For 4:4:4, CStride == YStride/1 && len(Cb) == len(Cr) == len(Y)/1.
+For 4:2:2, CStride == YStride/2 && len(Cb) == len(Cr) == len(Y)/2.
+For 4:2:0, CStride == YStride/2 && len(Cb) == len(Cr) == len(Y)/4.
+For 4:4:0, CStride == YStride/1 && len(Cb) == len(Cr) == len(Y)/2.
+func NewYCbCr
+
+func NewYCbCr(r Rectangle, subsampleRatio YCbCrSubsampleRatio) *YCbCr
+NewYCbCr returns a new YCbCr with the given bounds and subsample ratio.
+返回一个新的YCbCr与给定的范围和子样本的比例。
+
+func (*YCbCr) At
+
+func (p *YCbCr) At(x, y int) color.Color
+func (*YCbCr) Bounds
+
+func (p *YCbCr) Bounds() Rectangle
+func (*YCbCr) COffset
+
+func (p *YCbCr) COffset(x, y int) int
+COffset returns the index of the first element of Cb or Cr that corresponds to the pixel at (x, y).
+返回CB或CR相对应的像素的（x，y）的第一个元素的索引。
+
+func (*YCbCr) ColorModel
+
+func (p *YCbCr) ColorModel() color.Model
+
+
+func (*YCbCr) Opaque
+
+func (p *YCbCr) Opaque() bool
+
+
+func (*YCbCr) SubImage
+
+func (p *YCbCr) SubImage(r Rectangle) Image
+SubImage returns an image representing the portion of the image p visible through r.
+The returned value shares pixels with the original image.
+SubImage返回表示图像P经由r可见的部分的图像。
+返回值与源图像 共享 像素
+
+func (*YCbCr) YOffset
+
+func (p *YCbCr) YOffset(x, y int) int
+YOffset returns the index of the first element of Y that corresponds to the pixel at (x, y).
+返回的Y对应于该像素的（x，y）的第一个元素的索引。
+
+type YCbCrSubsampleRatio
+
+type YCbCrSubsampleRatio int
+YCbCrSubsampleRatio is the chroma subsample ratio used in a YCbCr image.
+是在RGB图像中使用的色度二次采样比率。
+
+const (
+        YCbCrSubsampleRatio444 YCbCrSubsampleRatio = iota
+        YCbCrSubsampleRatio422
+        YCbCrSubsampleRatio420
+        YCbCrSubsampleRatio440
+)
+
+
+func (YCbCrSubsampleRatio) String
+
+func (s YCbCrSubsampleRatio) String() string
+
+
+
+
+
+
+
+
 
 
 
