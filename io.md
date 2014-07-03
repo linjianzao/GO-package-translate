@@ -8,8 +8,8 @@ Its primary job is to wrap existing implementations of such primitives, such as 
 Because these interfaces and primitives wrap lower-level operations with various implementations, unless otherwise informed clients should not assume they are safe for parallel execution.
 
 io包提供基础I/O基元接口
-它的主要工作是包含了这样的原语的现有实现,这些在os包里也是这样的, 共享公共的接口的抽象的功能,再加上一些其他相关的原函数。
-因为这些接口和原函数包含 低级操作和各种实现,除非另有通知客户端不应该假定他们是安全的并行执行。
+它的主要工作是包装了这样的原语的现有实现,这些在os包里也是这样的, 共享公共的接口的抽象的功能,再加上一些其他相关的原函数。
+因为这些接口和原函数包装 低级操作和各种实现,除非另有通知客户端不应该假定他们是安全的并行执行。
 
 
 Variables
@@ -130,7 +130,7 @@ type ByteReader interface {
 ByteReader is the interface that wraps the ReadByte method.
 
 ReadByte reads and returns the next byte from the input. If no byte is available, err will be set.
-ByteReader是包含 ReadByte方法的接口
+ByteReader是包装 ReadByte方法的接口
 从输入中读取和返回下一个字节.如果没有字节有效,会设置 err
 
 
@@ -155,7 +155,7 @@ type ByteWriter interface {
         WriteByte(c byte) error
 }
 ByteWriter is the interface that wraps the WriteByte method.
-包含WriteByte方法 接口
+包装WriteByte方法 接口
 
 
 type Closer
@@ -167,7 +167,7 @@ Closer is the interface that wraps the basic Close method.
 
 The behavior of Close after the first call is undefined. 
 Specific implementations may document their own behavior.
-包含基础Close方法的接口
+包装基础Close方法的接口
 在第一次调用后 Close 是undefined
 
 
@@ -338,7 +338,7 @@ type Reader interface {
         Read(p []byte) (n int, err error)
 }
 Reader is the interface that wraps the basic Read method.
-包含基础Read方法的接口
+包装基础Read方法的接口
 Read reads up to len(p) bytes into p. 
 It returns the number of bytes read (0 <= n <= len(p)) and any error encountered. 
 Even if Read returns n < len(p), it may use all of p as scratch space during the call. 
@@ -406,7 +406,7 @@ type ReaderAt interface {
         ReadAt(p []byte, off int64) (n int, err error)
 }
 ReaderAt is the interface that wraps the basic ReadAt method.
-ReaderAt包含基础ReadAt 方法的接口
+ReaderAt包装基础ReadAt 方法的接口
 
 ReadAt reads len(p) bytes into p starting at offset off in the underlying input source. 
 It returns the number of bytes read (0 <= n <= len(p)) and any error encountered.
@@ -420,12 +420,264 @@ In this respect, ReadAt is stricter than Read.
 Even if ReadAt returns n < len(p), it may use all of p as scratch space during the call. 
 If some data is available but not len(p) bytes, ReadAt blocks until either all the data is available or an error occurs. 
 In this respect ReadAt is different from Read.
+即使 如果 ReadAt 返回 n < len(p),它可以在调用过程中使用的所有P的暂存空间。
+如果一些数据有效 但没有 到 len(p)字节,ReadAt块,直到所有的数据是可用或发生错误.
+在这方面ReadAt和Read是不一样的
 
 If the n = len(p) bytes returned by ReadAt are at the end of the input source, ReadAt may return either err == EOF or err == nil.
 
 If ReadAt is reading from an input source with a seek offset, ReadAt should not affect nor be affected by the underlying seek offset.
 
 Clients of ReadAt can execute parallel ReadAt calls on the same input source.
+
+如果 n = len(p) 字节  , ReadAt  返回输入源的结尾,ReadAt 也可能会返回 err == EOF  或 err == nil
+如果ReadAt 从输入源以一个 seek 偏移读取,ReadAt 不会影响到底层的 seek 偏移
+ReadAt客户端 可以执行并行, ReadAt可以调用相同的输入源
+
+
+type ReaderFrom
+
+type ReaderFrom interface {
+        ReadFrom(r Reader) (n int64, err error)
+}
+ReaderFrom is the interface that wraps the ReadFrom method.
+
+ReadFrom reads data from r until EOF or error. 
+The return value n is the number of bytes read. 
+Any error except io.EOF encountered during the read is also returned.
+
+The Copy function uses ReaderFrom if available.
+
+ReaderFrom是包装了ReadFrom方法接口
+ReadFrom从r中读取数据 直到遇到 EOF 或 错误.
+返回值n 是 读取的字节数
+任何在读取的过程遇到的错误除 io.EOF 都会被返回 
+如果有效的话,Copy函数会使用 ReaderFrom
+
+
+type RuneReader
+
+type RuneReader interface {
+        ReadRune() (r rune, size int, err error)
+}
+RuneReader is the interface that wraps the ReadRune method.
+
+ReadRune reads a single UTF-8 encoded Unicode character and returns the rune and its size in bytes.
+If no character is available, err will be set.
+RuneReader是包装了ReadRune方法的接口。
+ReadRune读取单个的 UTF-8 编码 Unicode 字符 并且返回 以字节为单位的rune和它的大小。
+
+
+type RuneScanner
+
+type RuneScanner interface {
+        RuneReader
+        UnreadRune() error
+}
+RuneScanner is the interface that adds the UnreadRune method to the basic ReadRune method.
+
+UnreadRune causes the next call to ReadRune to return the same rune as the previous call to ReadRune. 
+It may be an error to call UnreadRune twice without an intervening call to ReadRune.
+RuneScanner是添加了 UnreadRune方法到 基础 ReadRune 方法的接口
+UnreadRune引起下一个调用 ReadRune返回 和上一次调用ReadRune  相同的 rune 
+在两次调用UnreadRune中间没有调用ReadRune  可能会有错误.
+
+
+func NewSectionReader
+
+func NewSectionReader(r ReaderAt, off int64, n int64) *SectionReader
+NewSectionReader returns a SectionReader that reads from r starting at offset off and stops with EOF after n bytes.
+NewSectionReader 返回一个 SectionReader 用来 从r中从 偏移开始 读取  到n个字节后  的EOF结束
+
+
+func (*SectionReader) Read
+
+func (s *SectionReader) Read(p []byte) (n int, err error)
+
+
+func (*SectionReader) ReadAt
+
+func (s *SectionReader) ReadAt(p []byte, off int64) (n int, err error)
+
+
+func (*SectionReader) Seek
+
+func (s *SectionReader) Seek(offset int64, whence int) (int64, error)
+
+
+func (*SectionReader) Size
+
+func (s *SectionReader) Size() int64
+Size returns the size of the section in bytes.
+以字节 返回 章节的大小
+
+
+type Seeker
+
+type Seeker interface {
+        Seek(offset int64, whence int) (int64, error)
+}
+Seeker is the interface that wraps the basic Seek method.
+
+Seek sets the offset for the next Read or Write to offset, interpreted according to whence: 
+	0 means relative to the origin of the file, 
+	1 means relative to the current offset, and 
+	2 means relative to the end. 
+	Seek returns the new offset and an error, if any.
+
+Seeking to a negative offset is an error. 
+Seeking to any positive offset is legal, but the behavior of subsequent I/O operations on the underlying object is implementation-dependent.
+Seeker是包装了 基础 Seek 方法 的接口
+Seek 设置 下一个Read 或 Write 偏移量,根据此处解释:
+	0意味着相对于文件的原点，
+	1意味着相对于当前的偏移量
+	2意味着相对于结束点
+	Seek 返回新的 偏移和 遇到的任何错误
+Seeking负偏移量是一个错误.
+Seeking 任何正偏移都是合法的,但底层的对象在随后的I / O操作的行为是依赖于实现。
+	
+
+type WriteCloser
+
+type WriteCloser interface {
+        Writer
+        Closer
+}
+WriteCloser is the interface that groups the basic Write and Close methods.
+WriteCloser是 群组的基础Write 和 Close方法接口
+
+
+type WriteSeeker
+
+type WriteSeeker interface {
+        Writer
+        Seeker
+}
+WriteSeeker is the interface that groups the basic Write and Seek methods.
+WriteSeeker是 群组的基础Write 和 Seek方法接口
+
+
+
+type Writer
+
+type Writer interface {
+        Write(p []byte) (n int, err error)
+}
+Writer is the interface that wraps the basic Write method.
+
+Write writes len(p) bytes from p to the underlying data stream. 
+It returns the number of bytes written from p (0 <= n <= len(p)) and any error encountered that caused the write to stop early. 
+Write must return a non-nil error if it returns n < len(p). 
+Write must not modify the slice data, even temporarily.
+Writer是包装基础Write方法的基础
+Write从p中写入 len(p) 字节长度 到底层数据流
+它返回从p写入的字节数(0 <= n <= len(p)) 和任何遇到的导致写入停止的错误
+如果n < len(p) 那 Write 必须返回一个非nil错误
+Write 不允许修改slice数据,即使只是暂时的 
+
+
+
+func MultiWriter
+
+func MultiWriter(writers ...Writer) Writer
+MultiWriter creates a writer that duplicates its writes to all the provided writers, similar to the Unix tee(1) command.
+MultiWriter创建一个writer 复制其写入到所有的writers提供,类似Unix的tee(1)命令 
+
+
+type WriterAt
+
+type WriterAt interface {
+        WriteAt(p []byte, off int64) (n int, err error)
+}
+WriterAt is the interface that wraps the basic WriteAt method.
+
+WriteAt writes len(p) bytes from p to the underlying data stream at offset off. 
+It returns the number of bytes written from p (0 <= n <= len(p)) and any error encountered that caused the write to stop early. 
+WriteAt must return a non-nil error if it returns n < len(p).
+
+If WriteAt is writing to a destination with a seek offset, WriteAt should not affect nor be affected by the underlying seek offset.
+
+Clients of WriteAt can execute parallel WriteAt calls on the same destination if the ranges do not overlap.
+WriterAt包装基础WriteAt方法接口.
+WriteAt 从p 写入 len(p)长度的 字节到偏移的底层数据流
+它返回从p写入的字节数(0 <= n <= len(p)) 和任何遇到的导致写入停止的错误
+如果n < len(p) 那 WriteAt 必须返回一个非nil错误
+如果WriteAt 写入的 最终是一个 seek 偏移,WriteAt不应该影响也不受到相关 底层seek 偏移影响
+如果范围没有重叠,WriteAt客户端可以在同一个目的 并行执行 WriteAt
+
+
+
+type WriterTo
+
+type WriterTo interface {
+        WriteTo(w Writer) (n int64, err error)
+}
+WriterTo is the interface that wraps the WriteTo method.
+
+WriteTo writes data to w until there's no more data to write or when an error occurs. 
+The return value n is the number of bytes written. 
+Any error encountered during the write is also returned.
+
+The Copy function uses WriterTo if available.
+WriterTo是包装 WriteTo方法的接口
+WriteTo 写入数据到w 直到没有更多的数据 可写 或 遇到错误
+返回值n是写入的字节数
+任何写入过程遇到的错误都会返回
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
