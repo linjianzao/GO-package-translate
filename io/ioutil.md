@@ -83,3 +83,13 @@ If the file does not exist, WriteFile creates it with permissions perm; otherwis
 WriteFile用filename 写入数据到一个 命名文件.
 如果文件不存在,WriteFile创建一个perm权限的文件.否则WriteFile会在写入之前截断.
 
+
+
+
+
+
+
+
+
+
+

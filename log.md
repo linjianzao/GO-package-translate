@@ -159,15 +159,148 @@ it guarantees to serialize access to the Writer.
 每个日志 操作 单个  Writer的 Write方法.
 
 
+example:
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"log"
+)
+
+func main() {
+	var buf bytes.Buffer
+	logger := log.New(&buf, "logger: ", log.Lshortfile)
+	logger.Print("Hello, log file!")
+
+	fmt.Print(&buf)
+}
 
 
 
 
+func New
+
+func New(out io.Writer, prefix string, flag int) *Logger
+New creates a new Logger. 
+The out variable sets the destination to which log data will be written. 
+The prefix appears at the beginning of each generated log line. 
+The flag argument defines the logging properties.
+创建一个新的Logger
+out变量设置到日志数据将被写入目的地
+prefix出现在每个日志生成行的开头
+flag参数定义了日志的属性
 
 
 
+func (*Logger) Fatal
+
+func (l *Logger) Fatal(v ...interface{})
+Fatal is equivalent to l.Print() followed by a call to os.Exit(1).
+Fatal 等价于 l.Print()  随后调用 os.Exit(1).
 
 
+func (*Logger) Fatalf
+
+func (l *Logger) Fatalf(format string, v ...interface{})
+Fatalf is equivalent to l.Printf() followed by a call to os.Exit(1).
+Fatalf 等价于 l.Printf()  随后调用 os.Exit(1).
+
+
+func (*Logger) Fatalln
+
+func (l *Logger) Fatalln(v ...interface{})
+Fatalln is equivalent to l.Println() followed by a call to os.Exit(1).
+Fatalln 等价于 l.Println()  随后调用 os.Exit(1).
+
+
+func (*Logger) Flags
+
+func (l *Logger) Flags() int
+Flags returns the output flags for the logger.
+Flags返回日志的输出标记
+
+
+func (*Logger) Output
+
+func (l *Logger) Output(calldepth int, s string) error
+Output writes the output for a logging event. 
+The string s contains the text to print after the prefix specified by the flags of the Logger.
+A newline is appended if the last character of s is not already a newline. 
+Calldepth is used to recover the PC and is provided for generality, although at the moment on all pre-defined paths it will be 2.
+Output 写输出一个 日志事件。
+字符串s包含了 在Logger 指定的  标记 前缀 之后要打印的内容。
+如果s的最后一个字符已经没有换行 了， 追加一个换行符。
+Calldepth 用来 覆盖 PC 和 提供了一种用于一般性的，在所有预先定义的路径的将是2
+
+
+
+func (*Logger) Panic
+
+func (l *Logger) Panic(v ...interface{})
+Panic is equivalent to l.Print() followed by a call to panic().
+Panic 等价于 l.Print()  随后调用 panic
+
+func (*Logger) Panicf
+
+func (l *Logger) Panicf(format string, v ...interface{})
+Panicf is equivalent to l.Printf() followed by a call to panic().
+Panicf 等价于 l.Printf()  随后调用 panic
+
+
+func (*Logger) Panicln
+
+func (l *Logger) Panicln(v ...interface{})
+Panicln is equivalent to l.Println() followed by a call to panic().
+Panicln 等价于 l.Println()  随后调用 panic
+
+
+func (*Logger) Prefix
+
+func (l *Logger) Prefix() string
+Prefix returns the output prefix for the logger.
+返回日志输出的前缀
+
+
+func (*Logger) Print
+
+func (l *Logger) Print(v ...interface{})
+Print calls l.Output to print to the logger. 
+Arguments are handled in the manner of fmt.Print.
+Print调用 l.Output 来打印日志。
+参数以fmt.Print中的处理方式 处理
+
+
+func (*Logger) Printf
+
+func (l *Logger) Printf(format string, v ...interface{})
+Printf calls l.Output to print to the logger.
+Arguments are handled in the manner of fmt.Printf.
+Printf调用  l.Output 来打印日志。
+参数以fmt.Printf中的处理方式 处理
+
+
+func (*Logger) Println
+
+func (l *Logger) Println(v ...interface{})
+Println calls l.Output to print to the logger. 
+Arguments are handled in the manner of fmt.Println.
+Println调用  l.Output 来打印日志。
+参数以fmt.Println中的处理方式 处理
+
+
+func (*Logger) SetFlags
+
+func (l *Logger) SetFlags(flag int)
+SetFlags sets the output flags for the logger.
+设置日志的输出标示
+
+
+func (*Logger) SetPrefix
+
+func (l *Logger) SetPrefix(prefix string)
+SetPrefix sets the output prefix for the logger.
+设置日志的输出前缀标示
 
 
 
