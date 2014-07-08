@@ -1,9 +1,9 @@
 包地址：http://golang.org/pkg/net/
 
 Package net provides a portable interface for network I/O, including TCP/IP, UDP, domain name resolution, and Unix domain sockets.
+Although the package provides access to low-level networking primitives, most clients will need only the basic interface provided by the Dial, Listen, and Accept functions and the associated Conn and Listener interfaces. 
+The crypto/tls package uses the same interfaces and similar Dial and Listen functions.
 net包提供便捷的网络I/O接口，包含TCP/IP, UDP,域名解析，Unix 域 sockets
-
-Although the package provides access to low-level networking primitives, most clients will need only the basic interface provided by the Dial, Listen, and Accept functions and the associated Conn and Listener interfaces. The crypto/tls package uses the same interfaces and similar Dial and Listen functions.
 包提供对网络底层的访问，大部分客户端只需要提供Dial、Listen、接受函数和相关联的链接和监听的简单接口
 
 The Dial function connects to a server:
@@ -16,8 +16,13 @@ if err != nil {
 fmt.Fprintf(conn, "GET / HTTP/1.0\r\n\r\n")
 status, err := bufio.NewReader(conn).ReadString('\n')
 // ...
+
+
+
 The Listen function creates servers:
 Listen函数创建服务：
+
+
 
 ln, err := net.Listen("tcp", ":8080")
 if err != nil {
@@ -31,6 +36,9 @@ for {
 	}
 	go handleConnection(conn)
 }
+
+
+
 
 
 Constants
@@ -48,8 +56,10 @@ Variables
         IPv4allrouter = IPv4(224, 0, 0, 2)       // all routers
         IPv4zero      = IPv4(0, 0, 0, 0)         // all zeros
     )
-        Well-known IPv4 addresses
-        IPv4地址
+    
+    
+Well-known IPv4 addresses
+IPv4地址
         
    var (
         IPv6zero                   = IP{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -62,34 +72,111 @@ Variables
         Well-known IPv6 addresses
         IPv6地址
 
-    var ErrWriteToConnected = errors.New("use of WriteTo with pre-connected UDP")
+var (
+        ErrWriteToConnected = errors.New("use of WriteTo with pre-connected connection")
+)
+
+
+
+func InterfaceAddrs
     
 func InterfaceAddrs() ([]Addr, error)
-    InterfaceAddrs returns a list of the system's network interface addresses.
-    返回系统网络接口地址列表
+InterfaceAddrs returns a list of the system's network interface addresses.
+返回系统网络接口地址列表
+   
+
+
+func Interfaces
         
 func Interfaces() ([]Interface, error)
-    Interfaces returns a list of the system's network interfaces.
-    返回系统网络接口
+Interfaces returns a list of the system's network interfaces.
+返回系统网络接口
+
+
+
+func JoinHostPort
     
 func JoinHostPort(host, port string) string
-    JoinHostPort combines host and port into a network address of the form "host:port" or, if host contains a colon or a percent sign, "[host]:port".
-    根据 "host:port"  格式合并 host 和port 网络地址，如果主机包含冒号或者百分号 格式就是 "[host]:port"。
+JoinHostPort combines host and port into a network address of the form "host:port" or, if host contains a colon or a percent sign, "[host]:port".
+根据 "host:port"  格式合并 host 和port 网络地址，如果主机包含冒号或者百分号 格式就是 "[host]:port"。
 	
+	
+	
+func LookupAddr
 func LookupAddr(addr string) (name []string, err error)
-    LookupAddr performs a reverse lookup for the given address, returning a list of names mapping to that address.
-    对于给定的地址进行反向查找， 返回那个地址的名称映射。
+LookupAddr performs a reverse lookup for the given address, returning a list of names mapping to that address.
+对于给定的地址进行反向查找， 返回那个地址的名称映射。
+
+
+
+func LookupCNAME
 
 func LookupCNAME(name string) (cname string, err error)
-    LookupCNAME returns the canonical DNS host for the given name. Callers that do not care about the canonical name can call LookupHost or LookupIP directly; both take care of resolving the canonical name as part of the lookup.
-    返回规范的DNS主机名称。调用者不关心规范的名称能直接让LookupHost 或者LookupIP调用。 都在乎解析查找规范名称的一部分。
+LookupCNAME returns the canonical DNS host for the given name. 
+Callers that do not care about the canonical name can call LookupHost or LookupIP directly; 
+both take care of resolving the canonical name as part of the lookup.
+返回规范的DNS主机名称。调用者不关心规范的名称能直接让LookupHost 或者LookupIP调用。 都在乎解析查找规范名称的一部分。
     
+    
+
+func LookupHost
+
 func LookupHost(host string) (addrs []string, err error)
+LookupHost looks up the given host using the local resolver. 
+It returns an array of that host's addresses.
+LookupHost使用本地解析器 查询给定的host.
+它返回那个host的地址 数组
+
+
+
+func LookupIP
+
 func LookupIP(host string) (addrs []IP, err error)
+LookupIP looks up host using the local resolver. 
+It returns an array of that host's IPv4 and IPv6 addresses.
+LookupIP用本地解析器 查询host.
+它返回 host的IPv4和IPv6地址数组
+
+
+
+func LookupMX
+
 func LookupMX(name string) (mx []*MX, err error)
+LookupMX returns the DNS MX records for the given domain name sorted by preference.
+LookupMX  返回用给定的 域名排序优先 的 DNS MX 记录.
+
+
+
+func LookupNS
+
 func LookupNS(name string) (ns []*NS, err error)
+LookupNS returns the DNS NS records for the given domain name.
+LookupNS 返回 给定域名name的DNS NS记录
+
+
+
+func LookupPort
+
 func LookupPort(network, service string) (port int, err error)
+LookupPort looks up the port for the given network and service.
+LookupPort 用给定的network 和 service 查找端口
+
+
+
+func LookupSRV
+
 func LookupSRV(service, proto, name string) (cname string, addrs []*SRV, err error)
+LookupSRV tries to resolve an SRV query of the given service, protocol, and domain name. 
+The proto is "tcp" or "udp". The returned records are sorted by priority and randomized by weight within a priority.
+
+LookupSRV constructs the DNS name to look up following RFC 2782. 
+That is, it looks up _service._proto.name. 
+To accommodate services publishing SRV records under non-standard names, if both service and proto are empty strings, LookupSRV looks up name directly.
+
+
+
+
+
 func LookupTXT(name string) (txt []string, err error)
 func SplitHostPort(hostport string) (host, port string, err error)
 type Addr

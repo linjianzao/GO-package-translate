@@ -108,12 +108,14 @@ func main() {
 
 	// Intn, Int31n, and Int63n limit their output to be < n.
 	// They do so more carefully than using r.Int()%n.
-	//
+	//Intn, Int31n, and Int63n 限制他们输出 小于n
+	//他们这样做比 用 r.Int()%n 更仔细. 
 	show("Intn(10)", r.Intn(10), r.Intn(10), r.Intn(10))
 	show("Int31n(10)", r.Int31n(10), r.Int31n(10), r.Int31n(10))
 	show("Int63n(10)", r.Int63n(10), r.Int63n(10), r.Int63n(10))
 
 	// Perm generates a random permutation of the numbers [0, n).
+	//Perm生成一个 随机的 数字排列  [0, n)
 	show("Perm", r.Perm(5), r.Perm(5), r.Perm(5))
 }
 
@@ -121,69 +123,110 @@ func main() {
 func ExpFloat64
 
 func ExpFloat64() float64
-ExpFloat64 returns an exponentially distributed float64 in the range (0, +math.MaxFloat64] with an exponential distribution whose rate parameter (lambda) is 1 and whose mean is 1/lambda (1) from the default Source. To produce a distribution with a different rate parameter, callers can adjust the output using:
+ExpFloat64 returns an exponentially distributed float64 in the range (0, +math.MaxFloat64] with an exponential distribution whose rate parameter (lambda) is 1 and whose mean is 1/lambda (1) from the default Source. 
+To produce a distribution with a different rate parameter, callers can adjust the output using:
+ExpFloat64返回范围是(0, +math.MaxFloat64]指数分布的float64,其速率参数（波长）是1，从默认的源，其均值为1/lambda（1）。
+以产生具有不同幅度的参数的分布,调用者可以调整输出 用:
 
 sample = ExpFloat64() / desiredRateParameter
+
+
 func Float32
 
 func Float32() float32
 Float32 returns, as a float32, a pseudo-random number in [0.0,1.0) from the default Source.
+Float32  从默认的Source在[0.0,1.0)中的 一个伪随机数 当成float32 返回
+
+
 
 func Float64
 
 func Float64() float64
 Float64 returns, as a float64, a pseudo-random number in [0.0,1.0) from the default Source.
+Float64 从默认的Source在[0.0,1.0)中的 一个伪随机数当成float64返回
+
+
 
 func Int
 
 func Int() int
 Int returns a non-negative pseudo-random int from the default Source.
+Int  从默认的Source中 返回一个 非负 int 伪随机数
+
+
 
 func Int31
 
 func Int31() int32
 Int31 returns a non-negative pseudo-random 31-bit integer as an int32 from the default Source.
+Int31  从默认的Source中 返回一个非负31位整型 的伪随机数当成 int32返回 
+
+
 
 func Int31n
 
 func Int31n(n int32) int32
 Int31n returns, as an int32, a non-negative pseudo-random number in [0,n) from the default Source. It panics if n <= 0.
+Int31n 从默认的Source中 , 在 [0,n)中的 非负伪随机数 当成int32返回 .如果n<=0 会引发panics
+
 
 func Int63
 
 func Int63() int64
 Int63 returns a non-negative pseudo-random 63-bit integer as an int64 from the default Source.
+Int63从默认的Source中 返回一个非负 的 63位整型 类似int64 的 伪随机数
+
 
 func Int63n
 
 func Int63n(n int64) int64
 Int63n returns, as an int64, a non-negative pseudo-random number in [0,n) from the default Source. It panics if n <= 0.
+Int63n 返回作为一个Int64 ,从默认Source中 一个非负伪随机数.如果n<=0 会引发panics
+
 
 func Intn
 
 func Intn(n int) int
 Intn returns, as an int, a non-negative pseudo-random number in [0,n) from the default Source. It panics if n <= 0.
+Intn 从默认Source中 返回作为一个int ,  在[0,n) 中的 一个非负伪随机数.如果n<=0 会引发panics
+
+
 
 func NormFloat64
 
 func NormFloat64() float64
-NormFloat64 returns a normally distributed float64 in the range [-math.MaxFloat64, +math.MaxFloat64] with standard normal distribution (mean = 0, stddev = 1) from the default Source. To produce a different normal distribution, callers can adjust the output using:
+NormFloat64 returns a normally distributed float64 in the range [-math.MaxFloat64, +math.MaxFloat64] with standard normal distribution (mean = 0, stddev = 1) from the default Source. 
+To produce a different normal distribution, callers can adjust the output using:
+NormFloat64   从默认的Source中, 标准正常分布 在[-math.MaxFloat64, +math.MaxFloat64]范围内返回一个正常的分布 float64 ,
+以产生不同的正态分布，调用者可以调整输出 用:
 
 sample = NormFloat64() * desiredStdDev + desiredMean
+
+
+
 func Perm
 
 func Perm(n int) []int
 Perm returns, as a slice of n ints, a pseudo-random permutation of the integers [0,n) from the default Source.
+Perm  从默认的Source  返回 一个 在[0,n)中的 伪随机数 排列, 类似n 个 整型的 slice
+
+
 
 func Seed
 
 func Seed(seed int64)
-Seed uses the provided seed value to initialize the default Source to a deterministic state. If Seed is not called, the generator behaves as if seeded by Seed(1).
+Seed uses the provided seed value to initialize the default Source to a deterministic state. 
+If Seed is not called, the generator behaves as if seeded by Seed(1).
+Seed使用提供的 seed值来 初始化 默认 Source 成确定性的状态。
+如果Seed没有被调用,发生器就会 通过 Seed(1)播种,
+
 
 func Uint32
 
 func Uint32() uint32
 Uint32 returns a pseudo-random 32-bit value as a uint32 from the default Source.
+从默认的Source中 返回一个 伪随机的 32位值  当成一个 uint32.
+
 
 type Rand
 
@@ -191,78 +234,127 @@ type Rand struct {
         // contains filtered or unexported fields
 }
 A Rand is a source of random numbers.
+Rand是 一个 随机数的源
+
+
 
 func New
 
 func New(src Source) *Rand
 New returns a new Rand that uses random values from src to generate other random values.
+New 返回一个新的Rand, 使用随机数从src中生成其他的 随机数
+
+
 
 func (*Rand) ExpFloat64
 
 func (r *Rand) ExpFloat64() float64
-ExpFloat64 returns an exponentially distributed float64 in the range (0, +math.MaxFloat64] with an exponential distribution whose rate parameter (lambda) is 1 and whose mean is 1/lambda (1). To produce a distribution with a different rate parameter, callers can adjust the output using:
+ExpFloat64 returns an exponentially distributed float64 in the range (0, +math.MaxFloat64] with an exponential distribution whose rate parameter (lambda) is 1 and whose mean is 1/lambda (1). 
+To produce a distribution with a different rate parameter, callers can adjust the output using:
+ExpFloat64 在 (0, +math.MaxFloat64] 返回一个 分布指数 float64 , 指数分布，其速率参数（波长）是1,那意味着是 1/lambda (1).
+以产生具有不同幅度的参数的分布,调用者可以调整 输出 用:
 
 sample = ExpFloat64() / desiredRateParameter
+
+
+
 func (*Rand) Float32
 
 func (r *Rand) Float32() float32
 Float32 returns, as a float32, a pseudo-random number in [0.0,1.0).
+Float32  从默认的Source在[0.0,1.0)中的 一个伪随机数 当成float32 返回
+
 
 func (*Rand) Float64
 
 func (r *Rand) Float64() float64
 Float64 returns, as a float64, a pseudo-random number in [0.0,1.0).
+Float64  从默认的Source在[0.0,1.0)中的 一个伪随机数 当成float64 返回
+
+
 
 func (*Rand) Int
 
 func (r *Rand) Int() int
 Int returns a non-negative pseudo-random int.
+Int返回一个非负 伪随机数 int
+
 
 func (*Rand) Int31
 
 func (r *Rand) Int31() int32
 Int31 returns a non-negative pseudo-random 31-bit integer as an int32.
+Int31 将一个非负 伪随机数 31位整型当成int32 返回
+
+
 
 func (*Rand) Int31n
 
 func (r *Rand) Int31n(n int32) int32
 Int31n returns, as an int32, a non-negative pseudo-random number in [0,n). It panics if n <= 0.
+Int31n 从默认的Source中 , 在 [0,n)中的 非负伪随机数 当成int32返回 .如果n<=0 会引发panics
+
+
 
 func (*Rand) Int63
 
 func (r *Rand) Int63() int64
 Int63 returns a non-negative pseudo-random 63-bit integer as an int64.
+Int63从默认的Source中 返回一个非负 的 63位整型 类似int64 的 伪随机数
+
+
 
 func (*Rand) Int63n
 
 func (r *Rand) Int63n(n int64) int64
 Int63n returns, as an int64, a non-negative pseudo-random number in [0,n). It panics if n <= 0.
+Int63n 返回作为一个Int64 ,从默认Source中 一个非负伪随机数.如果n<=0 会引发panics
+
 
 func (*Rand) Intn
 
 func (r *Rand) Intn(n int) int
 Intn returns, as an int, a non-negative pseudo-random number in [0,n). It panics if n <= 0.
+Intn 从默认Source中 返回作为一个int ,  在[0,n) 中的 一个非负伪随机数.如果n<=0 会引发panics
+
+
 
 func (*Rand) NormFloat64
 
 func (r *Rand) NormFloat64() float64
-NormFloat64 returns a normally distributed float64 in the range [-math.MaxFloat64, +math.MaxFloat64] with standard normal distribution (mean = 0, stddev = 1). To produce a different normal distribution, callers can adjust the output using:
+NormFloat64 returns a normally distributed float64 in the range [-math.MaxFloat64, +math.MaxFloat64] with standard normal distribution (mean = 0, stddev = 1). 
+To produce a different normal distribution, callers can adjust the output using:
+NormFloat64   从默认的Source中, 标准正常分布 在[-math.MaxFloat64, +math.MaxFloat64]范围内返回一个正常的分布 float64 ,
+以产生不同的正态分布，调用者可以调整输出 用:
 
 sample = NormFloat64() * desiredStdDev + desiredMean
+
+
+
+
 func (*Rand) Perm
 
 func (r *Rand) Perm(n int) []int
 Perm returns, as a slice of n ints, a pseudo-random permutation of the integers [0,n).
+Perm  从默认的Source  返回 一个 在[0,n)中的 伪随机数 排列, 类似n 个 整型的 slice
+
 
 func (*Rand) Seed
 
 func (r *Rand) Seed(seed int64)
 Seed uses the provided seed value to initialize the generator to a deterministic state.
+Seed使用提供的 seed值来 初始化 默认 Source 成确定性的状态。
+如果Seed没有被调用,发生器就会 通过 Seed(1)播种,
+
+
 
 func (*Rand) Uint32
 
 func (r *Rand) Uint32() uint32
 Uint32 returns a pseudo-random 32-bit value as a uint32.
+从默认的Source中 返回一个 伪随机的 32位值  当成一个 uint32.
+
+
 
 type Source
 
@@ -271,11 +363,15 @@ type Source interface {
         Seed(seed int64)
 }
 A Source represents a source of uniformly-distributed pseudo-random int64 values in the range [0, 1<<63).
+一个Source 代表一个在[0, 1<<63)范围内的 均匀分布的 伪随机值的源
+
 
 func NewSource
 
 func NewSource(seed int64) Source
 NewSource returns a new pseudo-random Source seeded with the given value.
+NewSource用给定的值返回一个新的伪随机 Source 播种
+
 
 type Zipf
 
@@ -283,17 +379,21 @@ type Zipf struct {
         // contains filtered or unexported fields
 }
 A Zipf generates Zipf distributed variates.
+Zipf 生成 Zipf分布式变元。
+
 
 func NewZipf
 
 func NewZipf(r *Rand, s float64, v float64, imax uint64) *Zipf
 NewZipf returns a Zipf generating variates p(k) on [0, imax] proportional to (v+k)**(-s) where s>1 and k>=0, and v>=1.
+NewZipf返回  一个 Zipf 生成的在 [0, imax]中的 变元p(k)  与 (v+k)**(-s) 成正比,  s>1 and k>=0, and v>=1.
+
 
 func (*Zipf) Uint64
 
 func (z *Zipf) Uint64() uint64
 Uint64 returns a value drawn from the Zipf distribution described by the Zipf object.
-
+返回根据Zipf 对象 从 Zipf 分布说明 返回一个 值
 
 
 
