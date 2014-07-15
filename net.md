@@ -2099,117 +2099,200 @@ ReadFromUnix从c中读取数据包, 复制有效载荷到b . 它返回复制到b
 
 
 
-
 func (*UnixConn) ReadMsgUnix
 
 func (c *UnixConn) ReadMsgUnix(b, oob []byte) (n, oobn, flags int, addr *UnixAddr, err error)
-ReadMsgUnix reads a packet from c, copying the payload into b and the associated out-of-band data into oob. It returns the number of bytes copied into b, the number of bytes copied into oob, the flags that were set on the packet, and the source address of the packet.
+ReadMsgUnix reads a packet from c, copying the payload into b and the associated out-of-band data into oob. 
+It returns the number of bytes copied into b, the number of bytes copied into oob, the flags that were set on the packet, and the source address of the packet.
+ReadMsgUnix 从c读取一个数据包, 复制有效载荷 到b 和对应的 out-of-band  数据到  oob.
+返回复制到b的字节数, 复制到oob的字节数,flags 设置在数据包里,并且源地址在数据包里
+
+
 
 func (*UnixConn) RemoteAddr
 
 func (c *UnixConn) RemoteAddr() Addr
 RemoteAddr returns the remote network address.
+RemoteAddr 返回 远程网络地址
+
+
 
 func (*UnixConn) SetDeadline
 
 func (c *UnixConn) SetDeadline(t time.Time) error
 SetDeadline implements the Conn SetDeadline method.
+SetDeadline 设置 Conn 的 SetDeadline  method
+
 
 func (*UnixConn) SetReadBuffer
 
 func (c *UnixConn) SetReadBuffer(bytes int) error
 SetReadBuffer sets the size of the operating system's receive buffer associated with the connection.
+SetReadBuffer 设置  操作系统和该连接有关的接收缓冲区 的大小
+
 
 func (*UnixConn) SetReadDeadline
 
 func (c *UnixConn) SetReadDeadline(t time.Time) error
 SetReadDeadline implements the Conn SetReadDeadline method.
+SetReadDeadline 实现 Conn  的SetReadDeadline 方法
+
+
 
 func (*UnixConn) SetWriteBuffer
 
 func (c *UnixConn) SetWriteBuffer(bytes int) error
 SetWriteBuffer sets the size of the operating system's transmit buffer associated with the connection.
+SetWriteBuffer 设置  操作系统和该连接有关的发送缓冲区 的大小
+
+
 
 func (*UnixConn) SetWriteDeadline
 
 func (c *UnixConn) SetWriteDeadline(t time.Time) error
 SetWriteDeadline implements the Conn SetWriteDeadline method.
+SetWriteDeadline 实现 Conn的SetWriteDeadline 方法
+
+
 
 func (*UnixConn) Write
 
 func (c *UnixConn) Write(b []byte) (int, error)
 Write implements the Conn Write method.
+Write 实现 Conn 的Write 方法
+
+
 
 func (*UnixConn) WriteMsgUnix
 
 func (c *UnixConn) WriteMsgUnix(b, oob []byte, addr *UnixAddr) (n, oobn int, err error)
-WriteMsgUnix writes a packet to addr via c, copying the payload from b and the associated out-of-band data from oob. It returns the number of payload and out-of-band bytes written.
+WriteMsgUnix writes a packet to addr via c, copying the payload from b and the associated out-of-band data from oob. 
+It returns the number of payload and out-of-band bytes written.
+WriteMsgUnix  通过c 写一个数据包到 addr, 从b复制有效载荷 和 从 oob  复制 对应的 out-of-band  数据
+
+
 
 func (*UnixConn) WriteTo
 
 func (c *UnixConn) WriteTo(b []byte, addr Addr) (n int, err error)
 WriteTo implements the PacketConn WriteTo method.
+WriteTo 实现PacketConn 的 WriteTo 方法
+
+
 
 func (*UnixConn) WriteToUnix
 
 func (c *UnixConn) WriteToUnix(b []byte, addr *UnixAddr) (n int, err error)
 WriteToUnix writes a packet to addr via c, copying the payload from b.
+WriteToUnix can be made to time out and return an error with Timeout() == true after a fixed time limit; 
+see SetDeadline and SetWriteDeadline. On packet-oriented connections, write timeouts are rare.
 
-WriteToUnix can be made to time out and return an error with Timeout() == true after a fixed time limit; see SetDeadline and SetWriteDeadline. On packet-oriented connections, write timeouts are rare.
+WriteToUnix 通过c 写一个数据包到 addr,从b复制有效载荷.
+WriteToUnix可以导致超时 并 在固定时间限制之后返回一个错误 Timeout() == true
+查看  SetDeadline 和 SetWriteDeadline.在面向数据包的连接，写超时是罕见的。
+
 
 type UnixListener
 
 type UnixListener struct {
         // contains filtered or unexported fields
 }
-UnixListener is a Unix domain socket listener. Clients should typically use variables of type Listener instead of assuming Unix domain sockets.
+UnixListener is a Unix domain socket listener. 
+Clients should typically use variables of type Listener instead of assuming Unix domain sockets.
+UnixListener 是一个Unix 域 socket 监听器.
+客户端通常应该使用类型的变量 Listener
+
+
 
 func ListenUnix
 
 func ListenUnix(net string, laddr *UnixAddr) (*UnixListener, error)
-ListenUnix announces on the Unix domain socket laddr and returns a Unix listener. The network net must be "unix" or "unixpacket".
+ListenUnix announces on the Unix domain socket laddr and returns a Unix listener. 
+The network net must be "unix" or "unixpacket".
+ListenUnix 声明  在 Unix 域上的 socket  laddr 并且返回一个 Unix  listener
+网络 net 必须是  "unix" 或 "unixpacket".
+
+
 
 func (*UnixListener) Accept
 
 func (l *UnixListener) Accept() (c Conn, err error)
 Accept implements the Accept method in the Listener interface; it waits for the next call and returns a generic Conn.
+Accept实现 Listener接口里的 Accept 方法; 它等待下一次调用 并返回一个通用的Conn. 
+
+
 
 func (*UnixListener) AcceptUnix
 
 func (l *UnixListener) AcceptUnix() (*UnixConn, error)
 AcceptUnix accepts the next incoming call and returns the new connection.
+AcceptUnix 接收下一个调用 并返回新的连接.
+
+
 
 func (*UnixListener) Addr
 
 func (l *UnixListener) Addr() Addr
 Addr returns the listener's network address.
+Addr 返回 listener 的网络地址
+
+
 
 func (*UnixListener) Close
 
 func (l *UnixListener) Close() error
-Close stops listening on the Unix address. Already accepted connections are not closed.
+Close stops listening on the Unix address. 
+Already accepted connections are not closed.
+Close 停止监听Unix 地址
+已经接受的连接不会关闭。
+
+
 
 func (*UnixListener) File
 
 func (l *UnixListener) File() (f *os.File, err error)
-File returns a copy of the underlying os.File, set to blocking mode. It is the caller's responsibility to close f when finished. Closing l does not affect f, and closing f does not affect l.
+File returns a copy of the underlying os.File, set to blocking mode. 
+It is the caller's responsibility to close f when finished. 
+Closing l does not affect f, and closing f does not affect l.
 
-The returned os.File's file descriptor is different from the connection's. Attempting to change properties of the original using this duplicate may or may not have the desired effect.
+The returned os.File's file descriptor is different from the connection's. 
+Attempting to change properties of the original using this duplicate may or may not have the desired effect.
+
+File返回底层os.File复制,设置为阻塞模式。
+当结束的时候它的调用者负责关闭f.
+关闭l不会影响f , 关闭f 不会影响l
+返回的os.File 的文件 描述符 和 连接的 不一样.
+尝试使用这种重复改变原来的属性可能会或可能不会产生预期的效果
+
+
+
 
 func (*UnixListener) SetDeadline
 
 func (l *UnixListener) SetDeadline(t time.Time) (err error)
 SetDeadline sets the deadline associated with the listener. A zero time value disables the deadline.
+SetDeadline 设置  deadline有关的listener .零值的时间值 deadline 不可用
+
+
 
 type UnknownNetworkError
 
 type UnknownNetworkError string
+
+
+
 func (UnknownNetworkError) Error
 
 func (e UnknownNetworkError) Error() string
+
+
+
 func (UnknownNetworkError) Temporary
 
 func (e UnknownNetworkError) Temporary() bool
+
+
+
 func (UnknownNetworkError) Timeout
 
 func (e UnknownNetworkError) Timeout() bool
