@@ -1852,77 +1852,156 @@ var DefaultTransport RoundTripper = &Transport{
 DefaultTransport is the default implementation of Transport and is used by DefaultClient. 
 It establishes network connections as needed and caches them for reuse by subsequent calls. 
 It uses HTTP proxies as directed by the $HTTP_PROXY and $NO_PROXY (or $http_proxy and $no_proxy) environment variables.
-
+DefaultTransport 默认使用DefaultClient 来实现Transport.
+它在需要的时候建立网络连接 并且缓存他们 让子请求 调用 重复使用.
+它使用 HTTP 代理  是 $HTTP_PROXY and $NO_PROXY (or $http_proxy and $no_proxy) 环境变量
 
 
 
 func NewFileTransport
-
+```golang
 func NewFileTransport(fs FileSystem) RoundTripper
-NewFileTransport returns a new RoundTripper, serving the provided FileSystem. The returned RoundTripper ignores the URL host in its incoming requests, as well as most other properties of the request.
+```
+NewFileTransport returns a new RoundTripper, serving the provided FileSystem. 
+The returned RoundTripper ignores the URL host in its incoming requests, as well as most other properties of the request.
 
 The typical use case for NewFileTransport is to register the "file" protocol with a Transport, as in:
+NewFileTransport 返回一个新的RoundTripper, 服务提供FileSystem. 
+返回的RoundTripper 在它的请求里 忽略 URL host, 以及请求的大多数其他特性。
+NewFileTransport的 典型的使用例子 是  注册  "file" 协议与Transport,  如:
 
+```golang
 t := &http.Transport{}
 t.RegisterProtocol("file", http.NewFileTransport(http.Dir("/")))
 c := &http.Client{Transport: t}
 res, err := c.Get("file:///etc/passwd")
 ...
-type ServeMux
+```
 
+
+type ServeMux
+```golang
 type ServeMux struct {
         // contains filtered or unexported fields
 }
-ServeMux is an HTTP request multiplexer. It matches the URL of each incoming request against a list of registered patterns and calls the handler for the pattern that most closely matches the URL.
+```
+ServeMux is an HTTP request multiplexer. 
+It matches the URL of each incoming request against a list of registered patterns and calls the handler for the pattern that most closely matches the URL.
 
-Patterns name fixed, rooted paths, like "/favicon.ico", or rooted subtrees, like "/images/" (note the trailing slash). Longer patterns take precedence over shorter ones, so that if there are handlers registered for both "/images/" and "/images/thumbnails/", the latter handler will be called for paths beginning "/images/thumbnails/" and the former will receive requests for any other paths in the "/images/" subtree.
+Patterns name fixed, rooted paths, like "/favicon.ico", or rooted subtrees, like "/images/" (note the trailing slash). 
+Longer patterns take precedence over shorter ones, so that if there are handlers registered for both "/images/" and "/images/thumbnails/", 
+	the latter handler will be called for paths beginning "/images/thumbnails/" and the former will receive requests for any other paths in the "/images/" subtree.
 
 Note that since a pattern ending in a slash names a rooted subtree, the pattern "/" matches all paths not matched by other registered patterns, not just the URL with Path == "/".
 
-Patterns may optionally begin with a host name, restricting matches to URLs on that host only. Host-specific patterns take precedence over general patterns, so that a handler might register for the two patterns "/codesearch" and "codesearch.google.com/" without also taking over requests for "http://www.google.com/".
+Patterns may optionally begin with a host name, restricting matches to URLs on that host only. 
+Host-specific patterns take precedence over general patterns, so that a handler might register for the two patterns "/codesearch" and "codesearch.google.com/" without also taking over requests for "http://www.google.com/".
 
 ServeMux also takes care of sanitizing the URL request path, redirecting any request containing . or .. elements to an equivalent .- and ..-free URL.
 
-func NewServeMux
+ServeMux是一个 HTTP 请求复用器.
+它 针对注册模式列表 匹配每个 传入的请求的URL  并调用处理器 来处理 该模式 最匹配的URL。
 
+模式名称固定 , 根目录, 如 "/favicon.ico", 或根子树,如 "/images/"(注意结尾的斜杠).
+较长的模式优先于较短的,所以 如果有处理器注册 "/images/"  和 "/images/thumbnails/",后者的处理器 将会调用  "/images/thumbnails/"为开头的路径  并且前者将收到 "/images/" 子树的任何其他路径的请求。
+
+注意在一个斜杠名结尾有根的子树的模式, 模式 "/"  不被其他注册模式 匹配的所有路径,不只是 URL  Path == "/".
+
+Patterns 可能以一个可选的主机名开始, 限制URL只匹配到该主机.
+Host-specific 模式 优先普通模式, 那样 一个处理器可能 注册两个模式 "/codesearch" 和 "codesearch.google.com/" 还没有接管  "http://www.google.com/" 请求
+
+ServeMux 也会注意 过滤 URL 请求路径,重定向任何请求 包含 . 或 ..  元素 等价于 .-  和 ..-free URL. 
+
+
+
+func NewServeMux
+```golang
 func NewServeMux() *ServeMux
+```
 NewServeMux allocates and returns a new ServeMux.
+NewServeMux 分配和返回一个新的 ServeMux
+
 
 func (*ServeMux) Handle
-
+```golang
 func (mux *ServeMux) Handle(pattern string, handler Handler)
+```
 Handle registers the handler for the given pattern. If a handler already exists for pattern, Handle panics.
+用给定的 pattern 注册处理器.如果 处理器已经包含这个模式, Handle 引发 panic.
 
-▹ Example
 
+▾ Example
+
+Code:
+```golang
+mux := http.NewServeMux()
+mux.Handle("/api/", apiHandler{})
+mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+        // The "/" pattern matches everything, so we need to check
+        // that we're at the root here.
+        if req.URL.Path != "/" {
+                http.NotFound(w, req)
+                return
+        }
+        fmt.Fprintf(w, "Welcome to the home page!")
+})
+```    
+    
 func (*ServeMux) HandleFunc
-
+```golang
 func (mux *ServeMux) HandleFunc(pattern string, handler func(ResponseWriter, *Request))
+```
 HandleFunc registers the handler function for the given pattern.
+HandleFunc用给定的pattern 注册 处理器函数
+
+
 
 func (*ServeMux) Handler
-
+```golang
 func (mux *ServeMux) Handler(r *Request) (h Handler, pattern string)
-Handler returns the handler to use for the given request, consulting r.Method, r.Host, and r.URL.Path. It always returns a non-nil handler. If the path is not in its canonical form, the handler will be an internally-generated handler that redirects to the canonical path.
+```
+Handler returns the handler to use for the given request, consulting r.Method, r.Host, and r.URL.Path. 
+It always returns a non-nil handler. If the path is not in its canonical form, the handler will be an internally-generated handler that redirects to the canonical path.
 
 Handler also returns the registered pattern that matches the request or, in the case of internally-generated redirects, the pattern that will match after following the redirect.
 
 If there is no registered handler that applies to the request, Handler returns a “page not found” handler and an empty pattern.
+Handler 用处理器 处理给定的请求, 咨询 r.Method, r.Host, and r.URL.Path.
+它经常 返回 一个非nil 处理器. 如果 路径没有在它的 规范形式里 , 处理器将会内部产生的处理器 来 重定向 规范形式路径.
+
+处理器也 返回 注册pattern 匹配的请求 或,在内部产生重定向的情况下，pattern 会在重定向后 匹配.
+
+
+
 
 func (*ServeMux) ServeHTTP
-
+```golang
 func (mux *ServeMux) ServeHTTP(w ResponseWriter, r *Request)
+```
 ServeHTTP dispatches the request to the handler whose pattern most closely matches the request URL.
+ServeHTTP 分发 请求 给 其模式 最匹配的请求URL的 处理器
+
 
 type Server
-
+```golang
 type Server struct {
-        Addr           string        // TCP address to listen on, ":http" if empty
-        Handler        Handler       // handler to invoke, http.DefaultServeMux if nil
+        Addr           string        // TCP address to listen on, ":http" if empty 
+        										  //如果":http"空的 ,TCP地址 监听
+        										  
+        Handler        Handler       // handler to invoke, http.DefaultServeMux if nil 
+        									     //如果  http.DefaultServeMux是nil, 调用处理器
+        									     
         ReadTimeout    time.Duration // maximum duration before timing out read of the request
+        										  //在超时之前读取请求的 最大持续时间
+        										  
         WriteTimeout   time.Duration // maximum duration before timing out write of the response
+        										  //在超时之前写响应的 最大持续时间
+        										  
         MaxHeaderBytes int           // maximum size of request headers, DefaultMaxHeaderBytes if 0
+        										 //DefaultMaxHeaderBytes 如果是0,请求头的最大数
+        										 
         TLSConfig      *tls.Config   // optional TLS config, used by ListenAndServeTLS
+        										 //可选的 TLS配置 , 使用 ListenAndServeTLS
 
         // TLSNextProto optionally specifies a function to take over
         // ownership of the provided TLS connection when an NPN
@@ -1931,72 +2010,133 @@ type Server struct {
         // handle HTTP requests and will initialize the Request's TLS
         // and RemoteAddr if not already set.  The connection is
         // automatically closed when the function returns.
+         
+        //TLSNextProto 可选 指定函数 接管所有 提供的 TLS连接权,当一个NPN协议 升级的时候.
+           //映射键是 协议名.
+        //Handler参数用来处理 HTTP 请求 并 如果还没设置 将 初始化 Request的TLS 和 RemoteAddr
+           //函数返回的时候连接自动关闭.
+        
         TLSNextProto map[string]func(*Server, *tls.Conn, Handler)
+
 
         // ConnState specifies an optional callback function that is
         // called when a client connection changes state. See the
         // ConnState type and associated constants for details.
+        //ConnState 指定一个可选的回调函数,当客户端连接改变状态的时候调用.
+           //查看 ConnState 类型和相关的详细常量
+        
         ConnState func(net.Conn, ConnState)
 
+        
         // ErrorLog specifies an optional logger for errors accepting
         // connections and unexpected behavior from handlers.
         // If nil, logging goes to os.Stderr via the log package's
         // standard logger.
+        //ErrorLog 指定可选的 日志  来从处理器中 接收 连接和 unexpected 错误.
+           //如果是nil,  日志通过 log 包的 标准日志  输到 os.Stderr.
+           
         ErrorLog *log.Logger
+        
         // contains filtered or unexported fields
 }
+```
 A Server defines parameters for running an HTTP server. The zero value for Server is a valid configuration.
+Server 定义 执行HTTP 服务端的 参数. 零值的Server 是一个有效的配置
+
+
 
 func (*Server) ListenAndServe
-
+```golang
 func (srv *Server) ListenAndServe() error
+```
 ListenAndServe listens on the TCP network address srv.Addr and then calls Serve to handle requests on incoming connections. If srv.Addr is blank, ":http" is used.
+ListenAndServe 监听TCP 网络 地址  srv.Addr  然后调用Serve 处理请 传入连接的请求. 如果 srv.Addr 是  空白的,使用":http"
+
+
 
 func (*Server) ListenAndServeTLS
-
+```golang
 func (srv *Server) ListenAndServeTLS(certFile, keyFile string) error
+```
 ListenAndServeTLS listens on the TCP network address srv.Addr and then calls Serve to handle requests on incoming TLS connections.
 
-Filenames containing a certificate and matching private key for the server must be provided. If the certificate is signed by a certificate authority, the certFile should be the concatenation of the server's certificate followed by the CA's certificate.
+Filenames containing a certificate and matching private key for the server must be provided. 
+If the certificate is signed by a certificate authority, the certFile should be the concatenation of the server's certificate followed by the CA's certificate.
 
 If srv.Addr is blank, ":https" is used.
 
-func (*Server) Serve
+ListenAndServe  监听TCP 网络 地址  srv.Addr  然后调用Serve 处理传入TLS连接的请求.
 
+Filenames 包含一个服务端必须提供的 证书和 匹配的私钥.
+如果证书由 证书颁发机构签署, certFile  应该是 服务器的证书 其次是CA证书 的串联.
+
+如果  srv.Addr  是空白的, 使用":https"
+
+
+
+func (*Server) Serve
+```golang
 func (srv *Server) Serve(l net.Listener) error
-Serve accepts incoming connections on the Listener l, creating a new service goroutine for each. The service goroutines read requests and then call srv.Handler to reply to them.
+```
+Serve accepts incoming connections on the Listener l, creating a new service goroutine for each. 
+The service goroutines read requests and then call srv.Handler to reply to them.
+Serve 接受 Listener l 中 传入的连接, 为每个连接 创建一个新的服务端goroutine.
+服务端 goroutines 读取请求 然后调用 srv.Handler  回复他们.
+
+
 
 func (*Server) SetKeepAlivesEnabled
-
+```golang
 func (s *Server) SetKeepAlivesEnabled(v bool)
-SetKeepAlivesEnabled controls whether HTTP keep-alives are enabled. By default, keep-alives are always enabled. Only very resource-constrained environments or servers in the process of shutting down should disable them.
+```
+SetKeepAlivesEnabled controls whether HTTP keep-alives are enabled. 
+By default, keep-alives are always enabled. Only very resource-constrained environments or servers in the process of shutting down should disable them.
+SetKeepAlivesEnabled 控制 HTTP 的 keep-alives  是否启用.
+默认情况下, keep-alives 通常是启用的. 只有资源非常受限 的环境 或关闭服务端过程的中 应该 禁用他们.
+
+
 
 type Transport
-
+```golang
 type Transport struct {
 
         // Proxy specifies a function to return a proxy for a given
         // Request. If the function returns a non-nil error, the
         // request is aborted with the provided error.
         // If Proxy is nil or returns a nil *URL, no proxy is used.
+        //Proxy 为给定的Request 指定一个 函数返回 代替.
+           //如果函数返回 非nil错误, 该请求放弃 并提供 错误.
+           //如果Proxy 是nil 或 返回一个 nil *URL, 不会使用代理
         Proxy func(*Request) (*url.URL, error)
+
 
         // Dial specifies the dial function for creating TCP
         // connections.
         // If Dial is nil, net.Dial is used.
+        //Dial为创建TCP 指定 dial 函数
+           //如果 Dial 是nil, 使用net.Dial
         Dial func(network, addr string) (net.Conn, error)
+
 
         // TLSClientConfig specifies the TLS configuration to use with
         // tls.Client. If nil, the default configuration is used.
+        //TLSClientConfig 指定tls.Client 使用的 TLS 配置.
+           //如果nil, 使用默认配置
         TLSClientConfig *tls.Config
+
 
         // TLSHandshakeTimeout specifies the maximum amount of time waiting to
         // wait for a TLS handshake. Zero means no timeout.
+        //TLSHandshakeTimeout 指定一个TLS  握手的最大 等待时间. 零 意味着 不会超时
         TLSHandshakeTimeout time.Duration
+
+
 
         // DisableKeepAlives, if true, prevents re-use of TCP connections
         // between different HTTP requests.
+        //DisableKeepAlives, 如果 是true,  防止 在不同的 HTTP请求 重复使用同一个HTTP 连接.
         DisableKeepAlives bool
+
 
         // DisableCompression, if true, prevents the Transport from
         // requesting compression with an "Accept-Encoding: gzip"
@@ -2006,45 +2146,82 @@ type Transport struct {
         // decoded in the Response.Body. However, if the user
         // explicitly requested gzip it is not automatically
         // uncompressed.
+        //DisableCompression, 如果是true, 当Request 包含不存在的Accept-Encoding值时, 防止 用"Accept-Encoding: gzip"压缩请求头来传输
+           //如果 请求 没有自己的gzip并 获取一个  gzip压缩 响应,它 透明的解压  Response.Body.
+           //然而, 如果用户明确 请求的 gzip 它不会自动 解压.
         DisableCompression bool
+
 
         // MaxIdleConnsPerHost, if non-zero, controls the maximum idle
         // (keep-alive) to keep per-host.  If zero,
         // DefaultMaxIdleConnsPerHost is used.
+        //MaxIdleConnsPerHost, 如果 非 零, 控制 每个主机 (keep-alive) 的最大空闲数
+           // 如果 零,使用DefaultMaxIdleConnsPerHost
         MaxIdleConnsPerHost int
 
         // ResponseHeaderTimeout, if non-zero, specifies the amount of
         // time to wait for a server's response headers after fully
         // writing the request (including its body, if any). This
         // time does not include the time to read the response body.
+        //ResponseHeaderTimeout .如果非零, 指定在所有 写 请求 之后 等待 服务端响应头等待的时间(包含任何body).
+           // 这个时间不包含读取 响应体的时间.
+        
         ResponseHeaderTimeout time.Duration
         // contains filtered or unexported fields
 }
-Transport is an implementation of RoundTripper that supports http, https, and http proxies (for either http or https with CONNECT). Transport can also cache connections for future re-use.
+```
+Transport is an implementation of RoundTripper that supports http, https, and http proxies (for either http or https with CONNECT). 
+Transport can also cache connections for future re-use.
+Transport 是 RoundTripper 的实现  支持 http, https, and http 代理
+Transport 也可以缓存连接 ,未来能重复使用.
+
+
 
 func (*Transport) CancelRequest
-
+```golang
 func (t *Transport) CancelRequest(req *Request)
+```
 CancelRequest cancels an in-flight request by closing its connection.
+CancelRequest 通过关闭它的连接, 取消一个 执行中的请求.
+
 
 func (*Transport) CloseIdleConnections
-
+```golang
 func (t *Transport) CloseIdleConnections()
-CloseIdleConnections closes any connections which were previously connected from previous requests but are now sitting idle in a "keep-alive" state. It does not interrupt any connections currently in use.
+```
+CloseIdleConnections closes any connections which were previously connected from previous requests but are now sitting idle in a "keep-alive" state. 
+It does not interrupt any connections currently in use.
+CloseIdleConnections 关闭 任何  之前的请求来的   但是 现在闲置的"keep-alive"  状态的 的连接
+
+
 
 func (*Transport) RegisterProtocol
-
+```golang
 func (t *Transport) RegisterProtocol(scheme string, rt RoundTripper)
-RegisterProtocol registers a new protocol with scheme. The Transport will pass requests using the given scheme to rt. It is rt's responsibility to simulate HTTP request semantics.
+```
+RegisterProtocol registers a new protocol with scheme. 
+The Transport will pass requests using the given scheme to rt. 
+It is rt's responsibility to simulate HTTP request semantics.
 
 RegisterProtocol can be used by other packages to provide implementations of protocol schemes like "ftp" or "file".
+RegisterProtocol 用 scheme 注册一个新的协议.
+使用给定的scheme 传递请求到rt
+rt 的响应 模拟 HTTP 请求语义
+RegisterProtocol 可以使用其他包 提供的语义协议 如 "ftp" 或 "file".
+
+
 
 func (*Transport) RoundTrip
-
+```golang
 func (t *Transport) RoundTrip(req *Request) (resp *Response, err error)
+```
 RoundTrip implements the RoundTripper interface.
 
 For higher-level HTTP client support (such as handling of cookies and redirects), see Get, Post, and the Client type.
+RoundTrip实现 RoundTripper接口.
+对于 高级的HTTP客户端(例如 处理cookie 和 重定向 ) 支持 Get, Post, 和 Client 类型.
+ 
+ 
 
 
 
