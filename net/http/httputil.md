@@ -148,7 +148,7 @@ Hijack detaches the ClientConn and returns the underlying connection as well as 
 Hijack may be called before the user or Read have signaled the end of the keep-alive logic. 
 The user should not call Hijack while Read or Write is in progress.
 Hijack 分离 ClientConn 并返回 底层的连接   以及 作为读取端bufio其中可能有一些遗留的数据。
-Hijack 可能 会在 用户 或 Read 有信号keep-alive逻辑的结束 之前调用.
+Hijack 可能 会在 用户 或 Read keep-alive逻辑的结束信号 之前调用.
 用户 在 进程  Read  或 Write 的时候 不应该 调用 Hijack.
 
 
@@ -170,81 +170,154 @@ Read reads the next response from the wire.
 A valid response might be returned together with an ErrPersistEOF, which means that the remote requested that this be the last request serviced. 
 Read can be called concurrently with Write, but not with another Read.
 Read 从wire 读取 下一个响应.
-
+一个有效的 响应可能 和 一个 ErrPersistEOF 一起返回, 那意味着 那个远程请求  是最后的请求服务.
+Read  可以 同时调用 Write, 但是 不能和其他的 Read 一起调用.
 
 
 
 func (*ClientConn) Write
 
 func (cc *ClientConn) Write(req *http.Request) (err error)
-Write writes a request. An ErrPersistEOF error is returned if the connection has been closed in an HTTP keepalive sense. If req.Close equals true, the keepalive connection is logically closed after this request and the opposing server is informed. An ErrUnexpectedEOF indicates the remote closed the underlying TCP connection, which is usually considered as graceful close.
+Write writes a request. An ErrPersistEOF error is returned if the connection has been closed in an HTTP keepalive sense. 
+If req.Close equals true, the keepalive connection is logically closed after this request and the opposing server is informed. 
+An ErrUnexpectedEOF indicates the remote closed the underlying TCP connection, which is usually considered as graceful close.
+Write 写一个请求. 如果 连接 的 HTTP keepalive 关闭, 返回一个ErrPersistEOF错误.
+如果req.Close 时true, keepalive 连接 会在这个请求后逻辑上关闭并 拒绝服务器通知.
+ErrUnexpectedEOF 错误  说明 远程关闭 底层 TCP连接,通常被认为是正常关闭。
+
 
 type ReverseProxy
-
+```golang
 type ReverseProxy struct {
         // Director must be a function which modifies
         // the request into a new request to be sent
         // using Transport. Its response is then copied
         // back to the original client unmodified.
+        //Director必须是一个能修改请求 成  能 用 Transport 发送的 新请求 函数.
+           //它响应，然后复制回原来的未修改客户端
+           
         Director func(*http.Request)
+
 
         // The transport used to perform proxy requests.
         // If nil, http.DefaultTransport is used.
+           // 传输用于执行代理请求
+           //如果是nil,使用http.DefaultTransport 
         Transport http.RoundTripper
+
+
 
         // FlushInterval specifies the flush interval
         // to flush to the client while copying the
         // response body.
         // If zero, no periodic flushing is done.
+        //FlushInterval 指定 刷新 客户端 复制响应体  的 刷新间隔, 
+          //如果是零,  不会定期刷新
         FlushInterval time.Duration
 }
+```
 ReverseProxy is an HTTP Handler that takes an incoming request and sends it to another server, proxying the response back to the client.
+ReverseProxy 是一个 HTTP Handler 获取传入的请求 和 发送它到其他服务器, 代理响应返回 客户端.
+
 
 func NewSingleHostReverseProxy
-
+```golang
 func NewSingleHostReverseProxy(target *url.URL) *ReverseProxy
-NewSingleHostReverseProxy returns a new ReverseProxy that rewrites URLs to the scheme, host, and base path provided in target. If the target's path is "/base" and the incoming request was for "/dir", the target request will be for /base/dir.
+```
+NewSingleHostReverseProxy returns a new ReverseProxy that rewrites URLs to the scheme, host, and base path provided in target. 
+If the target's path is "/base" and the incoming request was for "/dir", the target request will be for /base/dir.
+NewSingleHostReverseProxy 返回一个新的ReverseProxy  用target 里提供的 scheme, host, 和基础路径 重写URL.
+如果 target的路径是 "/base"并为"/dir" 传入请求, 请求的目的是 /base/dir.
+
+
 
 func (*ReverseProxy) ServeHTTP
-
+```golang
 func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request)
-type ServerConn
+```
 
+
+type ServerConn
+```golang
 type ServerConn struct {
         // contains filtered or unexported fields
 }
-A ServerConn reads requests and sends responses over an underlying connection, until the HTTP keepalive logic commands an end. ServerConn also allows hijacking the underlying connection by calling Hijack to regain control over the connection. ServerConn supports pipe-lining, i.e. requests can be read out of sync (but in the same order) while the respective responses are sent.
+```
+A ServerConn reads requests and sends responses over an underlying connection, until the HTTP keepalive logic commands an end. 
+ServerConn also allows hijacking the underlying connection by calling Hijack to regain control over the connection. 
+ServerConn supports pipe-lining, i.e. requests can be read out of sync (but in the same order) while the respective responses are sent.
 
 ServerConn is low-level and old. Applications should instead use Server in the net/http package.
+ServerConn 在底层的连接 读取请求和 发送响应,直到 HTTP keepalive 逻辑命令结束.
+ServerConn 也允许调用 Hijack 挟持 底层 连接 来获得 该连接的控制权.
+ServerConn 支持  pipe-lining, 例如  请求可以读取 不同步,(但是 相同顺序) 各自响应的发送.
+ServerConn 是低级和旧的. 应用应该 用 net/http 包里的Server 代替.
+
 
 func NewServerConn
-
+```golang
 func NewServerConn(c net.Conn, r *bufio.Reader) *ServerConn
+``
 NewServerConn returns a new ServerConn reading and writing c. If r is not nil, it is the buffer to use when reading c.
 
 ServerConn is low-level and old. Applications should instead use Server in the net/http package.
+NewServerConn 返回一个新的ServerConn 读和写 c. 如果r 不是nil , 用缓冲区读取c.
+NewServerConn 是低级和旧的. 应用应该 用 net/http 包里的Server 代替.
+
+
 
 func (*ServerConn) Close
-
+```golang
 func (sc *ServerConn) Close() error
+```
 Close calls Hijack and then also closes the underlying connection
+Close 调用 Hijack 然后 关闭底层的连接.
+
+
 
 func (*ServerConn) Hijack
-
+```golang
 func (sc *ServerConn) Hijack() (c net.Conn, r *bufio.Reader)
-Hijack detaches the ServerConn and returns the underlying connection as well as the read-side bufio which may have some left over data. Hijack may be called before Read has signaled the end of the keep-alive logic. The user should not call Hijack while Read or Write is in progress.
+```
+Hijack detaches the ServerConn and returns the underlying connection as well as the read-side bufio which may have some left over data. 
+Hijack may be called before Read has signaled the end of the keep-alive logic. 
+The user should not call Hijack while Read or Write is in progress.
+Hijack 分离 ServerConn 并返回 底层的连接   以及 作为读取端bufio其中可能有一些遗留的数据。
+Hijack 可能 会在  Read keep-alive逻辑的结束信号 之前调用.
+用户 在 进程  Read  或 Write 的时候 不应该 调用 Hijack.
+
+
 
 func (*ServerConn) Pending
-
+```golang
 func (sc *ServerConn) Pending() int
+```
 Pending returns the number of unanswered requests that have been received on the connection.
+Pending 返回 连接 接收到的  未应答的请求数量, 
+
+
 
 func (*ServerConn) Read
-
+```golang
 func (sc *ServerConn) Read() (req *http.Request, err error)
+```
 Read returns the next request on the wire. An ErrPersistEOF is returned if it is gracefully determined that there are no more requests (e.g. after the first request on an HTTP/1.0 connection, or after a Connection:close on a HTTP/1.1 connection).
+Read 返回wire 的下一个 请求. 如果它确定没有更多的请求, 返回 ErrPersistEOF(例如  在 HTTP/1.0 连接上的 第一次 请求,或在一个Connection:关闭 一个 HTTP/1.1  连接 )
+
 
 func (*ServerConn) Write
-
+```golang
 func (sc *ServerConn) Write(req *http.Request, resp *http.Response) error
-Write writes resp in response to req. To close the connection gracefully, set the Response.Close field to true. Write should be considered operational until it returns an error, regardless of any errors returned on the Read side.
+```
+Write writes resp in response to req. 
+To close the connection gracefully, set the Response.Close field to true. 
+Write should be considered operational until it returns an error, regardless of any errors returned on the Read side.
+Write 在 响应req ,写 resp .
+设置Response.Close 字段成true , 会明确的关闭连接.
+Write 应该考虑操作 直到它返回一个错误,不管在Read 那一方 返回任何错误.
+
+
+
+
+
+
