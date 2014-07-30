@@ -60,13 +60,57 @@ efence:设置efence=1 使分配器在一个模式下运行 的每个对象分配
 
 gctrace:设置gctrace=1 使垃圾收集器在每个回收 发送一个单行的标准错误。
 
+gcdead:设置gcdead=1 使垃圾收集器 认为所有的堆栈已经死了。
 
+scheddetail:  设置schedtrace=X 和 scheddetail=1 使 每隔X毫秒调度发出详细的多行信息，描述所有的调度，处理器，线程和Go例程 的状态，
 
+schedtrace: 设置schedtrace=X 使调度器每隔X毫秒发送单行到标准错误，总结调度状态。
 
 ```
 
-The GOMAXPROCS variable limits the number of operating system threads that can execute user-level Go code simultaneously. There is no limit to the number of threads that can be blocked in system calls on behalf of Go code; those do not count against the GOMAXPROCS limit. This package's GOMAXPROCS function queries and changes the limit.
+The GOMAXPROCS variable limits the number of operating system threads that can execute user-level Go code simultaneously. 
+There is no limit to the number of threads that can be blocked in system calls on behalf of Go code; those do not count against the GOMAXPROCS limit. 
+This package's GOMAXPROCS function queries and changes the limit.
 
-The GOTRACEBACK variable controls the amount of output generated when a Go program fails due to an unrecovered panic or an unexpected runtime condition. By default, a failure prints a stack trace for every extant goroutine, eliding functions internal to the run-time system, and then exits with exit code 2. If GOTRACEBACK=0, the per-goroutine stack traces are omitted entirely. If GOTRACEBACK=1, the default behavior is used. If GOTRACEBACK=2, the per-goroutine stack traces include run-time functions. If GOTRACEBACK=crash, the per-goroutine stack traces include run-time functions, and if possible the program crashes in an operating-specific manner instead of exiting. For example, on Unix systems, the program raises SIGABRT to trigger a core dump.
+The GOTRACEBACK variable controls the amount of output generated when a Go program fails due to an unrecovered panic or an unexpected runtime condition. 
+By default, a failure prints a stack trace for every extant goroutine, eliding functions internal to the run-time system, and then exits with exit code 2. 
+If GOTRACEBACK=0, the per-goroutine stack traces are omitted entirely. 
+If GOTRACEBACK=1, the default behavior is used. If GOTRACEBACK=2, the per-goroutine stack traces include run-time functions. 
+If GOTRACEBACK=crash, the per-goroutine stack traces include run-time functions, and if possible the program crashes in an operating-specific manner instead of exiting. 
+For example, on Unix systems, the program raises SIGABRT to trigger a core dump.
 
-The GOARCH, GOOS, GOPATH, and GOROOT environment variables complete the set of Go environment variables. They influence the building of Go programs (see http://golang.org/cmd/go and http://golang.org/pkg/go/build). GOARCH, GOOS, and GOROOT are recorded at compile time and made available by constants or functions in this package, but they do not influence the execution of the run-time system.
+The GOARCH, GOOS, GOPATH, and GOROOT environment variables complete the set of Go environment variables. 
+They influence the building of Go programs (see http://golang.org/cmd/go and http://golang.org/pkg/go/build). 
+GOARCH, GOOS, and GOROOT are recorded at compile time and made available by constants or functions in this package, but they do not influence the execution of the run-time system.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
