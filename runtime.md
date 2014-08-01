@@ -362,11 +362,17 @@ ReadMemStats 以内存分配器的统计数据填充m。
 
 
 func SetBlockProfileRate
-
+```golang
 func SetBlockProfileRate(rate int)
-SetBlockProfileRate controls the fraction of goroutine blocking events that are reported in the blocking profile. The profiler aims to sample an average of one blocking event per rate nanoseconds spent blocked.
+```
+SetBlockProfileRate controls the fraction of goroutine blocking events that are reported in the blocking profile. 
+The profiler aims to sample an average of one blocking event per rate nanoseconds spent blocked.
 
 To include every blocking event in the profile, pass rate = 1. To turn off profiling entirely, pass rate <= 0.
+
+SetBlockProfileRate控制 报告的阻塞信息中的goroutine阻塞事件的分数。
+
+
 
 func SetCPUProfileRate
 
