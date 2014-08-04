@@ -371,60 +371,308 @@ The profiler aims to sample an average of one blocking event per rate nanosecond
 To include every blocking event in the profile, pass rate = 1. To turn off profiling entirely, pass rate <= 0.
 
 SetBlockProfileRate控制 报告的阻塞信息中的goroutine阻塞事件的分数。
+分析器的目的 是 样品平均每秒发生的阻塞事件。
+
+通过设置rate = 1， 让信息里包含每个阻塞事件。通过 rate <= 0， 完全关闭分析。
 
 
 
 func SetCPUProfileRate
-
+```golang
 func SetCPUProfileRate(hz int)
-SetCPUProfileRate sets the CPU profiling rate to hz samples per second. If hz <= 0, SetCPUProfileRate turns off profiling. If the profiler is on, the rate cannot be changed without first turning it off.
+```
+SetCPUProfileRate sets the CPU profiling rate to hz samples per second. 
+If hz <= 0, SetCPUProfileRate turns off profiling. 
+If the profiler is on, the rate cannot be changed without first turning it off.
 
 Most clients should use the runtime/pprof package or the testing package's -test.cpuprofile flag instead of calling SetCPUProfileRate directly.
 
-func SetFinalizer
+SetCPUProfileRate 设置CPU 每秒采样的HZ。
+如果 hz <= 0, SetCPUProfileRate 关闭 分析
 
+大部分客户端应该使用 runtime/pprof  包 或 testing 包的 -test.cpuprofile 标示来代替直接调用SetCPUProfileRate。
+
+
+func SetFinalizer
+```golang
 func SetFinalizer(x, f interface{})
-SetFinalizer sets the finalizer associated with x to f. When the garbage collector finds an unreachable block with an associated finalizer, it clears the association and runs f(x) in a separate goroutine. This makes x reachable again, but now without an associated finalizer. Assuming that SetFinalizer is not called again, the next time the garbage collector sees that x is unreachable, it will free x.
+```
+SetFinalizer sets the finalizer associated with x to f. 
+When the garbage collector finds an unreachable block with an associated finalizer, it clears the association and runs f(x) in a separate goroutine. 
+This makes x reachable again, but now without an associated finalizer. 
+Assuming that SetFinalizer is not called again, the next time the garbage collector sees that x is unreachable, it will free x.
 
 SetFinalizer(x, nil) clears any finalizer associated with x.
 
-The argument x must be a pointer to an object allocated by calling new or by taking the address of a composite literal. The argument f must be a function that takes a single argument to which x's type can be assigned, and can have arbitrary ignored return values. If either of these is not true, SetFinalizer aborts the program.
+The argument x must be a pointer to an object allocated by calling new or by taking the address of a composite literal. 
+The argument f must be a function that takes a single argument to which x's type can be assigned, and can have arbitrary ignored return values. 
+If either of these is not true, SetFinalizer aborts the program.
 
-Finalizers are run in dependency order: if A points at B, both have finalizers, and they are otherwise unreachable, only the finalizer for A runs; once A is freed, the finalizer for B can run. If a cyclic structure includes a block with a finalizer, that cycle is not guaranteed to be garbage collected and the finalizer is not guaranteed to run, because there is no ordering that respects the dependencies.
+Finalizers are run in dependency order: 
+	if A points at B, both have finalizers, and they are otherwise unreachable, only the finalizer for A runs; once A is freed, the finalizer for B can run. 
+	If a cyclic structure includes a block with a finalizer, that cycle is not guaranteed to be garbage collected and the finalizer is not guaranteed to run, because there is no ordering that respects the dependencies.
 
-The finalizer for x is scheduled to run at some arbitrary time after x becomes unreachable. There is no guarantee that finalizers will run before a program exits, so typically they are useful only for releasing non-memory resources associated with an object during a long-running program. For example, an os.File object could use a finalizer to close the associated operating system file descriptor when a program discards an os.File without calling Close, but it would be a mistake to depend on a finalizer to flush an in-memory I/O buffer such as a bufio.Writer, because the buffer would not be flushed at program exit.
+The finalizer for x is scheduled to run at some arbitrary time after x becomes unreachable. 
+There is no guarantee that finalizers will run before a program exits, so typically they are useful only for releasing non-memory resources associated with an object during a long-running program. 
+For example, an os.File object could use a finalizer to close the associated operating system file descriptor when a program discards an os.File without calling Close, 
+	but it would be a mistake to depend on a finalizer to flush an in-memory I/O buffer such as a bufio.Writer, because the buffer would not be flushed at program exit.
 
 It is not guaranteed that a finalizer will run if the size of *x is zero bytes.
 
 A single goroutine runs all finalizers for a program, sequentially. If a finalizer must run for a long time, it should do so by starting a new goroutine.
 
+
+
+
+
 func Stack
 
 func Stack(buf []byte, all bool) int
-Stack formats a stack trace of the calling goroutine into buf and returns the number of bytes written to buf. If all is true, Stack formats stack traces of all other goroutines into buf after the trace for the current goroutine.
+Stack formats a stack trace of the calling goroutine into buf and returns the number of bytes written to buf. 
+If all is true, Stack formats stack traces of all other goroutines into buf after the trace for the current goroutine.
+Stack格式化一个堆栈跟踪 调用 goroutine 成 buf 并 返回写入buf的字节数。
+如果all是true,在当前goroutine 跟踪后 Stack 格式化 所有其他goroutines堆栈跟踪 到 buf。
+
 
 func ThreadCreateProfile
-
+```golang
 func ThreadCreateProfile(p []StackRecord) (n int, ok bool)
-ThreadCreateProfile returns n, the number of records in the thread creation profile. If len(p) >= n, ThreadCreateProfile copies the profile into p and returns n, true. If len(p) < n, ThreadCreateProfile does not change p and returns n, false.
+```
+ThreadCreateProfile returns n, the number of records in the thread creation profile. 
+If len(p) >= n, ThreadCreateProfile copies the profile into p and returns n, true. 
+If len(p) < n, ThreadCreateProfile does not change p and returns n, false.
 
 Most clients should use the runtime/pprof package instead of calling ThreadCreateProfile directly.
 
-func UnlockOSThread
+ThreadCreateProfile 返回n， 记录在线程里创建配置文件数。
+如果len(p) >= n,ThreadCreateProfile 复制信息到p 并返回 n, true。
+如果 len(p) < n,ThreadCreateProfile不会修改p并返回 n, false。
 
+
+
+func UnlockOSThread
+```golang
 func UnlockOSThread()
+```
 UnlockOSThread unwires the calling goroutine from its fixed operating system thread. If the calling goroutine has not called LockOSThread, UnlockOSThread is a no-op.
+UnlockOSThread 从固定的操作系统线程调用的goroutine。 如果调用的goroutine没有调用 LockOSThread，UnlockOSThread 是一个空操作。
+
+
 
 func Version
-
+```golang
 func Version() string
+```
 Version returns the Go tree's version string. It is either the commit hash and date at the time of the build or, when possible, a release tag like "go1.3".
+Version 返回 GO 树的版本字符串。 可能的时候，它要么 提交hash 和构建时候的日期， 一个发布标签 类似 "go1.3"。
 
 
 
+type BlockProfileRecord
+```golang
+type BlockProfileRecord struct {
+        Count  int64
+        Cycles int64
+        StackRecord
+}
+```
+BlockProfileRecord describes blocking events originated at a particular call sequence (stack trace).
+BlockProfileRecord 描述阻塞事件起源 特别是调用的顺序（堆栈跟踪）。
+
+
+type Error
+```golang
+type Error interface {
+        error
+
+        // RuntimeError is a no-op function but
+        // serves to distinguish types that are runtime
+        // errors from ordinary errors: a type is a
+        // runtime error if it has a RuntimeError method.
+        RuntimeError()
+}
+```
+The Error interface identifies a run time error.
+Error 接口表示一个运行时错误。
+
+
+type Func
+```golang
+type Func struct {
+        // contains filtered or unexported fields
+}
+```
+
+
+func FuncForPC
+```golang
+func FuncForPC(pc uintptr) *Func
+```
+FuncForPC returns a *Func describing the function that contains the given program counter address, or else nil.
+FuncForPC 返回一个  *Func 描述  包含给定的程序计数器地址 或其他 nil 的函数
+
+
+func (*Func) Entry
+```golang
+func (f *Func) Entry() uintptr
+```
+Entry returns the entry address of the function.
+Entry返回函数入口地址
+
+
+func (*Func) FileLine
+```golang
+func (f *Func) FileLine(pc uintptr) (file string, line int)
+```
+FileLine returns the file name and line number of the source code corresponding to the program counter pc. 
+The result will not be accurate if pc is not a program counter within f.
+FileLine 返回程序计数器pc对应的文件名和行号。
+如果pc不是一个f的程序计数器，结果不准确。
 
 
 
+func (*Func) Name
+```golang
+func (f *Func) Name() string
+```
+Name returns the name of the function.
+Name 返回 函数名。
+
+
+type MemProfileRecord
+```golang
+type MemProfileRecord struct {
+        AllocBytes, FreeBytes     int64       // number of bytes allocated, freed
+        AllocObjects, FreeObjects int64       // number of objects allocated, freed
+        Stack0                    [32]uintptr // stack trace for this record; ends at first 0 entry
+}
+```
+A MemProfileRecord describes the live objects allocated by a particular call sequence (stack trace).
+MemProfileRecord 描述活动对象的分配 特别是调用顺序。
+
+
+func (*MemProfileRecord) InUseBytes
+```golang
+func (r *MemProfileRecord) InUseBytes() int64
+```
+InUseBytes returns the number of bytes in use (AllocBytes - FreeBytes).
+InUseBytes 返回 使用的字节数
+
+
+
+func (*MemProfileRecord) InUseObjects
+```golang
+func (r *MemProfileRecord) InUseObjects() int64
+```
+InUseObjects returns the number of objects in use (AllocObjects - FreeObjects).
+InUseObjects 返回使用的对象数。
+
+
+
+func (*MemProfileRecord) Stack
+```golang
+func (r *MemProfileRecord) Stack() []uintptr
+```
+Stack returns the stack trace associated with the record, a prefix of r.Stack0.
+Stack 返回 堆栈跟踪对应的记录，前缀 r.Stack0。
+
+
+
+type MemStats
+```golang
+type MemStats struct {
+        // General statistics.
+        Alloc      uint64 // bytes allocated and still in use
+        TotalAlloc uint64 // bytes allocated (even if freed)
+        Sys        uint64 // bytes obtained from system (sum of XxxSys below)
+        Lookups    uint64 // number of pointer lookups
+        Mallocs    uint64 // number of mallocs
+        Frees      uint64 // number of frees
+
+        // Main allocation heap statistics.
+        HeapAlloc    uint64 // bytes allocated and still in use
+        HeapSys      uint64 // bytes obtained from system
+        HeapIdle     uint64 // bytes in idle spans
+        HeapInuse    uint64 // bytes in non-idle span
+        HeapReleased uint64 // bytes released to the OS
+        HeapObjects  uint64 // total number of allocated objects
+
+        // Low-level fixed-size structure allocator statistics.
+        //	Inuse is bytes used now.
+        //	Sys is bytes obtained from system.
+        StackInuse  uint64 // bootstrap stacks
+        StackSys    uint64
+        MSpanInuse  uint64 // mspan structures
+        MSpanSys    uint64
+        MCacheInuse uint64 // mcache structures
+        MCacheSys   uint64
+        BuckHashSys uint64 // profiling bucket hash table
+        GCSys       uint64 // GC metadata
+        OtherSys    uint64 // other system allocations
+
+        // Garbage collector statistics.
+        NextGC       uint64 // next run in HeapAlloc time (bytes)
+        LastGC       uint64 // last run in absolute time (ns)
+        PauseTotalNs uint64
+        PauseNs      [256]uint64 // circular buffer of recent GC pause times, most recent at [(NumGC+255)%256]
+        NumGC        uint32
+        EnableGC     bool
+        DebugGC      bool
+
+        // Per-size allocation statistics.
+        // 61 is NumSizeClasses in the C code.
+        BySize [61]struct {
+                Size    uint32
+                Mallocs uint64
+                Frees   uint64
+        }
+}
+```
+A MemStats records statistics about the memory allocator.
+MemStats记录统计信息的内存分配器。
+
+
+type StackRecord
+```golang
+type StackRecord struct {
+        Stack0 [32]uintptr // stack trace for this record; ends at first 0 entry
+}
+```
+A StackRecord describes a single execution stack.
+StackRecord 描述一个 单个执行堆栈。
+
+
+func (*StackRecord) Stack
+```golang
+func (r *StackRecord) Stack() []uintptr
+```
+Stack returns the stack trace associated with the record, a prefix of r.Stack0.
+Stack 返回 堆栈跟踪对应的记录，前缀 r.Stack0。
+
+
+
+type TypeAssertionError
+```golang
+type TypeAssertionError struct {
+        // contains filtered or unexported fields
+}
+```
+A TypeAssertionError explains a failed type assertion.
+TypeAssertionError 解释一个失败的类型声明。
+
+
+
+func (*TypeAssertionError) Error
+```golang
+func (e *TypeAssertionError) Error() string
+```
+
+
+
+func (*TypeAssertionError) RuntimeError
+```golang
+func (*TypeAssertionError) RuntimeError()
+```
 
 
 
