@@ -4967,9 +4967,8 @@ func Write(fd int, p []byte) (n int, err error)
 ```
 
 
-
 type BpfHdr
-
+```golang
 type BpfHdr struct {
         Tstamp    BpfTimeval
         Caplen    uint32
@@ -4977,62 +4976,96 @@ type BpfHdr struct {
         Hdrlen    uint16
         Pad_cgo_0 [2]byte
 }
-type BpfInsn
+```
 
+
+type BpfInsn
+```golang
 type BpfInsn struct {
         Code uint16
         Jt   uint8
         Jf   uint8
         K    uint32
 }
-type BpfProgram
+```
 
+
+type BpfProgram
+```golang
 type BpfProgram struct {
         Len       uint32
         Pad_cgo_0 [4]byte
         Insns     *BpfInsn
 }
-type BpfStat
+```
 
+
+
+type BpfStat
+```golang
 type BpfStat struct {
         Recv    uint64
         Drop    uint64
         Capt    uint64
         Padding [13]uint64
 }
-type BpfTimeval
+```
 
+
+
+type BpfTimeval
+```golang
 type BpfTimeval struct {
         Sec  int32
         Usec int32
 }
-type BpfVersion
+```
 
+
+
+type BpfVersion
+```golang
 type BpfVersion struct {
         Major uint16
         Minor uint16
 }
-type Cmsghdr
+```
 
+
+
+type Cmsghdr
+```golang
 type Cmsghdr struct {
         Len   uint32
         Level int32
         Type  int32
 }
+```
+
+
+
 func (*Cmsghdr) SetLen
-
+```golang
 func (cmsg *Cmsghdr) SetLen(length int)
-type Credential
+```
 
+
+
+type Credential
+```golang
 type Credential struct {
         Uid    uint32   // User ID.
         Gid    uint32   // Group ID.
         Groups []uint32 // Supplementary group IDs.
 }
+```
 Credential holds user and group identities to be assumed by a child process started by StartProcess.
+Credential 保留用户和组 标示  可以假定  子进程 是用 StartProcess 启动的.
+
+
 
 type Dirent
-
+```golang
 type Dirent struct {
         Ino       uint64
         Off       int64
@@ -5040,22 +5073,37 @@ type Dirent struct {
         Name      [1]int8
         Pad_cgo_0 [5]byte
 }
-type EpollEvent
+```
 
+
+
+type EpollEvent
+```golang
 type EpollEvent struct {
         Events uint32
         Fd     int32
         Pad    int32
 }
+```
+
+
 type Errno
-
+```golang
 type Errno uintptr
-An Errno is an unsigned number describing an error condition. It implements the error interface. The zero Errno is by convention a non-error, so code to convert from Errno to error should use:
+```
+An Errno is an unsigned number describing an error condition. It implements the error interface. 
+The zero Errno is by convention a non-error, so code to convert from Errno to error should use:
+Errno 是一个无符号数字 描述错误条件.它实现了错误接口. 零Errno 是一个 非错误, 所以 代码 转化 Errno 成 错误 应该使用:
 
+```golang
 err = nil
 if errno != 0 {
 	err = errno
 }
+```
+
+
+```golang
 const (
         // native_client/src/trusted/service_runtime/include/sys/errno.h
         // The errors are mainly copied from Linux.
@@ -5182,24 +5230,42 @@ const (
         ECASECLASH      Errno = 2053   /* Filename exists with different case */
         EWOULDBLOCK     Errno = EAGAIN /* Operation would block */
 )
+```
 TODO: Auto-generate some day. (Hard-coded in binaries so not likely to change.)
+TODO:自动生成某一天.(是二进制硬编码所以不可能改变。)
+
+
 
 func (Errno) Error
-
+```golang
 func (e Errno) Error() string
+```
+
+
 func (Errno) Temporary
-
+```golang
 func (e Errno) Temporary() bool
+```
+
+
 func (Errno) Timeout
-
+```golang
 func (e Errno) Timeout() bool
-type FdSet
+```
 
+
+
+type FdSet
+```golang
 type FdSet struct {
         Bits [1024]int64
 }
-type Flock_t
+```
 
+
+
+type Flock_t
+```golang
 type Flock_t struct {
         Type      int16
         Whence    int16
@@ -5210,58 +5276,101 @@ type Flock_t struct {
         Pid       int32
         Pad       [4]int64
 }
-type Fsid
+```
 
+
+
+type Fsid
+```golang
 type Fsid struct {
         X__val [2]int32
 }
-type ICMPv6Filter
+```
 
+
+type ICMPv6Filter
+```golang
 type ICMPv6Filter struct {
         X__icmp6_filt [8]uint32
 }
+```
+
+
+
 func GetsockoptICMPv6Filter
-
+```golang
 func GetsockoptICMPv6Filter(fd, level, opt int) (*ICMPv6Filter, error)
-type IPMreq
+```
 
+
+type IPMreq
+```golang
 type IPMreq struct {
         Multiaddr [4]byte /* in_addr */
         Interface [4]byte /* in_addr */
 }
+```
+
+
+
 func GetsockoptIPMreq
-
+```golang
 func GetsockoptIPMreq(fd, level, opt int) (*IPMreq, error)
-type IPMreqn
+```
 
+
+type IPMreqn
+```golang
 type IPMreqn struct {
         Multiaddr [4]byte /* in_addr */
         Address   [4]byte /* in_addr */
         Ifindex   int32
 }
+```
+
+
+
 func GetsockoptIPMreqn
-
+```golang
 func GetsockoptIPMreqn(fd, level, opt int) (*IPMreqn, error)
-type IPv6MTUInfo
+```
 
+
+
+type IPv6MTUInfo
+```golang
 type IPv6MTUInfo struct {
         Addr RawSockaddrInet6
         Mtu  uint32
 }
+```
+
+
+
 func GetsockoptIPv6MTUInfo
-
+```golang
 func GetsockoptIPv6MTUInfo(fd, level, opt int) (*IPv6MTUInfo, error)
-type IPv6Mreq
+```
 
+
+
+type IPv6Mreq
+```golang
 type IPv6Mreq struct {
         Multiaddr [16]byte /* in6_addr */
         Interface uint32
 }
+```
+
+
 func GetsockoptIPv6Mreq
-
+```golang
 func GetsockoptIPv6Mreq(fd, level, opt int) (*IPv6Mreq, error)
-type IfAddrmsg
+```
 
+
+type IfAddrmsg
+```golang
 type IfAddrmsg struct {
         Family    uint8
         Prefixlen uint8
@@ -5269,8 +5378,11 @@ type IfAddrmsg struct {
         Scope     uint8
         Index     uint32
 }
-type IfData
+```
 
+
+type IfData
+```golang
 type IfData struct {
         Type       uint8
         Addrlen    uint8
@@ -5292,8 +5404,11 @@ type IfData struct {
         Noproto    uint32
         Lastchange Timeval32
 }
-type IfInfomsg
+```
 
+
+type IfInfomsg
+```golang
 type IfInfomsg struct {
         Family     uint8
         X__ifi_pad uint8
@@ -5302,8 +5417,11 @@ type IfInfomsg struct {
         Flags      uint32
         Change     uint32
 }
-type IfMsghdr
+```
 
+
+type IfMsghdr
+```golang
 type IfMsghdr struct {
         Msglen    uint16
         Version   uint8
@@ -5314,8 +5432,12 @@ type IfMsghdr struct {
         Pad_cgo_0 [2]byte
         Data      IfData
 }
-type IfaMsghdr
+```
 
+
+
+type IfaMsghdr
+```golang
 type IfaMsghdr struct {
         Msglen    uint16
         Version   uint8
@@ -5326,21 +5448,31 @@ type IfaMsghdr struct {
         Pad_cgo_0 [2]byte
         Metric    int32
 }
-type Inet4Pktinfo
+```
 
+
+
+type Inet4Pktinfo
+```golang
 type Inet4Pktinfo struct {
         Ifindex  int32
         Spec_dst [4]byte /* in_addr */
         Addr     [4]byte /* in_addr */
 }
-type Inet6Pktinfo
+```
 
+
+type Inet6Pktinfo
+```golang
 type Inet6Pktinfo struct {
         Addr    [16]byte /* in6_addr */
         Ifindex uint32
 }
-type InotifyEvent
+```
 
+
+type InotifyEvent
+```golang
 type InotifyEvent struct {
         Wd     int32
         Mask   uint32
@@ -5348,23 +5480,35 @@ type InotifyEvent struct {
         Len    uint32
         Name   [0]uint8
 }
-type Iovec
+```
 
+
+type Iovec
+```golang
 type Iovec struct {
         Base *int8
         Len  uint64
 }
+```
+
+
 func (*Iovec) SetLen
-
+```golang
 func (iov *Iovec) SetLen(length int)
-type Linger
+```
 
+
+type Linger
+```golang
 type Linger struct {
         Onoff  int32
         Linger int32
 }
-type Msghdr
+```
 
+
+type Msghdr
+```golang
 type Msghdr struct {
         Name         *byte
         Namelen      uint32
@@ -5376,47 +5520,70 @@ type Msghdr struct {
         Accrightslen int32
         Pad_cgo_2    [4]byte
 }
+```
+
+
 func (*Msghdr) SetControllen
-
+```golang
 func (msghdr *Msghdr) SetControllen(length int)
-type NetlinkMessage
+```
 
+
+type NetlinkMessage
+```golang
 type NetlinkMessage struct {
         Header NlMsghdr
         Data   []byte
 }
+```
 NetlinkMessage represents a netlink message.
+NetlinkMessage 表示一个网络链路信息.
+
 
 type NetlinkRouteAttr
-
+```golang
 type NetlinkRouteAttr struct {
         Attr  RtAttr
         Value []byte
 }
+```
 NetlinkRouteAttr represents a netlink route attribute.
+NetlinkRouteAttr 表示一个 网络链路的路由属性。
+
+
 
 type NetlinkRouteRequest
-
+```golang
 type NetlinkRouteRequest struct {
         Header NlMsghdr
         Data   RtGenmsg
 }
+```
 NetlinkRouteRequest represents a request message to receive routing and link states from the kernel.
+NetlinkRouteRequest 表示请求消息从内核接收路由和链路状态。
+
 
 type NlAttr
-
+```golang
 type NlAttr struct {
         Len  uint16
         Type uint16
 }
-type NlMsgerr
+```
 
+
+
+type NlMsgerr
+```golang
 type NlMsgerr struct {
         Error int32
         Msg   NlMsghdr
 }
-type NlMsghdr
+```
 
+
+type NlMsghdr
+```golang
 type NlMsghdr struct {
         Len   uint32
         Type  uint16
@@ -5424,18 +5591,24 @@ type NlMsghdr struct {
         Seq   uint32
         Pid   uint32
 }
-type ProcAttr
+```
 
+
+type ProcAttr
+```golang
 type ProcAttr struct {
         Dir   string
         Env   []string
         Files []uintptr
         Sys   *SysProcAttr
 }
+```
 XXX made up
+XXX组成
+
 
 type PtraceRegs
-
+```golang
 type PtraceRegs struct {
         R15      uint64
         R14      uint64
@@ -5465,26 +5638,41 @@ type PtraceRegs struct {
         Fs       uint64
         Gs       uint64
 }
+```
+
+
 func (*PtraceRegs) PC
-
+```golang
 func (r *PtraceRegs) PC() uint64
+```
+
+
 func (*PtraceRegs) SetPC
-
+```golang
 func (r *PtraceRegs) SetPC(pc uint64)
-type RawSockaddr
+```
 
+
+type RawSockaddr
+```golang
 type RawSockaddr struct {
         Family uint16
         Data   [14]int8
 }
-type RawSockaddrAny
+```
 
+
+type RawSockaddrAny
+```golang
 type RawSockaddrAny struct {
         Addr RawSockaddr
         Pad  [236]int8
 }
-type RawSockaddrDatalink
+```
 
+
+type RawSockaddrDatalink
+```golang
 type RawSockaddrDatalink struct {
         Family uint16
         Index  uint16
@@ -5494,16 +5682,22 @@ type RawSockaddrDatalink struct {
         Slen   uint8
         Data   [244]int8
 }
-type RawSockaddrInet4
+```
 
+
+type RawSockaddrInet4
+```golang
 type RawSockaddrInet4 struct {
         Family uint16
         Port   uint16
         Addr   [4]byte /* in_addr */
         Zero   [8]int8
 }
-type RawSockaddrInet6
+```
 
+
+type RawSockaddrInet6
+```golang
 type RawSockaddrInet6 struct {
         Family         uint16
         Port           uint16
@@ -5512,8 +5706,12 @@ type RawSockaddrInet6 struct {
         Scope_id       uint32
         X__sin6_src_id uint32
 }
-type RawSockaddrLinklayer
+```
 
+
+
+type RawSockaddrLinklayer
+```golang
 type RawSockaddrLinklayer struct {
         Family   uint16
         Protocol uint16
@@ -5523,46 +5721,74 @@ type RawSockaddrLinklayer struct {
         Halen    uint8
         Addr     [8]uint8
 }
-type RawSockaddrNetlink
+```
 
+
+
+type RawSockaddrNetlink
+```golang
 type RawSockaddrNetlink struct {
         Family uint16
         Pad    uint16
         Pid    uint32
         Groups uint32
 }
-type RawSockaddrUnix
+```
 
+
+
+type RawSockaddrUnix
+```golang
 type RawSockaddrUnix struct {
         Family uint16
         Path   [108]int8
 }
-type Rlimit
+```
 
+
+
+type Rlimit
+```golang
 type Rlimit struct {
         Cur uint64
         Max uint64
 }
-type RoutingMessage
+```
 
+
+
+type RoutingMessage
+```golang
 type RoutingMessage interface {
         // contains filtered or unexported methods
 }
+```
 RoutingMessage represents a routing message.
+RoutingMessage 表示一个路由信息
+
+
 
 type RtAttr
-
+```golang
 type RtAttr struct {
         Len  uint16
         Type uint16
 }
-type RtGenmsg
+```
 
+
+
+type RtGenmsg
+```golang
 type RtGenmsg struct {
         Family uint8
 }
-type RtMetrics
+```
 
+
+
+type RtMetrics
+```golang
 type RtMetrics struct {
         Locks    uint32
         Mtu      uint32
@@ -5575,8 +5801,12 @@ type RtMetrics struct {
         Rttvar   uint32
         Pksent   uint32
 }
-type RtMsg
+```
 
+
+
+type RtMsg
+```golang
 type RtMsg struct {
         Family   uint8
         Dst_len  uint8
@@ -5588,8 +5818,12 @@ type RtMsg struct {
         Type     uint8
         Flags    uint32
 }
-type RtMsghdr
+```
 
+
+
+type RtMsghdr
+```golang
 type RtMsghdr struct {
         Msglen    uint16
         Version   uint8
@@ -5605,16 +5839,23 @@ type RtMsghdr struct {
         Inits     uint32
         Rmx       RtMetrics
 }
-type RtNexthop
+```
 
+
+type RtNexthop
+```golang
 type RtNexthop struct {
         Len     uint16
         Flags   uint8
         Hops    uint8
         Ifindex int32
 }
-type Rusage
+```
 
+
+
+type Rusage
+```golang
 type Rusage struct {
         Utime    Timeval
         Stime    Timeval
@@ -5633,51 +5874,90 @@ type Rusage struct {
         Nvcsw    int64
         Nivcsw   int64
 }
-type Signal
+```
 
+
+
+type Signal
+```golang
 type Signal int
+```
 A Signal is a number describing a process signal. It implements the os.Signal interface.
+Signal 是一个 描述进程信息的号码. 它实现了 os.Signal 接口.
+
+
 
 func (Signal) Signal
-
+```golang
 func (s Signal) Signal()
+```
+
+
 func (Signal) String
-
+```golang
 func (s Signal) String() string
-type SockFilter
+```
 
+
+type SockFilter
+```golang
 type SockFilter struct {
         Code uint16
         Jt   uint8
         Jf   uint8
         K    uint32
 }
+```
+
+
 func LsfJump
-
+```golang
 func LsfJump(code, k, jt, jf int) *SockFilter
+```
+
+
 func LsfStmt
-
+```golang
 func LsfStmt(code, k int) *SockFilter
-type SockFprog
+```
 
+
+type SockFprog
+```golang
 type SockFprog struct {
         Len       uint16
         Pad_cgo_0 [6]byte
         Filter    *SockFilter
 }
-type Sockaddr
+```
 
+
+
+type Sockaddr
+```golang
 type Sockaddr interface {
         // contains filtered or unexported methods
 }
+```
+
+
+
 func Getpeername
-
+```golang
 func Getpeername(fd int) (sa Sockaddr, err error)
+```
+
+
+
 func Getsockname
-
+```golang
 func Getsockname(fd int) (sa Sockaddr, err error)
-type SockaddrDatalink
+```
 
+
+
+type SockaddrDatalink
+```golang
 type SockaddrDatalink struct {
         Family uint16
         Index  uint16
@@ -5688,23 +5968,34 @@ type SockaddrDatalink struct {
         Data   [244]int8
         // contains filtered or unexported fields
 }
-type SockaddrInet4
+```
 
+
+type SockaddrInet4
+```golang
 type SockaddrInet4 struct {
         Port int
         Addr [4]byte
         // contains filtered or unexported fields
 }
-type SockaddrInet6
+```
 
+
+
+type SockaddrInet6
+```golang
 type SockaddrInet6 struct {
         Port   int
         ZoneId uint32
         Addr   [16]byte
         // contains filtered or unexported fields
 }
-type SockaddrLinklayer
+```
 
+
+
+type SockaddrLinklayer
+```golang
 type SockaddrLinklayer struct {
         Protocol uint16
         Ifindex  int
@@ -5714,8 +6005,11 @@ type SockaddrLinklayer struct {
         Addr     [8]byte
         // contains filtered or unexported fields
 }
-type SockaddrNetlink
+```
 
+
+type SockaddrNetlink
+```golang
 type SockaddrNetlink struct {
         Family uint16
         Pad    uint16
@@ -5723,22 +6017,32 @@ type SockaddrNetlink struct {
         Groups uint32
         // contains filtered or unexported fields
 }
-type SockaddrUnix
+```
 
+
+type SockaddrUnix
+```golang
 type SockaddrUnix struct {
         Name string
         // contains filtered or unexported fields
 }
-type SocketControlMessage
+```
 
+
+type SocketControlMessage
+```golang
 type SocketControlMessage struct {
         Header Cmsghdr
         Data   []byte
 }
+```
 SocketControlMessage represents a socket control message.
+SocketControlMessage表示一个socket控制 信号.
+
+
 
 type Stat_t
-
+```golang
 type Stat_t struct {
         Dev       uint64
         Ino       uint64
@@ -5756,8 +6060,11 @@ type Stat_t struct {
         Blocks    int64
         Fstype    [16]int8
 }
-type Statfs_t
+```
 
+
+type Statfs_t
+```golang
 type Statfs_t struct {
         Type    int64
         Bsize   int64
@@ -5772,12 +6079,18 @@ type Statfs_t struct {
         Flags   int64
         Spare   [4]int64
 }
-type SysProcAttr
+```
 
+
+type SysProcAttr
+```golang
 type SysProcAttr struct {
 }
-type Sysinfo_t
+```
 
+
+type Sysinfo_t
+```golang
 type Sysinfo_t struct {
         Uptime    int64
         Loads     [3]uint64
@@ -5796,8 +6109,12 @@ type Sysinfo_t struct {
         X_f       [0]byte
         Pad_cgo_1 [4]byte
 }
-type TCPInfo
+```
 
+
+
+type TCPInfo
+```golang
 type TCPInfo struct {
         State          uint8
         Ca_state       uint8
@@ -5831,8 +6148,12 @@ type TCPInfo struct {
         Rcv_space      uint32
         Total_retrans  uint32
 }
-type Termios
+```
 
+
+
+type Termios
+```golang
 type Termios struct {
         Iflag     uint32
         Oflag     uint32
@@ -5841,50 +6162,88 @@ type Termios struct {
         Cc        [19]uint8
         Pad_cgo_0 [1]byte
 }
+```
+
+
+
 type Time_t
-
+```golang
 type Time_t int64
+```
+
+
 func Time
-
+```golang
 func Time(t *Time_t) (tt Time_t, err error)
-type Timespec
+```
 
+
+
+type Timespec
+```golang
 type Timespec struct {
         Sec  int64
         Nsec int64
 }
+```
+
+
 func NsecToTimespec
-
+```golang
 func NsecToTimespec(nsec int64) (ts Timespec)
+```
+
+
 func (*Timespec) Nano
-
+```golang
 func (ts *Timespec) Nano() int64
+```
+
+
 func (*Timespec) Unix
-
+```golang
 func (ts *Timespec) Unix() (sec int64, nsec int64)
-type Timeval
+```
 
+
+type Timeval
+```golang
 type Timeval struct {
         Sec  int64
         Usec int64
 }
+```
+
+
 func NsecToTimeval
-
+```golang
 func NsecToTimeval(nsec int64) (tv Timeval)
+```
+
+
 func (*Timeval) Nano
-
+```golang
 func (tv *Timeval) Nano() int64
+```
+
+
 func (*Timeval) Unix
-
+```golang
 func (tv *Timeval) Unix() (sec int64, nsec int64)
-type Timeval32
+```
 
+
+type Timeval32
+```golang
 type Timeval32 struct {
         Sec  int32
         Usec int32
 }
-type Timex
+```
 
+
+type Timex
+```golang
 type Timex struct {
         Modes     uint32
         Pad_cgo_0 [4]byte
@@ -5911,31 +6270,51 @@ type Timex struct {
         Tai       int32
         Pad_cgo_3 [44]byte
 }
-type Tms
+```
 
+
+type Tms
+```golang
 type Tms struct {
         Utime  int64
         Stime  int64
         Cutime int64
         Cstime int64
 }
-type Ucred
+```
 
+
+
+type Ucred
+```golang
 type Ucred struct {
         Pid int32
         Uid uint32
         Gid uint32
 }
+```
+
+
+
 func GetsockoptUcred
-
+```golang
 func GetsockoptUcred(fd, level, opt int) (*Ucred, error)
-func ParseUnixCredentials
+```
 
+
+func ParseUnixCredentials
+```golang
 func ParseUnixCredentials(m *SocketControlMessage) (*Ucred, error)
-ParseUnixCredentials decodes a socket control message that contains credentials in a Ucred structure. To receive such a message, the SO_PASSCRED option must be enabled on the socket.
+```
+ParseUnixCredentials decodes a socket control message that contains credentials in a Ucred structure. 
+To receive such a message, the SO_PASSCRED option must be enabled on the socket.
+ParseUnixCredentials 解码 socket 控制 信息 包含 Ucred 结构体里的证书的
+为了接收一个信息, socket 上的SO_PASSCRED选项必须启用.
+
+
 
 type Ustat_t
-
+```golang
 type Ustat_t struct {
         Tfree     int32
         Pad_cgo_0 [4]byte
@@ -5944,14 +6323,21 @@ type Ustat_t struct {
         Fpack     [6]int8
         Pad_cgo_1 [4]byte
 }
-type Utimbuf
+```
 
+
+type Utimbuf
+```golang
 type Utimbuf struct {
         Actime  int64
         Modtime int64
 }
-type Utsname
+```
 
+
+
+type Utsname
+```golang
 type Utsname struct {
         Sysname    [65]int8
         Nodename   [65]int8
@@ -5960,68 +6346,71 @@ type Utsname struct {
         Machine    [65]int8
         Domainname [65]int8
 }
+```
+
+
 type WaitStatus
-
+```golang
 type WaitStatus uint32
+```
+
+
+
 func (WaitStatus) Continued
-
+```golang
 func (w WaitStatus) Continued() bool
+```
+
+
 func (WaitStatus) CoreDump
-
+```golang
 func (w WaitStatus) CoreDump() bool
+```
+
+
+
 func (WaitStatus) ExitStatus
-
+```golang
 func (w WaitStatus) ExitStatus() int
+```
+
+
+
 func (WaitStatus) Exited
-
+```golang
 func (w WaitStatus) Exited() bool
+```
+
+
+
 func (WaitStatus) Signal
-
+```golang
 func (w WaitStatus) Signal() Signal
+```
+
+
 func (WaitStatus) Signaled
-
+```golang
 func (w WaitStatus) Signaled() bool
+```
+
+
+
 func (WaitStatus) StopSignal
-
+```golang
 func (w WaitStatus) StopSignal() Signal
+```
+
+
 func (WaitStatus) Stopped
-
+```golang
 func (w WaitStatus) Stopped() bool
+```
+
+
 func (WaitStatus) TrapCause
-
+```golang
 func (w WaitStatus) TrapCause() int
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
 
