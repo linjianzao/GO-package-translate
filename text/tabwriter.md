@@ -96,7 +96,7 @@ If a Writer is configured to filter HTML, HTML tags and entities are passed thro
 The widths of tags and entities are assumed to be zero (tags) and one (entities) for formatting purposes.
 
 如果 Writer配置来过滤HTML, HTML 标签和实体被通过。
-格式化的目的 是  标签和实体 的宽带 假设是 零(标签)  和  1 (实体)
+为了格式化 假设 标签和实体 的宽带 是 零(标签)  和  1 (实体)
 
 
 A segment of text may be escaped by bracketing it with Escape characters. The tabwriter passes escaped text segments through unchanged. 
@@ -109,24 +109,47 @@ Cells in the next line start new columns. Unless found inside an HTML tag or ins
 
 The Writer must buffer input internally, because proper spacing of one line may depend on the cells in future lines. Clients must call Flush when done calling Write.
 
+文本段可能 通过 包含它的 转义 字符 过滤.  tabwriter 传递 转义文本段 是 不变的.
+特别是, 它不会 转化 文本段里的任何 制表符 或 换行符.
+如果StripEscape  设置了,Escape 字符 从输出 跳出;  否则他们会被传递.
+为了格式化的目的, 过滤文本子宽度 通常 计算 包括 Escape 字符.
+
+换页字符 ('\f') 类似 换行符 它也终止于当前行的所有列. 
+下一行单元格开始新列 . 除非里面的HTML标记或转义文本段内发现，换页字符显示为输出换行符。
+
+Writer必须在内部缓冲器输入，因为 一行适当的间隔可以 依赖 单元格里未来的行
+
 
 
 
 func NewWriter
-
+```golang
 func NewWriter(output io.Writer, minwidth, tabwidth, padding int, padchar byte, flags uint) *Writer
+```
 NewWriter allocates and initializes a new tabwriter.Writer. The parameters are the same as for the Init function.
+NewWriter 分配和 初始化 新的 tabwriter.Writer. 参数和Init 一样.
+
+
 
 func (*Writer) Flush
-
+```golang
 func (b *Writer) Flush() (err error)
-Flush should be called after the last call to Write to ensure that any data buffered in the Writer is written to output. Any incomplete escape sequence at the end is considered complete for formatting purposes.
+```
+Flush should be called after the last call to Write to ensure that any data buffered in the Writer is written to output. 
+Any incomplete escape sequence at the end is considered complete for formatting purposes.
+Flush 应该在  最后调用 Write 后 调用, 确保Writer里缓冲区的任何数据 写入输入,
+在结束时,任何不完整的转义序列被认为是完整的格式化
+
+
 
 func (*Writer) Init
-
+```golang
 func (b *Writer) Init(output io.Writer, minwidth, tabwidth, padding int, padchar byte, flags uint) *Writer
+```
 A Writer must be initialized with a call to Init. The first parameter (output) specifies the filter output. The remaining parameters control the formatting:
+Writer必须调用 Init 初始化. 第一个参数 指定  过滤输出. 剩下的参数控制格式:
 
+```golang
 minwidth	minimal cell width including any padding
 tabwidth	width of tab characters (equivalent number of spaces)
 padding		padding added to a cell before computing its width
@@ -138,9 +161,15 @@ padchar		ASCII char used for padding
 		to the tab width in the viewer displaying the result)
 flags		formatting control
 
+minwidth  任何填充的最小的单元格的宽度.
+tabwidth  制表符的宽度(相当于空格数)
+padding   
+padchar
+flags
+```
 
 ▹ Example
-
+```golang
 package main
 
 import (
@@ -169,10 +198,19 @@ func main() {
 	w.Flush()
 
 }
-
+```
 
 
 func (*Writer) Write
-
+```golang
 func (b *Writer) Write(buf []byte) (n int, err error)
+```
 Write writes buf to the writer b. The only errors returned are ones encountered while writing to the underlying output stream.
+Write 写 buf 到 b.  只有在遭遇 写入底层输出流遇到错误 才会返回 错误.
+
+
+
+
+
+
+
