@@ -552,25 +552,36 @@ would be interpreted if it were the value; it serves as an example of the input 
 The same interpretation will then be made to the input string. 
 Predefined layouts ANSIC, UnixDate, RFC3339 and others describe standard and convenient representations of the reference time. 
 For more information about the formats and the definition of the reference time, see the documentation for ANSIC and the other constants defined by this package.
-
+如果它是一个值 会解释; 它是输入格式的一个例子。
+相同的解释将输入字符串。
+预定义的布局 ANSIC, UnixDate, RFC3339  和其他描述标准 和 方便的参考时间表示。
+更多信息的格式和引用的定义, 查看这个包定义的ANSIC 文档和 其他常量.
 
 
 Elements omitted from the value are assumed to be zero or, when zero is impossible, one, so parsing "3:04pm" returns the time corresponding to Jan 1, year 0, 15:04:00 UTC 
 (note that because the year is 0, this time is before the zero Time). 
 Years must be in the range 0000..9999. The day of the week is checked for syntax but it is otherwise ignored.
+元素省略 值假定是零或  当可能是零时, 1  所以解析  "3:04pm" 返回时间对应的 Jan 1, year 0, 15:04:00 UTC(注:因为 年是0, 这个时间在 零Time 之前).
+年必须在 0000..9999之间.一周的天 检查语法但另有忽略。
+
 
 In the absence of a time zone indicator, Parse returns a time in UTC.
+在缺乏一个时区指标,Parse 返回 UTC 中的一个时间.
 
 When parsing a time with a zone offset like -0700, if the offset corresponds to a time zone used by the current location (Local), then Parse uses that location and zone in the returned time. 
 Otherwise it records the time as being in a fabricated location with time fixed at the given zone offset.
+当解析一个时间  如-0700, 如果 偏移对应一个当前本地时区,Parse 在返回的时间 使用那个location and zone
 
 When parsing a time with a zone abbreviation like MST, if the zone abbreviation has a defined offset in the current location, then that offset is used. 
 The zone abbreviation "UTC" is recognized as UTC regardless of location. 
 If the zone abbreviation is unknown, Parse records the time as being in a fabricated location with the given zone abbreviation and a zero offset. 
 This choice means that such a time can be parse and reformatted with the same layout losslessly, but the exact instant used in the representation will differ by the actual zone offset. 
 To avoid such problems, prefer time layouts that use a numeric zone offset, or use ParseInLocation.
-
-
+当解析一个时间 用区缩写 如 MST, 如果 区缩写 在当前的 location  有一个定义的偏移, 使用那个offset.
+区缩写"UTC" 主要指UTC而不考虑它们的位置。
+如果区缩写 是未知的, Parse  用给定的 区缩写和区偏移 在 fabricated location 记录时间.
+这个选择意味着  一个时间可以解析 并且重新格式化losslessly相同的格局, 但具体的即时表示将通过实际的不同区域中使用的偏移量。
+为了避免这些问题,喜欢时间布局,使用数字区偏移,或使用ParseInLocation。
 
 
 ▹ Example
@@ -600,15 +611,23 @@ Output:
 
 
 
-
-
 func ParseInLocation
-
+```golang
 func ParseInLocation(layout, value string, loc *Location) (Time, error)
-ParseInLocation is like Parse but differs in two important ways. First, in the absence of time zone information, Parse interprets a time as UTC; ParseInLocation interprets the time as in the given location. Second, when given a zone offset or abbreviation, Parse tries to match it against the Local location; ParseInLocation uses the given location.
+```
+ParseInLocation is like Parse but differs in two important ways. 
+First, in the absence of time zone information, Parse interprets a time as UTC;
+ParseInLocation interprets the time as in the given location. 
+Second, when given a zone offset or abbreviation, Parse tries to match it against the Local location; 
+ParseInLocation uses the given location.
+ParseInLocation 类似 Parse 但是在两个重要方面不一样.
+首先  在缺乏时区信息, Parse 解释为UTC时间;
+ParseInLocation 在给定的location 解释时间.
+其次,当给定 一个 区偏移或 缩写时, Parse 尝试匹配 它 对Local的位置;
+ParseInLocation使用给定的位置。
 
 ▹ Example
-
+```golang
 Code:
 
 loc, _ := time.LoadLocation("Europe/Berlin")
@@ -621,74 +640,137 @@ loc, _ := time.LoadLocation("Europe/Berlin")
     const shortForm = "2006-Jan-02"
     t, _ = time.ParseInLocation(shortForm, "2012-Jul-09", loc)
     fmt.Println(t)
-
+```
     
 Output:
 
+```golang
 2012-07-09 05:02:00 +0200 CEST
 2012-07-09 00:00:00 +0200 CEST
-
+```
 
 
 
 func Unix
-
+```golang
 func Unix(sec int64, nsec int64) Time
-Unix returns the local Time corresponding to the given Unix time, sec seconds and nsec nanoseconds since January 1, 1970 UTC. It is valid to pass nsec outside the range [0, 999999999].
+```
+Unix returns the local Time corresponding to the given Unix time, sec seconds and nsec nanoseconds since January 1, 1970 UTC. 
+It is valid to pass nsec outside the range [0, 999999999].
+Unix 返回本地Time 对应的 指定的 Unix时间,sec秒 和nsec纳秒从 January 1, 1970 UTC 开始.
+它 超过nsec 范围外 是有效的.
+
+
 
 func (Time) Add
-
+```golang
 func (t Time) Add(d Duration) Time
+```
 Add returns the time t+d.
+Add 返回时间t+d.
+
+
 
 func (Time) AddDate
-
+```golang
 func (t Time) AddDate(years int, months int, days int) Time
-AddDate returns the time corresponding to adding the given number of years, months, and days to t. For example, AddDate(-1, 2, 3) applied to January 1, 2011 returns March 4, 2010.
+```
+AddDate returns the time corresponding to adding the given number of years, months, and days to t. 
+For example, AddDate(-1, 2, 3) applied to January 1, 2011 returns March 4, 2010.
 
 AddDate normalizes its result in the same way that Date does, so, for example, adding one month to October 31 yields December 1, the normalized form for November 31.
 
-func (Time) After
+AddDate返回时间对应的添加 给定的 years, months, and days数 到t.
+例如,AddDate(-1, 2, 3)应用到  January 1, 2011  返回  March 4, 2010.
 
+AddDate 规范化Date其结果在相同的方式,因此, 如 添加1个月到October 31  December 1,November 31的标准化形式。
+
+
+
+
+func (Time) After
+```golang
 func (t Time) After(u Time) bool
+```
 After reports whether the time instant t is after u.
+After 报告时间 t 是否在u后面
+
+
 
 func (Time) Before
-
+```golang
 func (t Time) Before(u Time) bool
+````
 Before reports whether the time instant t is before u.
+Before 报告时间 t 是否在u前面
+
+
 
 func (Time) Clock
-
+```golang
 func (t Time) Clock() (hour, min, sec int)
+```
 Clock returns the hour, minute, and second within the day specified by t.
+Clock 返回 在t里的 小时 , 分钟 和秒
+
+
 
 func (Time) Date
-
+```golang
 func (t Time) Date() (year int, month Month, day int)
+```
 Date returns the year, month, and day in which t occurs.
+Date 返回在t 里的 年, 月, 日
+
+
 
 func (Time) Day
-
+```golang
 func (t Time) Day() int
+```
 Day returns the day of the month specified by t.
+Day 返回指定t的日。
+
+
 
 func (Time) Equal
-
+```golang
 func (t Time) Equal(u Time) bool
-Equal reports whether t and u represent the same time instant. Two times can be equal even if they are in different locations. For example, 6:00 +0200 CEST and 4:00 UTC are Equal. This comparison is different from using t == u, which also compares the locations.
+```
+Equal reports whether t and u represent the same time instant. 
+Two times can be equal even if they are in different locations. 
+For example, 6:00 +0200 CEST and 4:00 UTC are Equal. 
+This comparison is different from using t == u, which also compares the locations.
+Equal 报告 t和u 是否表示 相同的时间.
+两次时间即使如果地区不一样也可以相等.
+例如 6:00 +0200 CEST 和 4:00 UTC相等
+这个比较和使用 t == u 不一样, 它也可以比较地区.
+
 
 func (Time) Format
-
+```golang
 func (t Time) Format(layout string) string
+```
 Format returns a textual representation of the time value formatted according to layout, which defines the format by showing how the reference time,
+Format 返回一个 时间值 根据layout 格式化的  纯文本表示, 其中定义了 格式 通过 展示参考时间,
 
+```golang
 Mon Jan 2 15:04:05 -0700 MST 2006
-would be displayed if it were the value; it serves as an example of the desired output. The same display rules will then be applied to the time value. Predefined layouts ANSIC, UnixDate, RFC3339 and others describe standard and convenient representations of the reference time. For more information about the formats and the definition of the reference time, see the documentation for ANSIC and the other constants defined by this package.
+```
+
+would be displayed if it were the value; it serves as an example of the desired output. 
+The same display rules will then be applied to the time value. 
+Predefined layouts ANSIC, UnixDate, RFC3339 and others describe standard and convenient representations of the reference time. 
+For more information about the formats and the definition of the reference time, see the documentation for ANSIC and the other constants defined by this package.
+如果它是值, 将会显示.它是所需的输出的一个示例。
+时间值适用相同的显示规则.
+预定义的布局 ANSIC, UnixDate, RFC3339  和其他描述标准 和 方便的参考时间表示。
+更多信息的格式和引用的定义, 查看这个包定义的ANSIC 文档和 其他常量.
+
 
 
 ▹ Example
-
+```golang
 package main
 
 import (
@@ -703,90 +785,150 @@ func main() {
 	fmt.Println(t.Format(layout))
 	fmt.Println(t.UTC().Format(layout))
 }
+```
 
 
 
 func (*Time) GobDecode
-
+```golang
 func (t *Time) GobDecode(data []byte) error
+```
 GobDecode implements the gob.GobDecoder interface.
+GobDecode实现 GobDecode接口
+
+
 
 func (Time) GobEncode
-
+```golang
 func (t Time) GobEncode() ([]byte, error)
+```
 GobEncode implements the gob.GobEncoder interface.
+GobEncode 实现 gob.GobEncoder 接口
+
+
 
 func (Time) Hour
-
+```golang
 func (t Time) Hour() int
+```
 Hour returns the hour within the day specified by t, in the range [0, 23].
+Hour 返回t的小时, 范围在 [0, 23].
+
+
 
 func (Time) ISOWeek
-
+```golang
 func (t Time) ISOWeek() (year, week int)
-ISOWeek returns the ISO 8601 year and week number in which t occurs. Week ranges from 1 to 53. Jan 01 to Jan 03 of year n might belong to week 52 or 53 of year n-1, and Dec 29 to Dec 31 might belong to week 1 of year n+1.
+```
+ISOWeek returns the ISO 8601 year and week number in which t occurs. 
+Week ranges from 1 to 53. Jan 01 to Jan 03 of year n might belong to week 52 or 53 of year n-1, and Dec 29 to Dec 31 might belong to week 1 of year n+1.
+ISOWeek 返回t的  ISO 8601 年和周数. 周的范围 从1 到53. 每年的1月1日到1月3日,n可能属于52 星期或 53 年n - 1 ,12月29日至12月31日可能属于n + 1 年 1周。
+
+
 
 func (Time) In
-
+```golang
 func (t Time) In(loc *Location) Time
+```
 In returns t with the location information set to loc.
-
 In panics if loc is nil.
+在返回t 位置信息设置到loc 。如果loc是nil 会引发panic
+
+
 
 func (Time) IsZero
-
+```golang
 func (t Time) IsZero() bool
+```
 IsZero reports whether t represents the zero time instant, January 1, year 1, 00:00:00 UTC.
+IsZero 报告 t 是否表示零时间, January 1, year 1, 00:00:00 UTC.
+
+
 
 func (Time) Local
-
+```golang
 func (t Time) Local() Time
+```
 Local returns t with the location set to local time.
+Local 返回当地时间t的位置设置。
+
+
 
 func (Time) Location
-
+```golang
 func (t Time) Location() *Location
+```
 Location returns the time zone information associated with t.
+Location 返回t 对应的时区信息.
+
+
 
 func (Time) MarshalBinary
-
+```golang
 func (t Time) MarshalBinary() ([]byte, error)
+```
 MarshalBinary implements the encoding.BinaryMarshaler interface.
+MarshalBinary实现 encoding.BinaryMarshaler 接口
+
+
 
 func (Time) MarshalJSON
-
+```golang
 func (t Time) MarshalJSON() ([]byte, error)
+```
 MarshalJSON implements the json.Marshaler interface. The time is a quoted string in RFC 3339 format, with sub-second precision added if present.
+MarshalJSON 实现json.Marshaler 接口.  时间引号字符串在 RFC 3339格式,  如果现在添加了次秒级精度。
+
+
 
 func (Time) MarshalText
-
+```golang
 func (t Time) MarshalText() ([]byte, error)
+```
 MarshalText implements the encoding.TextMarshaler interface. The time is formatted in RFC 3339 format, with sub-second precision added if present.
+MarshalText 实现 encoding.TextMarshaler  接口.  实现 是用  RFC 3339 格式 格式化的,如果现在添加了次秒级精度。
+
+
 
 func (Time) Minute
-
+```golang
 func (t Time) Minute() int
+```
 Minute returns the minute offset within the hour specified by t, in the range [0, 59].
+Minute 返回指定t 里的 分钟偏移,范围 [0, 59].
+
+
 
 func (Time) Month
-
+```golang
 func (t Time) Month() Month
+```
 Month returns the month of the year specified by t.
+Month 返回指定t的月份.
+
+
 
 func (Time) Nanosecond
-
+```golang
 func (t Time) Nanosecond() int
+```
 Nanosecond returns the nanosecond offset within the second specified by t, in the range [0, 999999999].
+Nanosecond 返回指定t的 纳秒偏移,范围  [0, 999999999].
+
+
 
 func (Time) Round
-
+```golang
 func (t Time) Round(d Duration) Time
-Round returns the result of rounding t to the nearest multiple of d (since the zero time). The rounding behavior for halfway values is to round up. If d <= 0, Round returns t unchanged.
-
+```
+Round returns the result of rounding t to the nearest multiple of d (since the zero time). 
+The rounding behavior for halfway values is to round up. If d <= 0, Round returns t unchanged.
+Round 返回 舍入t 最接近的d 的结果
+中间值舍入行为是圆的。 如果d <= 0, Round 返回的t不会修改
 
 
 ▹ Example
-
+```golang
 package main
 
 import (
@@ -811,36 +953,54 @@ func main() {
 		fmt.Printf("t.Round(%6s) = %s\n", d, t.Round(d).Format("15:04:05.999999999"))
 	}
 }
-
+```
 
 
 
 func (Time) Second
-
+```golang
 func (t Time) Second() int
+```
 Second returns the second offset within the minute specified by t, in the range [0, 59].
+Second 返回t的秒 , 范围  [0, 59].
+
+
 
 func (Time) String
-
+```golang
 func (t Time) String() string
+```
 String returns the time formatted using the format string
-
+String 适用字符串格式化 时间
+```golang
 "2006-01-02 15:04:05.999999999 -0700 MST"
-func (Time) Sub
+```
 
+
+func (Time) Sub
+```golang
 func (t Time) Sub(u Time) Duration
-Sub returns the duration t-u. If the result exceeds the maximum (or minimum) value that can be stored in a Duration, the maximum (or minimum) duration will be returned. To compute t-d for a duration d, use t.Add(-d).
+```
+Sub returns the duration t-u. 
+If the result exceeds the maximum (or minimum) value that can be stored in a Duration, the maximum (or minimum) duration will be returned. 
+To compute t-d for a duration d, use t.Add(-d).
+Sub 返回 时间 t-u. 
+如果结果 超过 存储在 Duration里的最大值,  最大值时间将会返回,.
+为了计算 t-d 的时间d, 使用t.Add(-d).
+
+
 
 func (Time) Truncate
-
+```golang
 func (t Time) Truncate(d Duration) Time
+```
 Truncate returns the result of rounding t down to a multiple of d (since the zero time). If d <= 0, Truncate returns t unchanged.	
-
+Truncate 返回结果的舍入t的d(自零时间)。 如果d<=0, Truncate 返回的t不会修改.
 
 
 
 ▹ Example
-
+```golang
 package main
 
 import (
@@ -866,92 +1026,158 @@ func main() {
 	}
 
 }
+```
 
 
 
 func (Time) UTC
-
+```golang
 func (t Time) UTC() Time
+```
 UTC returns t with the location set to UTC.
+UTC 返回 地区设置为UTC的t 
+
+
 
 func (Time) Unix
-
+```golang
 func (t Time) Unix() int64
+```
 Unix returns t as a Unix time, the number of seconds elapsed since January 1, 1970 UTC.
+Unix 返回一个 Unix时间t,  秒数从  January 1, 1970 UTC.开始.
+
+
 
 func (Time) UnixNano
-
+```golang
 func (t Time) UnixNano() int64
-UnixNano returns t as a Unix time, the number of nanoseconds elapsed since January 1, 1970 UTC. The result is undefined if the Unix time in nanoseconds cannot be represented by an int64. Note that this means the result of calling UnixNano on the zero Time is undefined.
+```
+UnixNano returns t as a Unix time, the number of nanoseconds elapsed since January 1, 1970 UTC. 
+The result is undefined if the Unix time in nanoseconds cannot be represented by an int64. Note that this means the result of calling UnixNano on the zero Time is undefined.
+UnixNano 返回一个Unix 时间t. 纳秒数从  January 1, 1970 UTC 开始.
+如果Unix 在纳秒里不能用 int64 表示, 结果是 undefined. 注: 这样意味着 在零Time 上调用 UnixNano 结果是 undefined
+
+
 
 func (*Time) UnmarshalBinary
-
+```golang
 func (t *Time) UnmarshalBinary(data []byte) error
+```
 UnmarshalBinary implements the encoding.BinaryUnmarshaler interface.
+UnmarshalBinary 实现 encoding.BinaryUnmarshaler 接口
+
 
 func (*Time) UnmarshalJSON
-
+```golang
 func (t *Time) UnmarshalJSON(data []byte) (err error)
+```
 UnmarshalJSON implements the json.Unmarshaler interface. The time is expected to be a quoted string in RFC 3339 format.
+UnmarshalJSON 实现  json.Unmarshaler 接口. 时间预计将在RFC 3339格式。 
+
+
 
 func (*Time) UnmarshalText
-
+```golang
 func (t *Time) UnmarshalText(data []byte) (err error)
+```
 UnmarshalText implements the encoding.TextUnmarshaler interface. The time is expected to be in RFC 3339 format.
+UnmarshalText 实现 encoding.TextUnmarshaler 接口.时间预计将在RFC 3339格式。 
+
+
 
 func (Time) Weekday
-
+```golang
 func (t Time) Weekday() Weekday
+```
 Weekday returns the day of the week specified by t.
+Weekday 返回t的周
+
+
 
 func (Time) Year
-
+```golang
 func (t Time) Year() int
+```
 Year returns the year in which t occurs.
+Year 返回t 的 年.
+
+
 
 func (Time) YearDay
-
+```golang
 func (t Time) YearDay() int
+```
 YearDay returns the day of the year specified by t, in the range [1,365] for non-leap years, and [1,366] in leap years.
+YearDay  返回t的年 , 范围 不是 闰年 [1,365], 闰年[1,366]
+
+
 
 func (Time) Zone
-
+```golang
 func (t Time) Zone() (name string, offset int)
+```
 Zone computes the time zone in effect at time t, returning the abbreviated name of the zone (such as "CET") and its offset in seconds east of UTC.
+Zone 计算 时间t 的时区. 返回时区缩写 (例如"CET") 和UTC东 秒偏移
+
+
 
 type Timer
-
+```golang
 type Timer struct {
         C <-chan Time
         // contains filtered or unexported fields
 }
+```
 The Timer type represents a single event. When the Timer expires, the current time will be sent on C, unless the Timer was created by AfterFunc.
+Timer类型表示单个事件. 当 Timer 过期,  当前时间将会发送C,除非Timer是由AfterFunc创建的。
+
 
 func AfterFunc
-
+```golang
 func AfterFunc(d Duration, f func()) *Timer
+```
 AfterFunc waits for the duration to elapse and then calls f in its own goroutine. It returns a Timer that can be used to cancel the call using its Stop method.
+AfterFunc 等待 时间过去, 然后在它的goroutine 调用f. 它返回 一个Timer  可以用来 放弃调用  使用它的Stop方法.
+
+
 
 func NewTimer
-
+```golang
 func NewTimer(d Duration) *Timer
+```
 NewTimer creates a new Timer that will send the current time on its channel after at least duration d.
+NewTimer 创建一个新的 Timer 将发送当前时间 channel 在至少d时间后.
+
+
 
 func (*Timer) Reset
-
+```golang
 func (t *Timer) Reset(d Duration) bool
+```
 Reset changes the timer to expire after duration d. It returns true if the timer had been active, false if the timer had expired or been stopped.
+Reset 在时间d 之后修改timer过期. 如果timer 被激活 它返回true.如果 timer 过期或已经停止, 返回false.
+
 
 func (*Timer) Stop
-
+```golang
 func (t *Timer) Stop() bool
-Stop prevents the Timer from firing. It returns true if the call stops the timer, false if the timer has already expired or been stopped. Stop does not close the channel, to prevent a read from the channel succeeding incorrectly.
+```
+Stop prevents the Timer from firing.
+It returns true if the call stops the timer, false if the timer has already expired or been stopped. 
+Stop does not close the channel, to prevent a read from the channel succeeding incorrectly.
+Stop防止Timer射击。
+如果调用停止timer 返回true. 如果timer已经过期 或已经停止 返回false.
+Stop 不会关闭 channel,为了防止从通道读取成功不正确。
+
 
 type Weekday
-
+```golang
 type Weekday int
+```
 A Weekday specifies a day of the week (Sunday = 0, ...).
+Weekday 指定 周 (Sunday = 0, ...).
 
+```golang
 const (
         Sunday Weekday = iota
         Monday
@@ -961,11 +1187,14 @@ const (
         Friday
         Saturday
 )
+```
+
 func (Weekday) String
-
+```golang
 func (d Weekday) String() string
+```
 String returns the English name of the day ("Sunday", "Monday", ...).
-
+String 返回日期的英文名 ("Sunday", "Monday", ...).
 
 
 
